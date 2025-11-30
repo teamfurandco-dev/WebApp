@@ -1,0 +1,26 @@
+[
+  {
+    "id": "cat_dog_food",
+    "name": "Dog Food",
+    "image": "https://images.unsplash.com/photo-1589924691195-41432c84c161?q=80&w=1000&auto=format&fit=crop",
+    "slug": "dog-food"
+  },
+  {
+    "id": "cat_cat_food",
+    "name": "Cat Food",
+    "image": "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1000&auto=format&fit=crop",
+    "slug": "cat-food"
+  },
+  {
+    "id": "cat_toys",
+    "name": "Toys",
+    "image": "https://images.unsplash.com/photo-1576201836106-db1758fd1c97?q=80&w=1000&auto=format&fit=crop",
+    "slug": "toys"
+  },
+  {
+    "id": "cat_accessories",
+    "name": "Accessories",
+    "image": "https://images.unsplash.com/photo-1591946614720-90a587da4a36?q=80&w=1000&auto=format&fit=crop",
+    "slug": "accessories"
+  }
+]
