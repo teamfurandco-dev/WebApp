@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { User, Package, MapPin, Heart, LogOut } from 'lucide-react';
+import { User, Package, MapPin, Heart, LogOut, Mail, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -19,25 +19,61 @@ const SidebarLink = ({ to, icon: Icon, label, active }) => (
 
 const ProfileDashboard = ({ user }) => (
   <div className="space-y-6">
-    <Card>
-      <CardHeader>
-        <CardTitle>Profile Information</CardTitle>
-        <CardDescription>Update your account details</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-20 w-20">
-            <AvatarImage src={user.avatar} />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-          <div>
-            <h3 className="text-lg font-medium">{user.name}</h3>
-            <p className="text-muted-foreground">{user.email}</p>
-          </div>
-          <Button variant="outline" className="ml-auto">Edit Profile</Button>
+    <div className="relative overflow-hidden rounded-[2.5rem] bg-[#FDFBF7] p-8 md:p-12 shadow-[0_20px_40px_-15px_rgba(251,191,36,0.15)] border border-stone-100">
+      {/* Linen Texture Overlay */}
+      <div className="absolute inset-0 opacity-[0.4] pointer-events-none mix-blend-multiply"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 3h1v1H1V3zm2-2h1v1H3V1z' fill='%23A8A29E' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+        }}
+      />
+
+      <div className="relative z-10">
+        <div className="mb-12 border-b border-stone-200/60 pb-8">
+          <h2 className="text-4xl font-serif font-bold text-[#1F1F1F] mb-3 tracking-tight">Profile Information</h2>
+          <p className="text-[#6B7280] font-sans text-lg tracking-wide font-light">Update your account details</p>
         </div>
-      </CardContent>
-    </Card>
+
+        <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
+          {/* Avatar with Golden Ring */}
+          <div className="relative group shrink-0">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-yellow-400 to-yellow-200 blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
+            <div className="relative h-40 w-40 rounded-full p-1.5 bg-gradient-to-br from-[#D4AF37] via-[#FBBF24] to-[#D4AF37] shadow-2xl">
+              <Avatar className="h-full w-full border-[6px] border-white bg-white">
+                <AvatarImage src={user.avatar} className="object-cover" />
+                <AvatarFallback className="bg-stone-50 text-4xl font-serif text-stone-400">
+                  {user.name.split(' ').map(n => n[0]).join('')}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+          </div>
+
+          <div className="flex-1 text-center md:text-left space-y-6 w-full">
+            <div>
+              <h3 className="text-4xl font-serif font-bold text-[#1F1F1F] mb-3">{user.name}</h3>
+              <div className="flex items-center justify-center md:justify-start gap-3 text-[#6B7280] font-medium text-lg">
+                <div className="p-2 bg-white rounded-full shadow-sm border border-stone-100 text-[#D4AF37]">
+                   <Mail className="w-5 h-5" />
+                </div>
+                <span className="tracking-wide font-light">{user.email}</span>
+              </div>
+            </div>
+            
+            <div className="pt-4">
+               <Button 
+                className="relative overflow-hidden rounded-full bg-[#FBBF24] hover:bg-[#F59E0B] text-white px-10 py-7 text-lg font-bold shadow-[0_10px_20px_rgba(251,191,36,0.3)] hover:shadow-[0_15px_30px_rgba(251,191,36,0.4)] transition-all duration-300 group"
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 left-0 w-full h-1/2 bg-white/20 blur-sm" />
+                <span className="relative flex items-center gap-3">
+                  Edit Profile
+                  <Pencil className="w-5 h-5 stroke-[2.5]" />
+                </span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 );
 
@@ -143,7 +179,7 @@ const Profile = () => {
   if (!user) return <div className="container py-12">Please login to view profile.</div>;
 
   return (
-    <div className="container px-4 md:px-6 py-12">
+    <div className="container px-4 md:px-6 pt-32 pb-12">
       <div className="grid md:grid-cols-4 gap-8">
         {/* Sidebar */}
         <aside className="md:col-span-1 space-y-2">

@@ -5,9 +5,9 @@ import { Toaster } from '@/components/ui/sonner';
 
 const MainLayout = () => {
   return (
-    <div className="flex min-h-screen flex-col bg-background font-sans antialiased">
+    <div className="w-full flex min-h-screen flex-col bg-background font-sans antialiased">
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 w-full">
         <Outlet />
       </main>
       <Footer />

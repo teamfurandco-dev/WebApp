@@ -1,50 +1,96 @@
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Star } from 'lucide-react';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { ShoppingCart, Heart, Bone } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { motion } from 'framer-motion';
 
 const ProductCard = ({ product }) => {
   return (
-    <Card className="h-full flex flex-col overflow-hidden group hover:shadow-lg transition-shadow border-border/50">
-      <div className="relative aspect-square overflow-hidden bg-secondary/20">
-        {product.isNew && (
-          <Badge className="absolute top-2 left-2 z-10 bg-primary text-primary-foreground hover:bg-primary">New</Badge>
-        )}
-        {product.isBestSeller && !product.isNew && (
-          <Badge className="absolute top-2 left-2 z-10 bg-furco-gold text-white hover:bg-furco-gold">Best Seller</Badge>
-        )}
-        <img
-          src={product.images[0]}
-          alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-      </div>
-      <CardContent className="flex-1 p-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-muted-foreground font-medium">{product.category}</span>
-          <div className="flex items-center gap-1 text-yellow-500">
-            <Star className="h-3 w-3 fill-current" />
-            <span className="text-xs font-medium text-foreground">{product.rating}</span>
-          </div>
-        </div>
-        <Link to={`/product/${product.id}`} className="group-hover:underline">
-          <h3 className="font-semibold text-lg leading-tight mb-2 line-clamp-2">{product.name}</h3>
-        </Link>
-        <div className="flex items-baseline gap-2">
-          <span className="text-xl font-bold text-primary">₹{product.price}</span>
-          {product.originalPrice > product.price && (
-            <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice}</span>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+      className="h-full"
+    >
+      <Card className="h-full flex flex-col overflow-hidden group border-none shadow-sm hover:shadow-xl transition-all duration-500 rounded-[2rem] rounded-tr-[4rem] bg-white relative">
+        
+        {/* Badges - Speech Bubble Style */}
+        <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+          {product.isNew && (
+            <div className="bg-furco-yellow text-black px-3 py-1 text-xs font-bold uppercase tracking-wider shadow-md rounded-xl rounded-bl-none">
+              New
+            </div>
+          )}
+          {product.isBestSeller && !product.isNew && (
+            <div className="bg-black text-white px-3 py-1 text-xs font-bold uppercase tracking-wider shadow-md rounded-xl rounded-bl-none">
+              Bestseller
+            </div>
           )}
         </div>
-      </CardContent>
-      <CardFooter className="p-4 pt-0">
-        <Button className="w-full gap-2 bg-furco-black text-white hover:bg-furco-brown-dark">
-          <ShoppingCart className="h-4 w-4" />
-          Add to Cart
-        </Button>
-      </CardFooter>
-    </Card>
+
+        {/* Wishlist Button */}
+        <button className="absolute top-4 right-4 z-20 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-furco-yellow transition-colors duration-300 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0">
+          <Heart className="w-5 h-5 text-black" />
+        </button>
+
+        {/* Image Container with "Second Look" Effect */}
+        <Link to={`/product/${product.id}`} className="relative aspect-square overflow-hidden bg-[#FDFBF7] block">
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+          {/* Optional: Second image overlay for hover if available */}
+          {product.images[1] && (
+            <img
+              src={product.images[1]}
+              alt={`${product.name} alternate`}
+              className="absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            />
+          )}
+        </Link>
+
+        {/* Content */}
+        <CardContent className="flex-1 p-6 flex flex-col">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{product.category}</span>
+            <div className="flex items-center gap-1">
+              <Bone className="h-3.5 w-3.5 fill-furco-yellow text-furco-yellow rotate-45" />
+              <span className="text-sm font-bold text-black">{product.rating}</span>
+            </div>
+          </div>
+
+          <Link to={`/product/${product.id}`} className="mb-2 block">
+            <h3 className="font-serif font-bold text-xl leading-tight text-black group-hover:text-furco-gold transition-colors line-clamp-2">
+              {product.name}
+            </h3>
+          </Link>
+
+          <div className="mt-auto pt-4 flex items-end justify-between gap-4">
+            <div className="flex flex-col">
+              {product.originalPrice > product.price && (
+                <span className="text-sm text-muted-foreground line-through decoration-black/30 font-medium">
+                  ₹{product.originalPrice}
+                </span>
+              )}
+              <span className="text-2xl font-bold text-furco-yellow">
+                ₹{product.price}
+              </span>
+            </div>
+
+            {/* Add to Cart Button */}
+            <Button 
+              className="rounded-full w-12 h-12 p-0 bg-black text-white hover:bg-furco-yellow hover:text-black hover:scale-110 active:scale-95 transition-all duration-300 shadow-lg"
+            >
+              <ShoppingCart className="h-5 w-5" />
+              <span className="sr-only">Add to Cart</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
