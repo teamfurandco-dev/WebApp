@@ -16,9 +16,9 @@ const NotFound = () => <div className="container py-10 text-center text-xl">404 
 
 function App() {
   return (
-    <Router>
+    <Router basename="/WebApp">
       <Routes>
-        <Route path="/WebApp" element={<MainLayout />}>
+        <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
           <Route path="products" element={<ProductList />} />
           <Route path="product/:id" element={<ProductDetail />} />
