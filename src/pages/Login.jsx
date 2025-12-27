@@ -4,25 +4,37 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { api } from '@/services/api';
 import { toast } from 'sonner';
+import { useAuth } from '@/context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { signIn, signInWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.login('test@example.com', 'password');
+      const { error } = await signIn(email, password);
+      if (error) throw error;
       toast.success("Welcome back!");
       navigate('/account');
     } catch (error) {
-      toast.error("Login failed");
+      toast.error(error.message || "Login failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) throw error;
+    } catch (error) {
+      toast.error(error.message || "Google login failed");
     }
   };
 
@@ -37,10 +49,10 @@ const Login = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-6">
-            <Button variant="outline">
+            <Button variant="outline" onClick={handleGoogleLogin}>
               Google
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" disabled>
               Facebook
             </Button>
           </div>
@@ -57,7 +69,14 @@ const Login = () => {
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" required />
+              <Input 
+                id="email" 
+                type="email" 
+                placeholder="m@example.com" 
+                required 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -66,7 +85,13 @@ const Login = () => {
                   Forgot password?
                 </Link>
               </div>
-              <Input id="password" type="password" required />
+              <Input 
+                id="password" 
+                type="password" 
+                required 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
             <Button type="submit" className="w-full bg-furco-black text-white hover:bg-furco-brown-dark" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign In'}

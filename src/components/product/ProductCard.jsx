@@ -4,8 +4,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
+import { formatPrice, cn } from '@/lib/utils';
+import { useWishlist } from '@/context/WishlistContext';
 
 const ProductCard = ({ product }) => {
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const isWishlisted = isInWishlist(product.id);
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -31,19 +36,28 @@ const ProductCard = ({ product }) => {
         </div>
 
         {/* Wishlist Button */}
-        <button className="absolute top-4 right-4 z-20 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-furco-yellow transition-colors duration-300 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0">
-          <Heart className="w-5 h-5 text-black" />
+        <button 
+          onClick={(e) => {
+            e.preventDefault();
+            toggleWishlist(product.id);
+          }}
+          className={cn(
+            "absolute top-4 right-4 z-20 p-2 rounded-full bg-white/80 backdrop-blur-sm transition-colors duration-300 transform translate-y-2 group-hover:translate-y-0",
+            isWishlisted ? "text-red-500 opacity-100" : "opacity-0 group-hover:opacity-100 hover:bg-furco-yellow text-black"
+          )}
+        >
+          <Heart className={cn("w-5 h-5", isWishlisted && "fill-current")} />
         </button>
 
         {/* Image Container with "Second Look" Effect */}
         <Link to={`/product/${product.id}`} className="relative aspect-square overflow-hidden bg-[#FDFBF7] block">
           <img
-            src={product.images[0]}
+            src={product.images?.[0] || product.image}
             alt={product.name}
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
           {/* Optional: Second image overlay for hover if available */}
-          {product.images[1] && (
+          {product.images?.[1] && (
             <img
               src={product.images[1]}
               alt={`${product.name} alternate`}
@@ -70,13 +84,13 @@ const ProductCard = ({ product }) => {
 
           <div className="mt-auto pt-4 flex items-end justify-between gap-4">
             <div className="flex flex-col">
-              {product.originalPrice > product.price && (
+              {product.compare_at_price_cents > product.base_price_cents && (
                 <span className="text-sm text-muted-foreground line-through decoration-black/30 font-medium">
-                  ₹{product.originalPrice}
+                  {formatPrice(product.compare_at_price_cents)}
                 </span>
               )}
               <span className="text-2xl font-bold text-furco-yellow">
-                ₹{product.price}
+                {formatPrice(product.base_price_cents)}
               </span>
             </div>
 

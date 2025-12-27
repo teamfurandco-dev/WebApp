@@ -4,6 +4,7 @@ import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { formatPrice } from '@/lib/utils';
 
 const ProductCarousel = ({ title, products }) => {
   const scrollRef = useRef(null);
@@ -57,7 +58,7 @@ const ProductCarousel = ({ title, products }) => {
                   {/* Image Container */}
                   <div className="relative h-[300px] bg-gray-50 overflow-hidden">
                     <img 
-                      src={product.image} 
+                      src={product.images?.[0] || product.image} 
                       alt={product.name} 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
@@ -85,11 +86,11 @@ const ProductCarousel = ({ title, products }) => {
                     </h3>
                     <div className="mt-auto flex items-baseline gap-3">
                       <span className="text-2xl font-bold text-furco-yellow">
-                        ${product.price}
+                        {formatPrice(product.base_price_cents)}
                       </span>
-                      {product.originalPrice && (
+                      {product.compare_at_price_cents > product.base_price_cents && (
                         <span className="text-sm text-muted-foreground line-through decoration-black/30">
-                          ${product.originalPrice}
+                          {formatPrice(product.compare_at_price_cents)}
                         </span>
                       )}
                     </div>

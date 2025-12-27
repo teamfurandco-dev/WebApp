@@ -1,9 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
+import { AuthProvider } from '@/context/AuthContext';
+import { WishlistProvider } from '@/context/WishlistContext';
 import Home from '@/pages/Home';
 import ProductList from '@/pages/ProductList';
 import ProductDetail from '@/pages/ProductDetail';
 import Cart from '@/pages/Cart';
+import Wishlist from '@/pages/Wishlist';
 import Checkout from '@/pages/Checkout';
 import Login from '@/pages/Login';
 import Signup from '@/pages/Signup';
@@ -18,22 +21,27 @@ const NotFound = () => <div className="container py-10 text-center text-xl">404 
 function App() {
   return (
     <Router basename="/WebApp">
-      <Routes>
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<Home />} />
-          <Route path="products" element={<ProductList />} />
-          <Route path="product/:id" element={<ProductDetail />} />
-          <Route path="cart" element={<Cart />} />
-          <Route path="checkout" element={<Checkout />} />
-          <Route path="login" element={<Login />} />
-          <Route path="signup" element={<Signup />} />
-          <Route path="account/*" element={<Profile />} />
-          <Route path="about" element={<About />} />
-          <Route path="blog" element={<Blog />} />
-          <Route path="blog/:id" element={<BlogPost />} />
-          <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
+      <AuthProvider>
+        <WishlistProvider>
+          <Routes>
+            <Route path="/" element={<MainLayout />}>
+              <Route index element={<Home />} />
+              <Route path="products" element={<ProductList />} />
+              <Route path="product/:id" element={<ProductDetail />} />
+              <Route path="cart" element={<Cart />} />
+              <Route path="wishlist" element={<Wishlist />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="login" element={<Login />} />
+              <Route path="signup" element={<Signup />} />
+              <Route path="account/*" element={<Profile />} />
+              <Route path="about" element={<About />} />
+              <Route path="blog" element={<Blog />} />
+              <Route path="blog/:id" element={<BlogPost />} />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </WishlistProvider>
+      </AuthProvider>
     </Router>
   );
 }

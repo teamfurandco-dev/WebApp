@@ -10,7 +10,9 @@ import { Star, Heart, Minus, Plus, Share2, Truck, RotateCcw, Play, PawPrint, Che
 import { toast } from 'sonner';
 import ProductCard from '@/components/product/ProductCard';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
+import { useWishlist } from '@/context/WishlistContext';
+import ProductQA from '@/components/product/ProductQA';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -20,6 +22,9 @@ const ProductDetail = () => {
   const [selectedVariant, setSelectedVariant] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
+
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const isWishlisted = product ? isInWishlist(product.id) : false;
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -69,9 +74,9 @@ const ProductDetail = () => {
   }
 
   // Mocking specific data for the "Wholesome Kibble" feel if missing
-  const discountPercentage = 10;
-  const salePrice = product.price;
-  const originalPrice = Math.round(product.price * 1.1); // Mock original price for demo
+  const discountPercentage = product.compare_at_price_cents 
+    ? Math.round(((product.compare_at_price_cents - product.base_price_cents) / product.compare_at_price_cents) * 100)
+    : 0;
 
   return (
     <div className="w-full min-h-screen bg-[#FDFBF7] relative">
@@ -93,7 +98,7 @@ const ProductDetail = () => {
               className="relative aspect-square rounded-[2.5rem] bg-white shadow-2xl overflow-hidden group"
             >
                <img 
-                 src={product.images[activeImage]} 
+                 src={product.images?.[activeImage] || product.image} 
                  alt={product.name} 
                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                />
@@ -103,7 +108,7 @@ const ProductDetail = () => {
 
             {/* Thumbnails */}
             <div className="flex gap-4 justify-center">
-              {product.images.map((img, index) => (
+              {(product.images || [product.image]).map((img, index) => (
                 <button 
                   key={index} 
                   onClick={() => setActiveImage(index)}
@@ -155,11 +160,15 @@ const ProductDetail = () => {
 
             {/* Price Block */}
             <div className="flex items-end gap-4">
-              <span className="text-5xl font-bold text-furco-yellow">₹{salePrice}</span>
-              <span className="text-2xl text-black/40 line-through mb-2">₹{originalPrice}</span>
-              <Badge className="mb-2 bg-[#1F1F1F] text-white hover:bg-black px-3 py-1 text-sm rounded-full shadow-lg">
-                {discountPercentage}% OFF
-              </Badge>
+              <span className="text-5xl font-bold text-furco-yellow">{formatPrice(product.base_price_cents)}</span>
+              {product.compare_at_price_cents > product.base_price_cents && (
+                <span className="text-2xl text-black/40 line-through mb-2">{formatPrice(product.compare_at_price_cents)}</span>
+              )}
+              {discountPercentage > 0 && (
+                <Badge className="mb-2 bg-[#1F1F1F] text-white hover:bg-black px-3 py-1 text-sm rounded-full shadow-lg">
+                  {discountPercentage}% OFF
+                </Badge>
+              )}
             </div>
 
             {/* Size Selection */}
@@ -221,8 +230,18 @@ const ProductDetail = () => {
                 </span>
               </Button>
 
-              <Button variant="outline" size="icon" className="h-14 w-14 rounded-full border-2 border-black/10 hover:border-furco-yellow hover:text-furco-yellow hover:bg-white transition-colors">
-                <Heart className="h-6 w-6" />
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={() => toggleWishlist(product.id)}
+                className={cn(
+                  "h-14 w-14 rounded-full border-2 transition-colors",
+                  isWishlisted 
+                    ? "border-red-500 bg-red-50 text-red-500 hover:bg-red-100 hover:border-red-600" 
+                    : "border-black/10 hover:border-furco-yellow hover:text-furco-yellow hover:bg-white"
+                )}
+              >
+                <Heart className={cn("h-6 w-6", isWishlisted && "fill-current")} />
               </Button>
             </div>
 
@@ -253,14 +272,14 @@ const ProductDetail = () => {
         {/* Bottom Section: Tabs */}
         <div className="max-w-5xl mx-auto mb-24">
           <Tabs defaultValue="description" className="w-full">
-            <TabsList className="w-full justify-start border-b border-black/10 bg-transparent p-0 h-auto gap-8">
-              {['Description', 'Ingredients', 'Reviews'].map((tab) => (
+            <TabsList className="w-full justify-start border-b border-black/10 bg-transparent p-0 h-auto gap-8 overflow-x-auto hide-scrollbar">
+              {['Description', 'Ingredients', 'Reviews', 'Q&A'].map((tab) => (
                 <TabsTrigger 
                   key={tab} 
-                  value={tab.toLowerCase()} 
-                  className="relative rounded-none border-none bg-transparent px-0 py-4 text-lg font-serif font-bold text-black/40 data-[state=active]:text-black data-[state=active]:shadow-none transition-colors"
+                  value={tab.toLowerCase().replace('&', '')} 
+                  className="relative rounded-none border-none bg-transparent px-0 py-4 text-lg font-serif font-bold text-black/40 data-[state=active]:text-black data-[state=active]:shadow-none transition-colors whitespace-nowrap"
                 >
-                  {tab === 'Reviews' ? `Customer Reviews (${product.reviewsCount})` : `Product ${tab}`}
+                  {tab === 'Reviews' ? `Customer Reviews (${product.reviewsCount})` : tab === 'Q&A' ? 'Questions & Answers' : `Product ${tab}`}
                   <span className="absolute bottom-0 left-0 w-full h-1 bg-furco-yellow scale-x-0 transition-transform duration-300 data-[state=active]:scale-x-100 origin-left" />
                   {/* Active Indicator Hack for Radix UI Tabs Trigger to animate custom underline */}
                   <div className="absolute bottom-0 left-0 w-full h-1 bg-furco-yellow scale-x-0 transition-transform duration-300 origin-left [.data-[state=active]_&]:scale-x-100" />
@@ -348,6 +367,10 @@ const ProductDetail = () => {
                   ))}
                 </div>
               </TabsContent>
+
+              <TabsContent value="qa" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                 <ProductQA productId={id} />
+              </TabsContent>
             </div>
           </Tabs>
         </div>
@@ -367,7 +390,7 @@ const ProductDetail = () => {
                     </div>
                     <div className="space-y-1">
                       <h4 className="font-bold line-clamp-1">{product.name}</h4>
-                      <span className="text-furco-yellow font-bold">₹{product.price}</span>
+                      <span className="text-furco-yellow font-bold">{formatPrice(product.base_price_cents)}</span>
                     </div>
                   </div>
 
@@ -380,7 +403,7 @@ const ProductDetail = () => {
                     </div>
                     <div className="space-y-1">
                       <h4 className="font-bold line-clamp-1">{relatedProducts[0].name}</h4>
-                      <span className="text-black/60 font-bold">₹{relatedProducts[0].price}</span>
+                      <span className="text-black/60 font-bold">{formatPrice(relatedProducts[0].base_price_cents)}</span>
                     </div>
                   </div>
 
@@ -393,7 +416,7 @@ const ProductDetail = () => {
                     </div>
                     <div className="space-y-1">
                       <h4 className="font-bold line-clamp-1">{relatedProducts[1].name}</h4>
-                      <span className="text-black/60 font-bold">₹{relatedProducts[1].price}</span>
+                      <span className="text-black/60 font-bold">{formatPrice(relatedProducts[1].base_price_cents)}</span>
                     </div>
                   </div>
                 </div>
@@ -404,7 +427,7 @@ const ProductDetail = () => {
                     <p className="text-muted-foreground mb-1">Total Price:</p>
                     <div className="flex items-baseline justify-center lg:justify-end gap-2">
                       <span className="text-3xl font-bold text-black">
-                        ₹{product.price + relatedProducts[0].price + relatedProducts[1].price}
+                        {formatPrice(product.base_price_cents + relatedProducts[0].base_price_cents + relatedProducts[1].base_price_cents)}
                       </span>
                     </div>
                   </div>

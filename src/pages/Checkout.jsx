@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Truck, CheckCircle } from 'lucide-react';
+import { logActivity } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,6 +13,7 @@ import { toast } from 'sonner';
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState(1); // 1: Address, 2: Payment, 3: Review
   const [loading, setLoading] = useState(false);
 
@@ -18,6 +21,11 @@ const Checkout = () => {
     setLoading(true);
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    if (user) {
+      await logActivity(user.id, 'place_order', 'order', 'ord_mock_123', { total_amount_cents: 189700 });
+    }
+
     setLoading(false);
     toast.success("Order placed successfully!");
     navigate('/account/orders'); // Redirect to orders

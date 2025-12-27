@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { User, Package, MapPin, Heart, LogOut, Mail, Pencil } from 'lucide-react';
+import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
+import { User, Package, MapPin, Heart, LogOut, Mail, Pencil, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { api } from '@/services/api';
+import ReferralDashboard from '@/components/profile/ReferralDashboard';
+import OrderDetail from '@/pages/OrderDetail';
 
 const SidebarLink = ({ to, icon: Icon, label, active }) => (
   <Link to={to}>
@@ -41,7 +44,7 @@ const ProfileDashboard = ({ user }) => (
               <Avatar className="h-full w-full border-[6px] border-white bg-white">
                 <AvatarImage src={user.avatar} className="object-cover" />
                 <AvatarFallback className="bg-stone-50 text-4xl font-serif text-stone-400">
-                  {user.name.split(' ').map(n => n[0]).join('')}
+                  {user.name ? user.name.split(' ').map(n => n[0]).join('') : "U"}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -84,38 +87,39 @@ const Orders = ({ orders }) => (
       <p>No orders found.</p>
     ) : (
       orders.map((order) => (
-        <Card key={order.id}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <div className="space-y-1">
-              <CardTitle className="text-base">Order #{order.id}</CardTitle>
-              <CardDescription>{order.date}</CardDescription>
-            </div>
-            <Badge variant={order.status === 'Delivered' ? 'default' : 'secondary'} className={order.status === 'Delivered' ? 'bg-green-600 hover:bg-green-700' : ''}>
-              {order.status}
-            </Badge>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4 mt-4">
-              {order.items.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-4">
-                  <div className="h-16 w-16 bg-secondary/20 rounded-md overflow-hidden">
-                    <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium line-clamp-1">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                  </div>
-                  <p className="font-medium">₹{item.price}</p>
-                </div>
-              ))}
-              <Separator />
-              <div className="flex justify-between font-bold">
-                <span>Total</span>
-                <span>₹{order.total}</span>
+        <Link to={`/account/orders/${order.id}`} key={order.id}>
+          <Card className="hover:shadow-md transition-all cursor-pointer border-l-4 border-l-transparent hover:border-l-furco-yellow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div className="space-y-1">
+                <CardTitle className="text-base">Order #{order.id}</CardTitle>
+                <CardDescription>{order.date}</CardDescription>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+              <Badge variant={order.status === 'Delivered' ? 'default' : 'secondary'} className={order.status === 'Delivered' ? 'bg-green-600 hover:bg-green-700' : ''}>
+                {order.status}
+              </Badge>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4 mt-4">
+                {order.items.slice(0, 2).map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-4">
+                    <div className="h-12 w-12 bg-secondary/20 rounded-md overflow-hidden">
+                      <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium line-clamp-1">{item.name}</p>
+                    </div>
+                  </div>
+                ))}
+                {order.items.length > 2 && <p className="text-xs text-muted-foreground">+{order.items.length - 2} more items</p>}
+                <Separator />
+                <div className="flex justify-between font-bold">
+                  <span>Total</span>
+                  <span>{order.total}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       ))
     )}
   </div>
@@ -128,55 +132,79 @@ const Addresses = ({ addresses }) => (
       <Button>Add New</Button>
     </div>
     <div className="grid gap-4 md:grid-cols-2">
-      {addresses.map((addr) => (
-        <Card key={addr.id}>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <MapPin className="h-4 w-4" /> {addr.type}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              {addr.street}<br />
-              {addr.city}, {addr.state} - {addr.zip}
-            </p>
-            <div className="flex gap-2 mt-4">
-              <Button variant="outline" size="sm">Edit</Button>
-              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">Delete</Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+      {addresses && addresses.length > 0 ? (
+        addresses.map((addr) => (
+          <Card key={addr.id}>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <MapPin className="h-4 w-4" /> {addr.label || addr.type || 'Address'}
+                {addr.is_default && <Badge variant="secondary" className="ml-2">Default</Badge>}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                {addr.full_name && <>{addr.full_name}<br /></>}
+                {addr.line1}<br />
+                {addr.line2 && <>{addr.line2}<br /></>}
+                {addr.city}, {addr.state} - {addr.postal_code}
+              </p>
+              <div className="flex gap-2 mt-4">
+                <Button variant="outline" size="sm">Edit</Button>
+                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">Delete</Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))
+      ) : (
+        <p>No addresses saved.</p>
+      )}
     </div>
   </div>
 );
 
 const Profile = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user: authUser, signOut, loading } = useAuth();
   const [user, setUser] = useState(null);
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [addresses, setAddresses] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [userData, ordersData] = await Promise.all([
-          api.getUserProfile(),
-          api.getOrders()
-        ]);
-        setUser(userData);
-        setOrders(ordersData);
-      } catch (error) {
-        console.error("Failed to fetch profile data", error);
-      } finally {
-        setLoading(false);
-      }
+    const fetchProfileData = async () => {
+      if (!authUser) return;
+
+      // Fetch profile from Supabase
+      const profile = await api.getUserProfile(authUser.id);
+      
+      setUser({
+        name: profile?.full_name || authUser.user_metadata?.full_name || 'User',
+        email: authUser.email,
+        avatar: profile?.avatar_url || authUser.user_metadata?.avatar_url,
+        phone: profile?.phone
+      });
+
+      // Fetch orders and addresses
+      const [ordersData, addressesData] = await Promise.all([
+        api.getOrders(authUser.id),
+        api.getAddresses(authUser.id)
+      ]);
+      
+      setOrders(ordersData || []);
+      setAddresses(addressesData || []);
     };
-    fetchData();
-  }, []);
+
+    fetchProfileData();
+  }, [authUser]);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
+  };
 
   if (loading) return <div className="container py-12">Loading Profile...</div>;
-  if (!user) return <div className="container py-12">Please login to view profile.</div>;
+  if (!authUser && !loading) return <div className="container py-12">Please login to view profile.</div>;
+  if (!user && authUser) return <div className="container py-12">Loading Profile Data...</div>;
 
   return (
     <div className="container px-4 md:px-6 pt-32 pb-12">
@@ -186,9 +214,15 @@ const Profile = () => {
           <SidebarLink to="/account" icon={User} label="Profile" active={location.pathname === '/account'} />
           <SidebarLink to="/account/orders" icon={Package} label="Orders" active={location.pathname === '/account/orders'} />
           <SidebarLink to="/account/addresses" icon={MapPin} label="Addresses" active={location.pathname === '/account/addresses'} />
+          <SidebarLink to="/account/addresses" icon={MapPin} label="Addresses" active={location.pathname === '/account/addresses'} />
           <SidebarLink to="/account/wishlist" icon={Heart} label="Wishlist" active={location.pathname === '/account/wishlist'} />
+          <SidebarLink to="/account/referrals" icon={Users} label="Referrals" active={location.pathname === '/account/referrals'} />
           <Separator className="my-2" />
-          <Button variant="ghost" className="w-full justify-start gap-2 text-destructive hover:text-destructive hover:bg-destructive/10">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+            onClick={handleLogout}
+          >
             <LogOut className="h-4 w-4" />
             Logout
           </Button>
@@ -199,8 +233,10 @@ const Profile = () => {
           <Routes>
             <Route index element={<ProfileDashboard user={user} />} />
             <Route path="orders" element={<Orders orders={orders} />} />
-            <Route path="addresses" element={<Addresses addresses={user.addresses} />} />
+            <Route path="orders/:id" element={<OrderDetail />} />
+            <Route path="addresses" element={<Addresses addresses={addresses} />} />
             <Route path="wishlist" element={<div className="text-center py-12">Wishlist is empty</div>} />
+            <Route path="referrals" element={<ReferralDashboard user={authUser} />} />
           </Routes>
         </div>
       </div>

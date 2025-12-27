@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 import { ShoppingCart, User, Search, Menu, Heart, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +12,7 @@ const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
 
   // Handle Scroll Effect
   useEffect(() => {
@@ -96,7 +98,7 @@ const Navbar = () => {
             </Link>
 
             {/* Profile (Desktop) */}
-            <Link to="/account" className="hidden md:block text-black hover:text-furco-gold transition-colors">
+            <Link to={user ? "/account" : "/login"} className="hidden md:block text-black hover:text-furco-gold transition-colors">
               <User className="w-6 h-6" strokeWidth={1.5} />
             </Link>
 
@@ -185,7 +187,7 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="flex gap-8 mt-8">
-                <Link to="/account" onClick={() => setIsMobileMenuOpen(false)}>
+                <Link to={user ? "/account" : "/login"} onClick={() => setIsMobileMenuOpen(false)}>
                   <User className="w-8 h-8 text-black hover:text-white transition-colors" />
                 </Link>
                 <Link to="/wishlist" onClick={() => setIsMobileMenuOpen(false)}>

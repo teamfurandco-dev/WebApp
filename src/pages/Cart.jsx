@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { api } from '@/services/api';
 import { motion } from 'framer-motion';
+import { formatPrice } from '@/lib/utils';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -44,9 +45,9 @@ const Cart = () => {
     setCartItems(items => items.filter(item => item.id !== id));
   };
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = subtotal > 499 ? 0 : 50;
-  const total = subtotal + shipping;
+  const subtotalCents = cartItems.reduce((sum, item) => sum + (item.base_price_cents * item.quantity), 0);
+  const shippingCents = subtotalCents > 49900 ? 0 : 5000;
+  const totalCents = subtotalCents + shippingCents;
 
   if (loading) {
     return (
@@ -124,7 +125,7 @@ const Cart = () => {
                           {item.selectedVariant}
                         </p>
                       </div>
-                      <p className="font-bold text-2xl text-black">₹{item.price * item.quantity}</p>
+                      <p className="font-bold text-2xl text-black">{formatPrice(item.base_price_cents * item.quantity)}</p>
                     </div>
 
                     <div className="flex justify-between items-end mt-6">
@@ -171,26 +172,26 @@ const Cart = () => {
               <div className="space-y-4 relative z-10">
                 <div className="flex justify-between items-center text-black/60 font-medium">
                   <span>Subtotal</span>
-                  <span className="text-black font-bold">₹{subtotal}</span>
+                  <span className="text-black font-bold">{formatPrice(subtotalCents)}</span>
                 </div>
                 <div className="flex justify-between items-center text-black/60 font-medium">
                   <span>Shipping</span>
                   {shipping === 0 ? (
                     <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">Free</span>
                   ) : (
-                    <span className="text-black font-bold">₹{shipping}</span>
+                    <span className="text-black font-bold">{formatPrice(shippingCents)}</span>
                   )}
                 </div>
                 <div className="flex justify-between items-center text-black/60 font-medium">
                   <span>Tax (Included)</span>
-                  <span className="text-black font-bold">₹{Math.round(subtotal * 0.18)}</span>
+                  <span className="text-black font-bold">{formatPrice(Math.round(subtotalCents * 0.18))}</span>
                 </div>
 
                 <div className="my-8 border-t border-dashed border-black/10" />
 
                 <div className="flex justify-between items-center">
                   <span className="text-xl font-serif font-bold text-black">Total</span>
-                  <span className="text-4xl font-black text-black tracking-tight">₹{total}</span>
+                  <span className="text-4xl font-black text-black tracking-tight">{formatPrice(totalCents)}</span>
                 </div>
 
                 {/* Promo Code */}
