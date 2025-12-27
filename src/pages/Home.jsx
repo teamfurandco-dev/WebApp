@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTheme } from '@/context/ThemeContext';
 import { ArrowRight, Star, Heart, Hand, ShieldCheck, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,13 @@ const FadeIn = ({ children, delay = 0, className = "" }) => (
 );
 
 const Home = () => {
+  const { switchMode } = useTheme();
+  
+  // Enforce Gateway theme on mount
+  useEffect(() => {
+    switchMode('GATEWAY');
+  }, [switchMode]);
+
   const targetRef = useRef(null);
   const { scrollYProgress } = useScroll();
   

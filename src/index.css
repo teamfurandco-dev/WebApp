@@ -56,6 +56,10 @@
 
     --success-green: #22C55E;
     --error-red: #EF4444;
+
+    /* Footer Variables (Gateway - White) */
+    --footer-bg: 0 0% 100%;
+    --footer-fg: 0 0% 0%;
   }
 
   .dark {
@@ -89,13 +93,88 @@
   }
 }
 
+/* Tri-State Ecosystem Themes */
+
+/* State 1: CORE (Unlimited) - High Contrast, Commercial */
+[data-theme='core'] {
+  --background: 0 0% 5%;
+  /* #0D0D0D (Soft Black) */
+  --foreground: 45 96% 56%;
+  /* #FBBF24 (Yellow) */
+
+  --card: 0 0% 10%;
+  --card-foreground: 45 96% 56%;
+
+  --popover: 0 0% 10%;
+  --popover-foreground: 45 96% 56%;
+
+  --primary: 45 96% 56%;
+  /* Yellow */
+  --primary-foreground: 0 0% 0%;
+  /* Black Text */
+
+  --secondary: 0 0% 20%;
+  --secondary-foreground: 45 96% 56%;
+
+  --muted: 0 0% 15%;
+  --muted-foreground: 45 60% 45%;
+
+  --accent: 45 96% 56%;
+  --accent-foreground: 0 0% 0%;
+
+  --border: 45 96% 56%;
+  --input: 45 96% 56%;
+  --ring: 45 96% 56%;
+
+  /* Footer Variables (Core - Black/Yellow) */
+  --footer-bg: 0 0% 5%;
+  --footer-fg: 45 96% 56%;
+}
+
+/* State 2: ORIGIN (Niche) - Organic, Wellness */
+[data-theme='origin'] {
+  --background: 140 30% 96%;
+  /* #EFF7F2 (Very Light Green/Cream) */
+  --foreground: 140 60% 20%;
+  /* #14522D (Deep Green) */
+
+  --card: 0 0% 100%;
+  --card-foreground: 140 60% 20%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 140 60% 20%;
+
+  --primary: 140 40% 40%;
+  /* #3D8F5A (Organic Green) */
+  --primary-foreground: 0 0% 100%;
+  /* White */
+
+  --secondary: 40 30% 94%;
+  /* Cream */
+  --secondary-foreground: 140 60% 20%;
+
+  --muted: 140 20% 90%;
+  --muted-foreground: 140 30% 50%;
+
+  --accent: 40 30% 90%;
+  --accent-foreground: 140 60% 20%;
+
+  --border: 140 20% 80%;
+  --input: 140 20% 80%;
+  --ring: 140 40% 40%;
+
+  /* Footer Variables (Origin - Green/Cream) */
+  --footer-bg: 140 60% 20%;
+  --footer-fg: 40 30% 90%;
+}
+
 @layer base {
   * {
     @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-500 ease-in-out;
   }
 
   html,
