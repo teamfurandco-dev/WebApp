@@ -1,146 +1,122 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, ArrowRight, Loader2 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { motion } from 'framer-motion';
-import { api } from '@/services/api';
-import { format } from 'date-fns';
+import { Search } from 'lucide-react';
+import FeaturedPost from '@/components/blog/FeaturedPost';
+import BlogCard from '@/components/blog/BlogCard';
+import Newsletter from '@/components/blog/Newsletter';
+import { useTheme } from '@/context/ThemeContext';
+
+// Mock Data
+const BLOG_POSTS = [
+  {
+    id: 1,
+    title: "Why Your Dog Needs a Gut Reset: The Science of Probiotics",
+    excerpt: "Digestion is the cornerstone of health. Learn how simple dietary changes can improve mood, energy, and longevity.",
+    category: "Nutrition",
+    image: "https://images.unsplash.com/photo-1535295972055-1c762f4483e5?q=80&w=1000&auto=format&fit=crop",
+    readTime: "5 min read",
+    author: { name: "Dr. Sarah Miller", avatar: "https://randomuser.me/api/portraits/women/44.jpg" },
+    date: "Oct 12, 2025"
+  },
+  {
+    id: 2,
+    title: "Apartment Living: Enrichment Tips for Indoor Cats",
+    excerpt: "Small space? No problem. Discover vertical territory hacks and puzzle toys that keep your feline friend mentally sharp.",
+    category: "Lifestyle",
+    image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1000&auto=format&fit=crop",
+    readTime: "4 min read",
+    author: { name: "Rahul Kapoor", avatar: "https://randomuser.me/api/portraits/men/32.jpg" },
+    date: "Oct 08, 2025"
+  },
+  {
+    id: 3,
+    title: "Understanding Separation Anxiety in Rescue Dogs",
+    excerpt: "Patience is key. A behavioral expert shares a step-by-step guide to building confidence and trust.",
+    category: "Behavior",
+    image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=1000&auto=format&fit=crop",
+    readTime: "7 min read",
+    author: { name: "Dr. Sarah Miller", avatar: "https://randomuser.me/api/portraits/women/44.jpg" },
+    date: "Sep 28, 2025"
+  },
+  {
+    id: 4,
+    title: "The Ultimate Guide to Sustainable Pet Care",
+    excerpt: "From biodegradable poop bags to ethically sourced treats, here is how to reduce your pawprint.",
+    category: "Sustainability",
+    image: "https://images.unsplash.com/photo-1544568100-847a948585b9?q=80&w=1000&auto=format&fit=crop",
+    readTime: "6 min read",
+    author: { name: "Emma Wilson", avatar: "https://randomuser.me/api/portraits/women/68.jpg" },
+    date: "Sep 15, 2025"
+  }
+];
+
+const CATEGORIES = ["All", "Nutrition", "Behavior", "Lifestyle", "Sustainability", "Wellness"];
 
 const Blog = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { switchMode } = useTheme();
+  const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const data = await api.getBlogs();
-        setPosts(data);
-      } catch (error) {
-        console.error('Error fetching blogs:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchBlogs();
-  }, []);
-
-  const filteredPosts = posts.filter(post => 
-    post.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.category?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7]">
-        <Loader2 className="w-12 h-12 animate-spin text-furco-yellow" />
-      </div>
-    );
-  }
+    switchMode('GATEWAY');
+    window.scrollTo(0, 0);
+  }, [switchMode]);
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] py-16 md:py-24">
-      <div className="container mx-auto px-4 md:px-6">
-        
-        {/* Header Section */}
-        <div className="flex flex-col items-center text-center mb-16 space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="text-5xl md:text-6xl font-serif font-bold text-black mb-4">The Fur & Co Blog</h1>
-            <p className="text-xl text-black/60 font-light max-w-2xl mx-auto">
-              Tips, tricks, and tales for pet lovers. Discover expert advice and heartwarming stories.
-            </p>
-          </motion.div>
+    <div className="min-h-screen bg-[#FDFBF7] pt-24 md:pt-32">
+      <div className="container mx-auto px-4 md:px-8">
 
-          {/* Search Bar */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="relative w-full max-w-md"
-          >
-            <Input 
-              type="text" 
-              placeholder="Search articles..." 
-              className="pl-12 pr-4 py-6 rounded-full border-2 border-black/10 bg-white text-lg focus-visible:ring-0 focus-visible:border-black transition-colors"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 bg-furco-yellow rounded-full flex items-center justify-center">
-              <Search className="w-3 h-3 text-black" />
+        {/* Header */}
+        <div className="text-center max-w-3xl mx-auto mb-16 space-y-6">
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-furco-brown">Editorial</span>
+          <h1 className="text-5xl md:text-7xl font-serif font-medium text-black">The Fur & Co Journal</h1>
+          <p className="text-lg text-black/60 font-medium">Stories, science, and care for the modern pet parent.</p>
+
+          {/* Search & Filter */}
+          <div className="flex flex-col items-center gap-8 mt-8">
+            <div className="relative w-full max-w-md">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" />
+              <input
+                type="text"
+                placeholder="Search articles..."
+                className="w-full h-12 pl-10 pr-4 rounded-full bg-white border border-black/5 focus:border-black/20 focus:outline-none transition-all placeholder:text-black/30"
+              />
             </div>
-          </motion.div>
+
+            <div className="flex flex-wrap justify-center gap-2">
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${activeCategory === cat
+                      ? "bg-black text-white"
+                      : "bg-white border border-black/5 text-black/60 hover:text-black hover:border-black/20"
+                    }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Blog Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredPosts.map((post, index) => (
-            <motion.div
-              key={post.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
-            >
-              <Link to={`/blog/${post.id}`}>
-                <Card className="h-full overflow-hidden group border-none shadow-sm hover:shadow-xl transition-all duration-500 bg-white rounded-[2rem] relative">
-                  {/* Hover Border Effect */}
-                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-furco-yellow rounded-[2rem] transition-colors duration-500 z-10 pointer-events-none" />
-                  
-                  <div className="aspect-[4/3] overflow-hidden relative">
-                    <img 
-                      src={post.featured_image || post.image || 'https://images.unsplash.com/photo-1544568100-847a948585b9?q=80&w=1000&auto=format&fit=crop'} 
-                      alt={post.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                    />
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
-                    {post.category && (
-                      <Badge className="absolute top-4 left-4 bg-furco-yellow text-black hover:bg-furco-yellow border-none px-3 py-1 text-xs font-bold uppercase tracking-wider shadow-md z-20">
-                        {post.category}
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  <CardContent className="p-8 flex flex-col h-full">
-                    <div className="text-sm font-bold text-black/40 mb-3 uppercase tracking-wider">
-                      {post.published_at ? format(new Date(post.published_at), 'MMM dd, yyyy') : 'Draft'}
-                    </div>
-                    <h3 className="text-2xl font-serif font-bold text-black mb-3 leading-tight group-hover:text-furco-gold transition-colors">
-                      {post.title}
-                    </h3>
-                    <p className="text-black/60 line-clamp-3 mb-6 font-sans leading-relaxed">
-                      {post.excerpt || post.content?.substring(0, 150) + '...'}
-                    </p>
-                    
-                    <div className="mt-auto pt-4 flex items-center text-black font-bold group-hover:text-furco-yellow transition-colors">
-                      <span className="mr-2">Read Article</span>
-                      <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
+        {/* Featured Post */}
+        <div className="mb-20">
+          <FeaturedPost post={BLOG_POSTS[0]} />
+        </div>
+
+        {/* Post Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16 mb-24">
+          {BLOG_POSTS.slice(1).map(post => (
+            <BlogCard key={post.id} post={post} />
+          ))}
+          {/* Repeating for grid density visual */}
+          {BLOG_POSTS.slice(1).map(post => (
+            <BlogCard key={`dup-${post.id}`} post={{ ...post, id: `dup-${post.id}` }} />
           ))}
         </div>
 
-        {filteredPosts.length === 0 && (
-          <div className="text-center py-20">
-            <h3 className="text-2xl font-serif font-bold text-black/40">No articles found.</h3>
-            <Button 
-              variant="link" 
-              onClick={() => setSearchQuery('')}
-              className="text-furco-yellow hover:text-black mt-2"
-            >
-              Clear Search
-            </Button>
-          </div>
-        )}
       </div>
+
+      <Newsletter />
     </div>
   );
 };

@@ -1,10 +1,12 @@
 import { Home, Search, ShoppingCart, User } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
+import { motion } from 'framer-motion';
 
 const MobileBottomNav = () => {
     const { user } = useAuth();
+    const location = useLocation();
 
     const navItems = [
         { icon: Home, label: 'Home', path: '/' },
@@ -14,21 +16,31 @@ const MobileBottomNav = () => {
     ];
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 md:hidden pb-safe">
-            <div className="flex justify-around items-center h-16">
-                {navItems.map((item) => (
-                    <NavLink
-                        key={item.label}
-                        to={item.path}
-                        className={({ isActive }) => cn(
-                            "flex flex-col items-center justify-center w-full h-full space-y-1",
-                            isActive ? "text-furco-yellow" : "text-gray-500 hover:text-gray-900"
-                        )}
-                    >
-                        <item.icon className="w-6 h-6" strokeWidth={1.5} />
-                        <span className="text-[10px] font-medium">{item.label}</span>
-                    </NavLink>
-                ))}
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-t border-gray-100 md:hidden pb-safe px-4">
+            <div className="flex justify-around items-center h-16 relative">
+                {navItems.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    return (
+                        <NavLink
+                            key={item.label}
+                            to={item.path}
+                            className={cn(
+                                "relative flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors duration-300 z-10",
+                                isActive ? "text-white" : "text-gray-400"
+                            )}
+                        >
+                            {isActive && (
+                                <motion.div
+                                    layoutId="bottom-nav-capsule"
+                                    className="absolute inset-y-2 inset-x-1 bg-black rounded-2xl -z-10"
+                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                />
+                            )}
+                            <item.icon className="w-5 h-5" strokeWidth={isActive ? 2 : 1.5} />
+                            <span className="text-[10px] font-bold tracking-tight">{item.label}</span>
+                        </NavLink>
+                    );
+                })}
             </div>
         </div>
     );

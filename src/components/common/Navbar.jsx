@@ -45,7 +45,7 @@ const Navbar = () => {
     <>
       <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background/95 backdrop-blur-md border-b border-border",
+          "sticky top-0 left-0 right-0 z-50 transition-all duration-300 bg-background/95 backdrop-blur-md border-b border-border",
           isScrolled ? "py-2 shadow-sm" : "py-4"
         )}
       >
@@ -76,19 +76,29 @@ const Navbar = () => {
           {/* 3. Right Section: Navigation & Icons */}
           <div className="flex items-center gap-1 md:gap-6">
             {/* Desktop Navigation Links */}
-            <nav className="hidden xl:flex items-center gap-6 mr-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  className={cn(
-                    "text-sm font-medium transition-colors hover:text-furco-yellow",
-                    link.featured ? "font-bold text-foreground" : "text-muted-foreground"
-                  )}
-                >
-                  {link.name}
-                </Link>
-              ))}
+            <nav className="hidden xl:flex items-center gap-2 mr-4 bg-muted/30 p-1.5 rounded-full border border-border/50">
+              {navLinks.map((link) => {
+                const isActive = location.pathname === link.path;
+                return (
+                  <Link
+                    key={link.name}
+                    to={link.path}
+                    className={cn(
+                      "relative px-4 py-1.5 text-sm font-medium transition-colors duration-300 rounded-full",
+                      isActive ? "text-background" : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="nav-capsule"
+                        className="absolute inset-0 bg-foreground rounded-full z-0"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                    <span className="relative z-10">{link.name}</span>
+                  </Link>
+                );
+              })}
             </nav>
 
             {/* Utility Icons */}
@@ -199,9 +209,19 @@ const Navbar = () => {
                 <Link
                   key={link.name}
                   to={link.path}
-                  className="text-3xl font-serif font-bold text-foreground hover:text-furco-yellow transition-colors border-b border-border/50 pb-4"
+                  className={cn(
+                    "relative px-4 py-3 text-3xl font-serif font-bold transition-colors rounded-xl overflow-hidden",
+                    location.pathname === link.path ? "text-background" : "text-foreground hover:text-furco-yellow pb-4 border-b border-border/50"
+                  )}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
+                  {location.pathname === link.path && (
+                    <motion.div
+                      layoutId="mobile-nav-capsule"
+                      className="absolute inset-0 bg-foreground -z-10"
+                      initial={false}
+                    />
+                  )}
                   {link.name}
                 </Link>
               ))}
@@ -224,3 +244,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+// Updated for Theme Consistency

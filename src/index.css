@@ -97,15 +97,15 @@
 
 /* State 1: CORE (Unlimited) - High Contrast, Commercial */
 [data-theme='core'] {
-  --background: 0 0% 5%;
-  /* #0D0D0D (Soft Black) */
+  --background: 219 41% 11%;
+  /* #101827 (Deep Blue Gray) */
   --foreground: 45 96% 56%;
   /* #FBBF24 (Yellow) */
 
-  --card: 0 0% 10%;
+  --card: 219 41% 15%;
   --card-foreground: 45 96% 56%;
 
-  --popover: 0 0% 10%;
+  --popover: 219 41% 11%;
   --popover-foreground: 45 96% 56%;
 
   --primary: 45 96% 56%;
@@ -113,10 +113,10 @@
   --primary-foreground: 0 0% 0%;
   /* Black Text */
 
-  --secondary: 0 0% 20%;
+  --secondary: 219 41% 20%;
   --secondary-foreground: 45 96% 56%;
 
-  --muted: 0 0% 15%;
+  --muted: 219 41% 20%;
   --muted-foreground: 45 60% 45%;
 
   --accent: 45 96% 56%;
@@ -126,8 +126,8 @@
   --input: 45 96% 56%;
   --ring: 45 96% 56%;
 
-  /* Footer Variables (Core - Black/Yellow) */
-  --footer-bg: 0 0% 5%;
+  /* Footer Variables (Core - Deep Blue Gray) */
+  --footer-bg: 219 41% 11%;
   --footer-fg: 45 96% 56%;
 }
 
