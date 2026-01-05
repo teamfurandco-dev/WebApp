@@ -43,6 +43,7 @@
     --furco-yellow: #FBBF24;
     --furco-yellow-light: #FFE28A;
     --furco-yellow-hover: #FFCA2C;
+    --furco-gold: #D4AF37;
 
     --furco-cream: #FFF7E8;
     --furco-beige: #FAEFD9;
@@ -95,40 +96,42 @@
 
 /* Tri-State Ecosystem Themes */
 
-/* State 1: CORE (Unlimited) - High Contrast, Commercial */
+/* State 1: CORE (Unlimited) - Luxury Premium (Charcoal & Gold) */
 [data-theme='core'] {
-  --background: 219 41% 11%;
-  /* #101827 (Deep Blue Gray) */
-  --foreground: 45 96% 56%;
-  /* #FBBF24 (Yellow) */
+  --background: 210 7% 11%;
+  /* #1A1C1E (Dark Charcoal) */
+  --foreground: 0 0% 100%;
+  /* White */
 
-  --card: 219 41% 15%;
-  --card-foreground: 45 96% 56%;
+  --card: 210 7% 14%;
+  /* Slightly lighter charcoal */
+  --card-foreground: 0 0% 100%;
 
-  --popover: 219 41% 11%;
-  --popover-foreground: 45 96% 56%;
+  --popover: 210 7% 11%;
+  --popover-foreground: 0 0% 100%;
 
-  --primary: 45 96% 56%;
-  /* Yellow */
+  --primary: 43 65% 53%;
+  /* #D4AF37 (Gold) */
   --primary-foreground: 0 0% 0%;
   /* Black Text */
 
-  --secondary: 219 41% 20%;
-  --secondary-foreground: 45 96% 56%;
+  --secondary: 210 7% 20%;
+  --secondary-foreground: 43 65% 53%;
 
-  --muted: 219 41% 20%;
-  --muted-foreground: 45 60% 45%;
+  --muted: 210 7% 20%;
+  --muted-foreground: 0 0% 60%;
 
-  --accent: 45 96% 56%;
+  --accent: 43 65% 53%;
+  /* Gold */
   --accent-foreground: 0 0% 0%;
 
-  --border: 45 96% 56%;
-  --input: 45 96% 56%;
-  --ring: 45 96% 56%;
+  --border: 210 7% 25%;
+  --input: 210 7% 25%;
+  --ring: 43 65% 53%;
 
-  /* Footer Variables (Core - Deep Blue Gray) */
-  --footer-bg: 219 41% 11%;
-  --footer-fg: 45 96% 56%;
+  /* Footer Variables (Core - Dark Charcoal) */
+  --footer-bg: 210 7% 11%;
+  --footer-fg: 0 0% 100%;
 }
 
 /* State 2: ORIGIN (Niche) - Organic, Wellness */

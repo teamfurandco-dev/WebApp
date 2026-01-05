@@ -15,7 +15,8 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
-  const { switchMode } = useTheme();
+  const { currentMode, switchMode } = useTheme();
+  const isUnlimitedMode = currentMode === 'CORE';
 
   // Handle Scroll Effect
   useEffect(() => {
@@ -41,11 +42,23 @@ const Navbar = () => {
     { name: 'About Us', path: '/about' },
   ];
 
+  const sparkleGoldClass = "bg-clip-text text-transparent bg-[linear-gradient(45deg,#D4AF37,#FFF78A,#D4AF37)] bg-[length:200%_auto] animate-shimmer";
+
   return (
     <>
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: 0% center; }
+          100% { background-position: 200% center; }
+        }
+        .animate-shimmer {
+          animation: shimmer 3s linear infinite;
+        }
+      `}</style>
       <header
         className={cn(
-          "sticky top-0 left-0 right-0 z-50 transition-all duration-300 bg-background/95 backdrop-blur-md border-b border-border",
+          "sticky top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md border-b",
+          isUnlimitedMode ? "bg-[#1A1C1E]/95 border-white/5" : "bg-background/95 border-border",
           isScrolled ? "py-2 shadow-sm" : "py-4"
         )}
       >
@@ -54,8 +67,11 @@ const Navbar = () => {
           {/* 1. Left Section: Logo */}
           <Link to="/" className="relative z-50 group flex-shrink-0" onClick={() => switchMode('GATEWAY')}>
             <div className="flex flex-col leading-none">
-              <span className="text-2xl md:text-3xl font-serif font-black text-foreground tracking-tighter group-hover:text-furco-yellow transition-colors duration-300">
-                FUR & CO
+              <span className={cn(
+                "text-2xl md:text-3xl font-serif font-black tracking-tighter transition-colors duration-300",
+                isUnlimitedMode ? sparkleGoldClass : "text-foreground group-hover:text-furco-yellow"
+              )}>
+                {isUnlimitedMode ? "UNLMTD FUR" : "FUR & CO"}
               </span>
             </div>
           </Link>
