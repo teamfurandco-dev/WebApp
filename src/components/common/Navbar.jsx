@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -14,7 +15,8 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
-  const { switchMode } = useTheme();
+  const { currentMode, switchMode } = useTheme();
+  const isUnlimitedMode = currentMode === 'CORE';
 
   // Handle Scroll Effect
   useEffect(() => {
@@ -32,106 +34,131 @@ const Navbar = () => {
   }, [location]);
 
   const navLinks = [
+    { name: 'Unlimited', path: '/unlimited', featured: true },
+    { name: 'Niche', path: '/niche', featured: true },
     { name: 'Home', path: '/' },
     { name: 'Shop', path: '/products' },
     { name: 'Blog', path: '/blog' },
     { name: 'About Us', path: '/about' },
   ];
 
+  const sparkleGoldClass = "bg-clip-text text-transparent bg-[linear-gradient(45deg,#D4AF37,#FFF78A,#D4AF37)] bg-[length:200%_auto] animate-shimmer";
+
   return (
     <>
-      <header 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background/95 backdrop-blur-md border-b border-border ${
-          isScrolled 
-            ? 'py-4 shadow-sm' 
-            : 'py-6'
-        }`}
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: 0% center; }
+          100% { background-position: 200% center; }
+        }
+        .animate-shimmer {
+          animation: shimmer 3s linear infinite;
+        }
+      `}</style>
+      <header
+        className={cn(
+          "sticky top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md border-b",
+          isUnlimitedMode ? "bg-[#1A1C1E]/95 border-white/5" : "bg-background/95 border-border",
+          isScrolled ? "py-2 shadow-sm" : "py-4"
+        )}
       >
-        <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-          
-          {/* 1. Logo */}
-          <Link to="/" className="relative z-50 group" onClick={() => switchMode('GATEWAY')}>
+        <div className="container mx-auto px-4 md:px-8 max-w-full flex items-center justify-between gap-4">
+
+          {/* 1. Left Section: Logo */}
+          <Link to="/" className="relative z-50 group flex-shrink-0" onClick={() => switchMode('GATEWAY')}>
             <div className="flex flex-col leading-none">
-              <span className="text-2xl md:text-3xl font-serif font-black text-foreground tracking-tighter group-hover:text-primary transition-colors duration-300">
-                FUR & CO
-              </span>
-              <span className="text-[10px] md:text-xs font-sans font-medium tracking-[0.2em] text-muted-foreground uppercase group-hover:text-foreground transition-colors duration-300">
-                The Animal Aura
+              <span className={cn(
+                "text-2xl md:text-3xl font-serif font-black tracking-tighter transition-colors duration-300",
+                isUnlimitedMode ? sparkleGoldClass : "text-foreground group-hover:text-furco-yellow"
+              )}>
+                {isUnlimitedMode ? "UNLMTD FUR" : "FUR & CO"}
               </span>
             </div>
           </Link>
 
-          {/* 2. Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            {/* Tri-State Ecosystem Switcher */}
-            <div className="flex items-center gap-3 text-base font-bold">
-              <Link 
-                to="/unlimited"
-                className="text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wider text-sm px-2 py-1 hover:bg-black/5 rounded"
-              >
-                Unlimited
-              </Link>
-              <span className="text-muted-foreground/30 text-lg font-light">|</span>
-              <Link 
-                to="/niche"
-                className="text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wider text-sm px-2 py-1 hover:bg-black/5 rounded"
-              >
-                Niche
-              </Link>
-            </div>
-
-            {navLinks.map((link) => (
-              <Link 
-                key={link.name} 
-                to={link.path} 
-                className="relative group text-sm font-medium text-foreground transition-colors hover:text-primary"
-              >
-                {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-primary transition-all duration-300 group-hover:w-full" />
-              </Link>
-            ))}
-          </nav>
-
-          {/* 3. Utility Icons */}
-          <div className="flex items-center gap-4 md:gap-6">
-            
-            {/* Search Trigger */}
-            <button 
+          {/* 2. Center Section: Search Bar (Desktop Only) */}
+          <div className="hidden md:flex flex-1 max-w-2xl mx-auto px-8">
+            <div
+              className="w-full relative group"
               onClick={() => setIsSearchOpen(true)}
-              className="text-foreground hover:text-primary transition-colors"
             >
-              <Search className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1.5} />
-            </button>
+              <div className="flex items-center w-full h-12 rounded-full border border-input bg-background/50 px-4 hover:border-furco-yellow transition-colors cursor-text">
+                <Search className="h-5 w-5 text-muted-foreground mr-3" />
+                <span className="text-muted-foreground text-sm font-medium">Search for science-backed essentials...</span>
+              </div>
+            </div>
+          </div>
 
-            {/* Wishlist */}
-            <Link to="/wishlist" className="hidden md:block text-foreground hover:text-primary transition-colors">
-              <Heart className="w-6 h-6" strokeWidth={1.5} />
-            </Link>
+          {/* 3. Right Section: Navigation & Icons */}
+          <div className="flex items-center gap-1 md:gap-6">
+            {/* Desktop Navigation Links */}
+            <nav className="hidden xl:flex items-center gap-2 mr-4 bg-muted/30 p-1.5 rounded-full border border-border/50">
+              {navLinks.map((link) => {
+                const isActive = location.pathname === link.path;
+                return (
+                  <Link
+                    key={link.name}
+                    to={link.path}
+                    className={cn(
+                      "relative px-4 py-1.5 text-sm font-medium transition-colors duration-300 rounded-full",
+                      isActive ? "text-background" : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="nav-capsule"
+                        className="absolute inset-0 bg-foreground rounded-full z-0"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                    <span className="relative z-10">{link.name}</span>
+                  </Link>
+                );
+              })}
+            </nav>
 
-            {/* Cart */}
-            <Link to="/cart" className="relative text-foreground hover:text-primary transition-colors">
-              <ShoppingCart className="w-6 h-6" strokeWidth={1.5} />
-              <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-primary text-primary-foreground text-[10px] font-bold border-none shadow-sm">
-                2
-              </Badge>
-            </Link>
+            {/* Utility Icons */}
+            <div className="flex items-center gap-3 md:gap-4">
 
-            {/* Profile (Desktop) */}
-            <Link to={user ? "/account" : "/login"} className="hidden md:block text-foreground hover:text-primary transition-colors">
-              <User className="w-6 h-6" strokeWidth={1.5} />
-            </Link>
+              {/* Mobile Search Trigger */}
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className="md:hidden p-2 text-foreground hover:text-furco-yellow transition-colors"
+                aria-label="Search"
+              >
+                <Search className="w-5 h-5" strokeWidth={1.5} />
+              </button>
 
-            {/* Mobile Menu Toggle */}
-            <button 
-              className="md:hidden relative z-50 text-foreground hover:text-primary transition-colors"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? (
-                <X className="w-7 h-7" strokeWidth={1.5} />
-              ) : (
-                <Menu className="w-7 h-7" strokeWidth={1.5} />
-              )}
-            </button>
+              {/* Wishlist */}
+              <Link to="/wishlist" className="hidden md:block p-2 text-foreground hover:text-furco-yellow transition-colors">
+                <Heart className="w-6 h-6" strokeWidth={1.5} />
+              </Link>
+
+              {/* Cart */}
+              <Link to="/cart" className="p-2 relative text-foreground hover:text-furco-yellow transition-colors">
+                <ShoppingCart className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1.5} />
+                <Badge className="absolute -top-1 -right-1 h-4 w-4 md:h-5 md:w-5 p-0 flex items-center justify-center bg-furco-yellow text-black text-[10px] font-bold border-none shadow-sm">
+                  2
+                </Badge>
+              </Link>
+
+              {/* Profile (Desktop) */}
+              <Link to={user ? "/account" : "/login"} className="hidden md:block p-2 text-foreground hover:text-furco-yellow transition-colors">
+                <User className="w-6 h-6" strokeWidth={1.5} />
+              </Link>
+
+              {/* Mobile Menu Toggle */}
+              <button
+                className="md:hidden p-2 relative z-50 text-foreground hover:text-furco-yellow transition-colors"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-6 h-6" strokeWidth={1.5} />
+                ) : (
+                  <Menu className="w-6 h-6" strokeWidth={1.5} />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -139,29 +166,29 @@ const Navbar = () => {
       {/* 4. Search Modal Overlay */}
       <AnimatePresence>
         {isSearchOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-start justify-center pt-32 px-4"
+            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-start justify-center pt-24 px-4"
             onClick={() => setIsSearchOpen(false)}
           >
-            <motion.div 
-              initial={{ y: -50, opacity: 0 }}
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -50, opacity: 0 }}
+              exit={{ y: -20, opacity: 0 }}
               className="w-full max-w-2xl bg-background rounded-2xl shadow-2xl overflow-hidden border border-border"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 flex items-center gap-4 border-b border-border">
-                <Search className="w-6 h-6 text-primary" />
-                <input 
-                  type="text" 
-                  placeholder="Search for products, brands, or categories..." 
-                  className="flex-1 bg-transparent border-none text-xl text-foreground placeholder:text-muted-foreground focus:ring-0 focus:outline-none font-serif"
+              <div className="p-4 md:p-6 flex items-center gap-4 border-b border-border">
+                <Search className="w-5 h-5 md:w-6 md:h-6 text-furco-yellow" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="flex-1 bg-transparent border-none text-lg md:text-xl text-foreground placeholder:text-muted-foreground focus:ring-0 focus:outline-none font-serif"
                   autoFocus
                 />
-                <button 
+                <button
                   onClick={() => setIsSearchOpen(false)}
                   className="p-2 hover:bg-muted rounded-full transition-colors"
                 >
@@ -172,7 +199,7 @@ const Navbar = () => {
                 <p className="text-sm text-muted-foreground mb-3 uppercase tracking-wider font-medium">Popular Searches</p>
                 <div className="flex flex-wrap gap-2">
                   {['Dog Food', 'Cat Toys', 'Grooming Kit', 'Organic Treats'].map((tag) => (
-                    <button key={tag} className="px-4 py-2 rounded-full bg-card border border-border text-sm hover:border-primary hover:text-primary transition-colors text-foreground">
+                    <button key={tag} className="px-4 py-2 rounded-full bg-card border border-border text-sm hover:border-furco-yellow hover:text-furco-yellow transition-colors text-foreground">
                       {tag}
                     </button>
                   ))}
@@ -186,31 +213,42 @@ const Navbar = () => {
       {/* 5. Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: '100%' }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-40 bg-primary flex flex-col justify-center items-center md:hidden"
+            className="fixed inset-0 z-40 bg-background flex flex-col pt-24 px-6 md:hidden overflow-y-auto"
           >
-            <nav className="flex flex-col items-center gap-8">
+            <nav className="flex flex-col gap-6">
               {navLinks.map((link) => (
-                <Link 
-                  key={link.name} 
-                  to={link.path} 
-                  className="text-4xl font-serif font-bold text-primary-foreground hover:text-white transition-colors relative group"
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  className={cn(
+                    "relative px-4 py-3 text-3xl font-serif font-bold transition-colors rounded-xl overflow-hidden",
+                    location.pathname === link.path ? "text-background" : "text-foreground hover:text-furco-yellow pb-4 border-b border-border/50"
+                  )}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
+                  {location.pathname === link.path && (
+                    <motion.div
+                      layoutId="mobile-nav-capsule"
+                      className="absolute inset-0 bg-foreground -z-10"
+                      initial={false}
+                    />
+                  )}
                   {link.name}
-                  <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-1 bg-primary-foreground transition-all duration-300 group-hover:w-full" />
                 </Link>
               ))}
-              <div className="flex gap-8 mt-8">
-                <Link to={user ? "/account" : "/login"} onClick={() => setIsMobileMenuOpen(false)}>
-                  <User className="w-8 h-8 text-primary-foreground hover:text-white transition-colors" />
+              <div className="flex flex-col gap-4 mt-4">
+                <Link to={user ? "/account" : "/login"} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-lg font-medium text-foreground p-2 hover:bg-muted rounded-lg">
+                  <User className="w-6 h-6" />
+                  <span>Account</span>
                 </Link>
-                <Link to="/wishlist" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Heart className="w-8 h-8 text-primary-foreground hover:text-white transition-colors" />
+                <Link to="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-lg font-medium text-foreground p-2 hover:bg-muted rounded-lg">
+                  <Heart className="w-6 h-6" />
+                  <span>Wishlist</span>
                 </Link>
               </div>
             </nav>
@@ -222,3 +260,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+// Updated for Theme Consistency
