@@ -43,7 +43,7 @@ const Unlimited = () => {
     { q: "Can I change items later?", a: "Yes, you can modify your monthly essentials anytime before your next billing cycle." },
     { q: "What if I exceed my budget?", a: "Our system prevents you from adding items that exceed your selected monthly budget." },
     { q: "Can I pause or skip a month?", a: "Absolutely. You can pause or skip deliveries anytime from your account dashboard." },
-    { q: "How does the bundle discount work?", a: "Smart bundles require minimum 3 products and automatically apply 15% discount at checkout." }
+    { q: "How does the bundle discount work?", a: "Unlimited Joys require minimum 3 products and automatically apply 15% discount at checkout." }
   ];
 
   return (
@@ -71,23 +71,29 @@ const Unlimited = () => {
             <p className="text-xl text-white/60 max-w-2xl mx-auto">
               Set your monthly budget, shop curated essentials, and get everything delivered automatically.
             </p>
-            <div className="text-3xl font-bold">
-              Starting at <span className="text-[#D4AF37]">₹2,999</span>/month
-            </div>
           </motion.div>
 
           <div className="flex flex-wrap justify-center gap-12 pt-8">
-            <div className="text-center">
-              <div className="text-sm font-bold uppercase tracking-wider">Budget Control</div>
-              <div className="text-xs text-white/40">Never overspend</div>
+            <div className="text-center flex items-center gap-2">
+              <CreditCard className="w-4 h-4 text-[#D4AF37]" />
+              <div>
+                <div className="text-sm font-bold uppercase tracking-wider">Budget Control</div>
+                <div className="text-xs text-white/40">Never overspend</div>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-sm font-bold uppercase tracking-wider">Vet Approved</div>
-              <div className="text-xs text-white/40">Expert curated</div>
+            <div className="text-center flex items-center gap-2">
+              <Heart className="w-4 h-4 text-[#D4AF37]" />
+              <div>
+                <div className="text-sm font-bold uppercase tracking-wider">Vet Approved</div>
+                <div className="text-xs text-white/40">Expert curated</div>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-sm font-bold uppercase tracking-wider">Free Delivery</div>
-              <div className="text-xs text-white/40">Every month</div>
+            <div className="text-center flex items-center gap-2">
+              <Truck className="w-4 h-4 text-[#D4AF37]" />
+              <div>
+                <div className="text-sm font-bold uppercase tracking-wider">Free Delivery</div>
+                <div className="text-xs text-white/40">Every month</div>
+              </div>
             </div>
           </div>
 
@@ -156,7 +162,7 @@ const Unlimited = () => {
               </div>
             </motion.div>
 
-            {/* Smart Bundle - Secondary */}
+            {/* Unlimited Joys - Secondary */}
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
@@ -168,7 +174,7 @@ const Unlimited = () => {
                   <Package className="w-8 h-8 text-white/80" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">Smart Bundle</h3>
+                  <h3 className="text-2xl font-bold mb-2">Unlimited Joys</h3>
                   <p className="text-white/60 mb-4">
                     One-time purchase with minimum 3 products. Get 15% off automatically.
                   </p>
@@ -257,7 +263,7 @@ const Unlimited = () => {
         <div className="container mx-auto max-w-2xl text-center space-y-8">
           <h2 className="text-4xl font-serif">Ready to get started?</h2>
           <p className="text-white/60 text-lg">
-            Join thousands of pet parents who trust Unlimited Fur for their monthly essentials.
+            Join pet parents who are discovering a better way to care for their furry friends.
           </p>
           <Button className="bg-[#D4AF37] hover:bg-[#B8941F] text-black rounded-xl px-12 py-6 text-lg font-bold">
             Start with Monthly Essentials

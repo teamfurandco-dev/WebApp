@@ -6,7 +6,7 @@ const BlogCard = ({ post, className }) => {
     return (
         <Link to={`/blog/${post.id}`} className={cn("group flex flex-col h-full", className)}>
             {/* Image */}
-            <div className="aspect-[3/2] overflow-hidden rounded-2xl mb-5 border border-black/5 bg-gray-100">
+            <div className="aspect-[3/2] overflow-hidden rounded-xl md:rounded-2xl mb-4 md:mb-5 border border-black/5 bg-gray-100">
                 <img
                     src={post.image}
                     alt={post.title}
@@ -22,11 +22,11 @@ const BlogCard = ({ post, className }) => {
                     <span>{post.readTime}</span>
                 </div>
 
-                <h3 className="text-xl md:text-2xl font-serif font-medium text-black mb-3 group-hover:text-furco-brown transition-colors">
+                <h3 className="text-lg md:text-xl lg:text-2xl font-serif font-medium text-black mb-2 md:mb-3 group-hover:text-furco-brown transition-colors">
                     {post.title}
                 </h3>
 
-                <p className="text-black/60 text-sm md:text-base leading-relaxed mb-6 line-clamp-3">
+                <p className="text-black/60 text-sm md:text-base leading-relaxed mb-4 md:mb-6 line-clamp-3">
                     {post.excerpt}
                 </p>
 

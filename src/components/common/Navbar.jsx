@@ -35,10 +35,10 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Unlimited', path: '/unlimited', featured: true },
-    { name: 'Niche', path: '/niche', featured: true },
+
     { name: 'Home', path: '/' },
     { name: 'Shop', path: '/products' },
-    { name: 'Blog', path: '/blog' },
+    { name: 'PetSchool', path: '/blog' },
     { name: 'About Us', path: '/about' },
   ];
 
@@ -107,7 +107,10 @@ const Navbar = () => {
                     {isActive && (
                       <motion.div
                         layoutId="nav-capsule"
-                        className="absolute inset-0 bg-foreground rounded-full z-0"
+                        className={cn(
+                          "absolute inset-0 rounded-full z-0",
+                          isUnlimitedMode ? "bg-[#D4AF37]" : "bg-foreground"
+                        )}
                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                       />
                     )}
@@ -234,7 +237,10 @@ const Navbar = () => {
                   {location.pathname === link.path && (
                     <motion.div
                       layoutId="mobile-nav-capsule"
-                      className="absolute inset-0 bg-foreground -z-10"
+                      className={cn(
+                        "absolute inset-0 -z-10",
+                        isUnlimitedMode ? "bg-[#D4AF37]" : "bg-foreground"
+                      )}
                       initial={false}
                     />
                   )}

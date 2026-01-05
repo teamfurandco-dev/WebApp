@@ -61,23 +61,23 @@ const Blog = () => {
   }, [switchMode]);
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] pt-24 md:pt-32">
+    <div className="min-h-screen bg-[#FDFBF7] pt-16 md:pt-20">
       <div className="container mx-auto px-4 md:px-8">
 
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-6">
+        <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16 space-y-4 md:space-y-6">
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-furco-brown">Editorial</span>
-          <h1 className="text-5xl md:text-7xl font-serif font-medium text-black">The Fur & Co Journal</h1>
-          <p className="text-lg text-black/60 font-medium">Stories, science, and care for the modern pet parent.</p>
+          <h1 className="text-4xl md:text-5xl lg:text-7xl font-serif font-medium text-black">The Fur & Co Journal</h1>
+          <p className="text-base md:text-lg text-black/60 font-medium">Stories, science, and care for the modern pet parent.</p>
 
           {/* Search & Filter */}
-          <div className="flex flex-col items-center gap-8 mt-8">
+          <div className="flex flex-col items-center gap-6 md:gap-8 mt-6 md:mt-8">
             <div className="relative w-full max-w-md">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" />
               <input
                 type="text"
                 placeholder="Search articles..."
-                className="w-full h-12 pl-10 pr-4 rounded-full bg-white border border-black/5 focus:border-black/20 focus:outline-none transition-all placeholder:text-black/30"
+                className="w-full h-10 md:h-12 pl-10 pr-4 rounded-full bg-white border border-black/5 focus:border-black/20 focus:outline-none transition-all placeholder:text-black/30 text-sm md:text-base"
               />
             </div>
 
@@ -86,7 +86,7 @@ const Blog = () => {
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${activeCategory === cat
+                  className={`px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition-all ${activeCategory === cat
                       ? "bg-black text-white"
                       : "bg-white border border-black/5 text-black/60 hover:text-black hover:border-black/20"
                     }`}
@@ -99,12 +99,12 @@ const Blog = () => {
         </div>
 
         {/* Featured Post */}
-        <div className="mb-20">
+        <div className="mb-12 md:mb-20">
           <FeaturedPost post={BLOG_POSTS[0]} />
         </div>
 
         {/* Post Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16 mb-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-x-8 md:gap-y-16 mb-16 md:mb-24">
           {BLOG_POSTS.slice(1).map(post => (
             <BlogCard key={post.id} post={post} />
           ))}
