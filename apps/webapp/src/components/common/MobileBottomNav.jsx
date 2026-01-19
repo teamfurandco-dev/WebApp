@@ -1,0 +1,49 @@
+import { Home, Search, ShoppingCart, User } from 'lucide-react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { cn } from '@fur-co/utils';
+import { useAuth } from '@/context/AuthContext';
+import { motion } from 'framer-motion';
+
+const MobileBottomNav = () => {
+    const { user } = useAuth();
+    const location = useLocation();
+
+    const navItems = [
+        { icon: Home, label: 'Home', path: '/' },
+        { icon: Search, label: 'Search', path: '/products' }, // Using products as search landing or separate search page? Request said "Search"
+        { icon: ShoppingCart, label: 'Cart', path: '/cart' },
+        { icon: User, label: 'Profile', path: user ? '/account' : '/login' },
+    ];
+
+    return (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-t border-gray-100 md:hidden pb-safe px-4">
+            <div className="flex justify-around items-center h-16 relative">
+                {navItems.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    return (
+                        <NavLink
+                            key={item.label}
+                            to={item.path}
+                            className={cn(
+                                "relative flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors duration-300 z-10",
+                                isActive ? "text-white" : "text-gray-400"
+                            )}
+                        >
+                            {isActive && (
+                                <motion.div
+                                    layoutId="bottom-nav-capsule"
+                                    className="absolute inset-y-2 inset-x-1 bg-black rounded-2xl -z-10"
+                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                />
+                            )}
+                            <item.icon className="w-5 h-5" strokeWidth={isActive ? 2 : 1.5} />
+                            <span className="text-[10px] font-bold tracking-tight">{item.label}</span>
+                        </NavLink>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+export default MobileBottomNav;
