@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import heroImage from '@/assets/hero.png';
 
 const HomeHero = () => {
   return (
@@ -10,10 +11,10 @@ const HomeHero = () => {
       <picture className="absolute inset-0 w-full h-full">
         <source
           media="(min-width: 768px)"
-          srcSet="https://images.unsplash.com/photo-1450778869180-41d0601e046e?q=80&w=2686&auto=format&fit=crop"
+          srcSet={heroImage}
         />
         <img
-          src="https://images.unsplash.com/photo-1510771463146-e89e6e86560e?q=80&w=1000&auto=format&fit=crop"
+          src={heroImage}
           alt="Fur & Co - The Science of Happy Pets"
           className="w-full h-full object-cover"
         />
@@ -31,7 +32,7 @@ const HomeHero = () => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <h1 className="text-4xl md:text-6xl lg:text-[4.5rem] font-serif font-medium leading-tight mb-5 drop-shadow-lg tracking-tight">
+            <h1 className="text-4xl md:text-6xl lg:text-[4.5rem] font-peace-sans font-medium leading-tight mb-5 drop-shadow-lg tracking-tight">
               Curated Care for <br /> <i className="font-serif italic">Your Best Friend.</i>
             </h1>
             <p className="text-lg md:text-xl text-white/95 font-sans font-light leading-relaxed mb-8 drop-shadow-md max-w-lg mx-auto md:mx-0">

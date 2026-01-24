@@ -12,9 +12,9 @@ export const config = {
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
   },
   cors: {
-    origin: [
-      process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL?.split(',') || [
       'http://localhost:5173',
+      'http://localhost:3001',
       'http://localhost:5174',
     ],
   },

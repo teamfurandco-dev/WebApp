@@ -1,39 +1,42 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import dogEatingImage from '@/assets/dog_eating.png';
+import catEatingImage from '@/assets/cat_eating.png';
+import dogCatPlayingImage from '@/assets/dog_cat_playing.png';
 
 const categories = [
     {
         id: 'dog-nutrition',
         title: 'Nutrition for Dogs',
         description: 'Science-backed recipes for vitality.',
-        image: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=1000&auto=format&fit=crop',
+        image: dogEatingImage,
         link: '/products?category=dog-nutrition'
     },
     {
         id: 'cat-nutrition',
         title: 'Nutrition for Cats',
         description: 'Clean protein for the pickiest eaters.',
-        image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1000&auto=format&fit=crop',
+        image: catEatingImage,
         link: '/products?category=cat-nutrition'
     },
     {
         id: 'comfort-play',
         title: 'Comfort & Play',
         description: 'Enrichment tools for modern homes.',
-        image: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?q=80&w=1000&auto=format&fit=crop', // Playful image
+        image: dogCatPlayingImage,
         link: '/products?category=comfort'
     }
 ];
 
 const CareCategories = () => {
     return (
-        <section className="py-8 md:py-0 min-h-[calc(100vh-80px-13vh)] flex flex-col justify-center bg-[#FDFBF7]">
-            <div className="container mx-auto px-4 md:px-8 h-full flex flex-col justify-center">
+        <section className="py-8 md:py-12 bg-[#FDFBF7]">
+            <div className="container mx-auto px-4 md:px-8">
                 {/* Standard Section Header */}
-                <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-10 md:mb-12 gap-4 pt-4">
+                <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-10 md:mb-12 gap-4 py-[5px]">
                     <div>
-                        <h2 className="text-3xl md:text-4xl font-serif font-medium text-black mb-2">
+                        <h2 className="text-3xl md:text-4xl font-peace-sans font-medium text-black mb-2">
                             Browse by Category
                         </h2>
                         <p className="text-black/60 text-base md:text-lg font-light">
@@ -46,12 +49,12 @@ const CareCategories = () => {
                     </Link>
                 </div>
 
-                <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-none scroll-pl-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
                     {categories.map((cat, index) => (
                         <Link
                             key={cat.id}
                             to={cat.link}
-                            className="relative group overflow-hidden rounded-[2rem] flex-none w-[85vw] md:w-auto aspect-[3/4] md:aspect-auto md:h-[min(60vh,500px)] block shadow-sm hover:shadow-2xl transition-all duration-500"
+                            className="relative group overflow-hidden rounded-[2rem] w-full aspect-[4/3] min-h-[250px] block shadow-sm hover:shadow-2xl transition-all duration-500"
                         >
                             {/* Background Image */}
                             <div className="absolute inset-0">
@@ -65,11 +68,11 @@ const CareCategories = () => {
                             </div>
 
                             {/* Content */}
-                            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 flex flex-col items-start transform translate-y-4 md:translate-y-8 group-hover:translate-y-0 transition-transform duration-500">
-                                <h3 className="text-2xl lg:text-3xl font-serif font-medium text-white mb-2">
+                            <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 flex flex-col items-start transform translate-y-4 md:translate-y-6 group-hover:translate-y-0 transition-transform duration-500">
+                                <h3 className="text-xl lg:text-2xl font-peace-sans font-medium text-white mb-2">
                                     {cat.title}
                                 </h3>
-                                <p className="text-white/80 text-base md:text-lg font-light mb-4 md:mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                                <p className="text-white/80 text-sm md:text-base font-light mb-3 md:mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
                                     {cat.description}
                                 </p>
                                 <div className="flex items-center gap-2 text-furco-yellow font-medium uppercase tracking-widest text-xs md:text-sm border-b border-furco-yellow pb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">

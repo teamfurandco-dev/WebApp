@@ -2,8 +2,8 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  ArrowRight, Heart, ShieldCheck, Sparkles, 
+import {
+  ArrowRight, Heart, ShieldCheck, Sparkles,
   Leaf, Ban, Sprout, Hammer, HandMetal, Recycle, Dog, PawPrint,
   Facebook, Twitter, Instagram, Mail
 } from 'lucide-react';
@@ -61,15 +61,15 @@ const About = () => {
 
   return (
     <div ref={targetRef} className="min-h-screen bg-[#FDFBF7] text-furco-black font-sans selection:bg-furco-gold selection:text-white">
-      
+
       {/* 1. Header & Hero Section */}
       <section className="relative h-screen w-full overflow-hidden flex items-center justify-center">
         {/* Cinematic Background */}
         <div className="absolute inset-0 z-0">
           <motion.div style={{ y: parallaxY }} className="w-full h-[120%] -mt-[10%]">
-             <img 
-              src="https://images.unsplash.com/photo-1534361960057-19889db9621e?q=80&w=2070&auto=format&fit=crop" 
-              alt="Golden hour pet love" 
+            <img
+              src="https://images.unsplash.com/photo-1534361960057-19889db9621e?q=80&w=2070&auto=format&fit=crop"
+              alt="Golden hour pet love"
               className="w-full h-full object-cover brightness-[0.85]"
             />
           </motion.div>
@@ -78,17 +78,17 @@ const About = () => {
 
         {/* Branding Overlay */}
         <div className="absolute top-8 left-8 z-20">
-           {/* Assuming Logo Component or Image exists, using text for now as per prompt instructions to place logo */}
-           <div className="text-white font-serif tracking-widest text-sm font-bold uppercase">
-             Fur & Co <span className="block text-[10px] font-sans font-normal opacity-80">The Animal Aura</span>
-           </div>
+          {/* Assuming Logo Component or Image exists, using text for now as per prompt instructions to place logo */}
+          <div className="text-white font-serif tracking-widest text-sm font-bold uppercase">
+            Fur & Co <span className="block text-[10px] font-sans font-normal opacity-80">The Animal Aura</span>
+          </div>
         </div>
 
         {/* Content */}
         <div className="relative z-10 container px-4 text-center">
           <FadeIn>
-            <h1 className="text-6xl md:text-8xl font-serif text-white mb-6 drop-shadow-2xl leading-tight">
-              Where Love <br/> <span className="italic text-furco-gold">Meets Care</span>
+            <h1 className="text-6xl md:text-8xl font-peace-sans text-white mb-6 drop-shadow-2xl leading-tight">
+              Where Love <br /> <span className="italic text-furco-gold">Meets Care</span>
             </h1>
           </FadeIn>
           <FadeIn delay={0.2}>
@@ -104,7 +104,7 @@ const About = () => {
         </div>
 
         {/* Scroll Indicator */}
-        <motion.div 
+        <motion.div
           className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/70"
           animate={{ y: [0, 10, 0], opacity: [0.5, 1, 0.5] }}
           transition={{ repeat: Infinity, duration: 2 }}
@@ -117,14 +117,14 @@ const About = () => {
       {/* 2. "Born from Love" Section */}
       <section className="relative py-32 bg-[#FDFBF7]">
         <CurveTop className="rotate-180 -top-[1px] fill-[#FDFBF7]" /> {/* Seamless transition */}
-        
+
         <div className="container px-4 mx-auto">
           <div className="flex flex-col md:flex-row items-center gap-16 md:gap-24">
             {/* Content */}
             <div className="flex-1 text-center md:text-left space-y-8">
               <FadeIn>
                 <h2 className="text-5xl md:text-7xl font-serif text-furco-black leading-[1.1]">
-                  Fur & Co was <br/>
+                  Fur & Co was <br />
                   <span className="text-furco-gold italic font-light">born from love.</span>
                 </h2>
               </FadeIn>
@@ -150,9 +150,9 @@ const About = () => {
             <div className="flex-1 relative">
               <ScaleIn>
                 <div className="relative z-10 p-3 border border-furco-gold/30 rounded-t-[10rem] rounded-b-[2rem]">
-                  <img 
-                    src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=1000&auto=format&fit=crop" 
-                    alt="Our Inspiration" 
+                  <img
+                    src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=1000&auto=format&fit=crop"
+                    alt="Our Inspiration"
                     className="w-full h-[500px] object-cover rounded-t-[9.5rem] rounded-b-[1.5rem] shadow-2xl grayscale-[20%] sepia-[10%]"
                   />
                   {/* Botanical Illustration Overlay (Simulated with Icon) */}
@@ -169,20 +169,20 @@ const About = () => {
       {/* 3. "Nature-Centric Brand" Section */}
       <section className="relative py-40 bg-black text-white overflow-hidden">
         <CurveTop className="fill-[#FDFBF7]" /> {/* Transition from Cream */}
-        
+
         <div className="container px-4 mx-auto relative z-10">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             {/* Visual Focal Point */}
             <div className="relative order-2 md:order-1">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8 }}
                 className="relative z-10"
               >
-                <img 
-                  src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=1000&auto=format&fit=crop" 
-                  alt="Nature Centric" 
+                <img
+                  src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=1000&auto=format&fit=crop"
+                  alt="Nature Centric"
                   className="w-full max-w-md mx-auto rounded-3xl border-2 border-furco-gold/30 shadow-[0_0_50px_rgba(212,175,55,0.15)]"
                 />
               </motion.div>
@@ -199,7 +199,7 @@ const About = () => {
                   Our Philosophy
                 </div>
                 <h2 className="text-5xl md:text-6xl font-serif leading-tight">
-                  India's First <br/>
+                  India's First <br />
                   <span className="text-furco-gold italic">Nature-Centric</span> Brand
                 </h2>
               </FadeIn>
@@ -221,7 +221,7 @@ const About = () => {
             </div>
           </div>
         </div>
-        
+
         <CurveBottom className="fill-[#FDFBF7]" />
       </section>
 
@@ -238,8 +238,8 @@ const About = () => {
         <div className="relative w-full overflow-hidden">
           <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#FDFBF7] to-transparent z-10" />
           <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#FDFBF7] to-transparent z-10" />
-          
-          <motion.div 
+
+          <motion.div
             className="flex gap-8 w-max"
             animate={{ x: "-50%" }}
             transition={{ repeat: Infinity, ease: "linear", duration: 30 }}
@@ -286,9 +286,9 @@ const About = () => {
         <div className="grid md:grid-cols-2 min-h-[800px]">
           {/* Image Side */}
           <div className="relative h-[500px] md:h-auto overflow-hidden">
-            <img 
-              src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=1000&auto=format&fit=crop" 
-              alt="Mission Pet" 
+            <img
+              src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=1000&auto=format&fit=crop"
+              alt="Mission Pet"
               className="absolute inset-0 w-full h-full object-cover opacity-80 hover:scale-105 transition-transform duration-[2s]"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent md:bg-gradient-to-t" />
@@ -301,7 +301,7 @@ const About = () => {
                 <div className="w-16 h-1 bg-furco-gold mb-8" />
                 <h2 className="text-5xl md:text-7xl font-serif mb-6">Our Mission</h2>
               </FadeIn>
-              
+
               <FadeIn delay={0.2}>
                 <div className="p-8 border-l-2 border-furco-gold bg-white/5 backdrop-blur-sm rounded-r-2xl">
                   <p className="text-2xl md:text-3xl font-serif leading-relaxed text-white/90 italic">
@@ -347,11 +347,11 @@ const About = () => {
               <FadeIn key={i} delay={i * 0.1} className={i % 2 === 1 ? "md:mt-12" : ""}> {/* Stagger effect */}
                 <div className="group p-10 rounded-[2rem] bg-white border border-furco-gold/10 hover:border-furco-gold/40 shadow-sm hover:shadow-2xl hover:bg-gradient-to-b hover:from-white hover:to-furco-gold/5 transition-all duration-500 h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-furco-gold/5 rounded-bl-[4rem] -mr-4 -mt-4 transition-all duration-500 group-hover:bg-furco-gold/20" />
-                  
+
                   <div className="w-12 h-12 flex items-center justify-center rounded-full border border-furco-black/10 mb-6 group-hover:bg-furco-gold group-hover:text-black transition-colors duration-500 bg-white">
                     <span className="font-serif font-bold text-lg">{i + 1}</span>
                   </div>
-                  
+
                   <h3 className="text-2xl font-serif font-bold mb-4 text-furco-black group-hover:text-furco-gold transition-colors">{item.title}</h3>
                   <p className="text-muted-foreground leading-relaxed font-light">{item.desc}</p>
                 </div>

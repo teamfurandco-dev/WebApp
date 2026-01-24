@@ -1,13 +1,19 @@
 import type { FastifyInstance } from 'fastify';
-import { CategoryService } from './service.js';
-import { success } from '../../shared/utils/response.js';
+import { prisma } from '../../shared/lib/prisma.js';
 
-export const categoryRoutes = async (fastify: FastifyInstance) => {
-  const categoryService = new CategoryService(fastify.prisma);
-
-  // GET /api/categories - List all categories
-  fastify.get('/api/categories', async () => {
-    const categories = await categoryService.getCategories();
-    return success(categories);
+export async function categoryRoutes(fastify: FastifyInstance) {
+  // GET /categories - List all categories
+  fastify.get('/categories', async () => {
+    const categories = await prisma.category.findMany({
+      where: { isActive: true },
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+      },
+    });
+    return { data: categories };
   });
-};
+}

@@ -27,6 +27,21 @@ export class UserService {
     
     return user;
   }
+
+  /**
+   * Find user by email
+   */
+  async findByEmail(email: string) {
+    return prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+      },
+    });
+  }
   
   /**
    * Update user profile
@@ -90,6 +105,43 @@ export class UserService {
       cartCount,
       wishlistCount,
     };
+  }
+
+  /**
+   * Get all users (admin only)
+   */
+  async getAllUsers() {
+    return prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  /**
+   * Update user role (admin only)
+   */
+  async updateUserRole(userId: string, role: string) {
+    return prisma.user.update({
+      where: { id: userId },
+      data: { role },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
   }
 }
 

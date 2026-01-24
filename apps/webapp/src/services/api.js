@@ -439,46 +439,31 @@ export const api = {
    * ]
    */
   getProducts: async ({ category, sort, search } = {}) => {
-    let query = supabase
-      .from('products')
-      .select(`
-        *,
-        categories(name)
-      `)
-      .eq('is_active', true);
-
-    if (category && category !== 'All') {
-      query = query.eq('categories.name', category);
-    }
-
-    if (search) {
-      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
-    }
-
-    if (sort) {
-      if (sort === 'price-low') {
-        query = query.order('base_price_cents', { ascending: true });
-      } else if (sort === 'price-high') {
-        query = query.order('base_price_cents', { ascending: false });
-      } else if (sort === 'rating') {
-        query = query.order('average_rating', { ascending: false });
+    try {
+      let endpoint = '/api/products?';
+      const params = new URLSearchParams();
+      
+      if (category && category !== 'All') {
+        // Find category ID by name
+        const categories = await api.getCategories();
+        const categoryObj = categories.find(cat => cat.name === category);
+        if (categoryObj) {
+          params.append('categoryId', categoryObj.id);
+        }
       }
-    }
-
-    const { data, error } = await query;
-    if (error) {
+      
+      if (search) {
+        params.append('search', search);
+      }
+      
+      endpoint += params.toString();
+      
+      const result = await apiRequest(endpoint);
+      return result.data || [];
+    } catch (error) {
       console.error('Error fetching products:', error);
       return [];
     }
-    
-    // Transform data to match frontend expectations
-    return (data || []).map(product => ({
-      ...product,
-      category: product.categories?.name || 'Uncategorized',
-      rating: product.average_rating || 0,
-      reviewsCount: product.reviews_count || 0,
-      variants: product.attributes?.variants || [{ type: 'size', options: ['Standard'] }]
-    }));
   },
 
   /**
@@ -616,16 +601,13 @@ export const api = {
    * ]
    */
   getCategories: async () => {
-    const { data, error } = await supabase
-      .from('categories')
-      .select('*')
-      .order('name', { ascending: true });
-
-    if (error) {
+    try {
+      const result = await apiRequest('/api/categories');
+      return result.data || [];
+    } catch (error) {
       console.error('Error fetching categories:', error);
       return [];
     }
-    return data;
   },
 
   /**
@@ -826,27 +808,13 @@ export const api = {
   },
 
   getFeaturedProducts: async () => {
-    const { data, error } = await supabase
-      .from('products')
-      .select(`
-        *,
-        categories!inner(name)
-      `)
-      .eq('is_active', true)
-      .eq('is_featured', true)
-      .limit(6);
-
-    if (error) {
+    try {
+      const result = await apiRequest('/api/products?isFeatured=true&limit=6');
+      return result.data || [];
+    } catch (error) {
       console.error('Error fetching featured products:', error);
       return [];
     }
-    
-    return (data || []).map(product => ({
-      ...product,
-      category: product.categories?.name || 'Uncategorized',
-      rating: product.average_rating || 4.5,
-      reviewsCount: product.reviews_count || 50
-    }));
   },
 
   getTrendingProducts: async () => {

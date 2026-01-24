@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -16,7 +16,7 @@
     --popover-foreground: 222.2 84% 4.9%;
 
     --primary: 45 96% 56%;
-    /* #FBBF24 - Fur&Co Yellow */
+    /* #F8C701 - Fur&Co Yellow */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 40 100% 97%;
@@ -40,7 +40,7 @@
     --radius: 0.5rem;
 
     /* Fur & Co Custom Variables */
-    --furco-yellow: #FBBF24;
+    --furco-yellow: #F8C701;
     --furco-yellow-light: #FFE28A;
     --furco-yellow-hover: #FFCA2C;
     --furco-gold: #D4AF37;
@@ -98,7 +98,7 @@
 
 /* State 1: CORE (Unlimited) - Luxury Premium (Charcoal & Gold) */
 [data-theme='core'] {
-  --background: 210 7% 11%;
+  --background: 210 50% 11%;
   /* #1A1C1E (Dark Charcoal) */
   --foreground: 0 0% 100%;
   /* White */
@@ -130,7 +130,7 @@
   --ring: 43 65% 53%;
 
   /* Footer Variables (Core - Dark Charcoal) */
-  --footer-bg: 210 7% 11%;
+  --footer-bg: 210 50% 11%;
   --footer-fg: 0 0% 100%;
 }
 
@@ -200,4 +200,17 @@
 /* Smooth scroll behavior */
 html {
   scroll-behavior: smooth;
+}
+
+/* Poppins Font Classes for Logo and Headings */
+.font-peace-sans {
+  font-family: 'Poppins', sans-serif;
+}
+
+.logo-font {
+  font-family: 'Poppins', sans-serif;
+}
+
+.heading-font {
+  font-family: 'Poppins', sans-serif;
 }

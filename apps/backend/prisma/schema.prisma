@@ -48,6 +48,7 @@ model Product {
   @@index([isActive, isFeatured])
   @@index([homepageSection])
   @@index([unlimitedFurEligible])
+  @@map("products")
 }
 
 model ProductVariant {
@@ -123,6 +124,7 @@ model Category {
   
   @@index([slug])
   @@index([parentId])
+  @@map("categories")
 }
 
 // ============================================

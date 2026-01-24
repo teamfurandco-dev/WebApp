@@ -16,8 +16,8 @@ const WhyChoose = () => {
         <section className="py-0 md:py-0 min-h-[50vh] flex flex-col justify-center bg-[#FDFBF7] overflow-hidden">
             <div className="container mx-auto px-4 md:px-8 h-full flex flex-col justify-center">
                 {/* Standard Section Header */}
-                <div className="mb-2 md:mb-4 pt-0">
-                    <h2 className="text-3xl md:text-4xl font-serif font-medium text-black mb-2">
+                <div className="mb-2 md:mb-4 py-[5px]">
+                    <h2 className="text-3xl md:text-4xl font-peace-sans font-medium text-black mb-2">
                         Why Choose Fur & Co?
                     </h2>
                     <p className="text-black/60 text-base md:text-lg font-light">

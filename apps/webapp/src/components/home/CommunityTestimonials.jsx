@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import silentPromiseImage from '@/assets/silent_promise.png';
 
 const CommunityTestimonials = () => {
     return (
         <section className="py-8 md:py-0 min-h-[calc(100vh-80px-13vh)] flex flex-col justify-center bg-white">
             <div className="container mx-auto px-4 md:px-8 h-full flex flex-col justify-center">
                 {/* Section Header */}
-                <div className="mb-8 md:mb-10 pt-4">
-                    <h2 className="text-3xl md:text-4xl font-serif font-medium text-black mb-2">
+                <div className="mb-8 md:mb-10 py-[5px]">
+                    <h2 className="text-3xl md:text-4xl font-peace-sans font-medium text-black mb-2">
                         A Silent Promise
                     </h2>
                     <p className="text-black/60 text-base md:text-lg font-light">
@@ -20,7 +21,7 @@ const CommunityTestimonials = () => {
                     {/* Left Side - Image (60%) */}
                     <div className="lg:col-span-3 h-[300px] md:h-[450px] lg:h-[500px] relative overflow-hidden rounded-[2rem] md:rounded-[3rem]">
                         <img
-                            src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?q=80&w=2000&auto=format&fit=crop"
+                            src={silentPromiseImage}
                             alt="Pet Trust"
                             className="w-full h-full object-cover grayscale-[20%] opacity-90"
                         />
@@ -29,7 +30,7 @@ const CommunityTestimonials = () => {
                     {/* Right Side - Text (40%) */}
                     <div className="lg:col-span-2 p-8 md:p-12 lg:py-16 lg:pr-16 space-y-6 md:space-y-8">
                         {/* Headline */}
-                        <h3 className="text-2xl md:text-3xl lg:text-4xl font-serif font-medium text-black leading-tight">
+                        <h3 className="text-2xl md:text-3xl lg:text-4xl font-peace-sans font-medium text-black leading-tight">
                             They give you their best every day. They trust you to do the same.
                         </h3>
 

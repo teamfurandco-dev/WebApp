@@ -21,12 +21,12 @@ const tips = [
 
 const PetParentingTips = () => {
     return (
-        <section className="py-8 md:py-0 min-h-[calc(100vh-80px-13vh)] flex flex-col justify-center bg-white border-t border-black/5">
-            <div className="container mx-auto px-4 md:px-8 h-full flex flex-col justify-center">
+        <section className="pt-16 md:pt-20 pb-8 md:pb-12 bg-white border-t border-black/5">
+            <div className="container mx-auto px-4 md:px-8">
                 {/* Standard Section Header */}
-                <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-10 md:mb-12 gap-4">
+                <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-10 md:mb-12 gap-4 py-[5px]">
                     <div>
-                        <h2 className="text-3xl md:text-4xl font-serif font-medium text-black mb-2">
+                        <h2 className="text-3xl md:text-4xl font-peace-sans font-medium text-black mb-2">
                             Pet Parenting Tips
                         </h2>
                         <p className="text-black/60 text-base md:text-lg font-light">

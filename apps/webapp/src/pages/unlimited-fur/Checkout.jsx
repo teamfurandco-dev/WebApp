@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useMockUnlimitedFur } from '@/context/MockUnlimitedFurContext';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@fur-co/utils';
+import UnlimitedBackground from '@/components/unlimited-fur/UnlimitedBackground';
 
 const BUNDLE_DISCOUNT_RATE = 0.15;
 const BUNDLE_MIN_PRODUCTS = 3;
@@ -78,28 +79,25 @@ export default function Checkout() {
   };
 
   return (
-    <div className="min-h-screen bg-[#1A1B23] text-white py-20 px-8">
-      <div className="container mx-auto max-w-4xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-4xl font-serif font-medium mb-4">Checkout</h1>
-          <p className="text-white/60 text-lg">Review and confirm your order</p>
-        </motion.div>
+    <div className="min-h-screen bg-[#EDC520] text-gray-900 py-20 px-8 relative overflow-hidden font-sans selection:bg-black/10 selection:text-black">
+      <UnlimitedBackground />
+      <div className="container mx-auto max-w-4xl relative z-10">
+        <h1 className="text-4xl font-serif font-black mb-4 text-gray-900 text-center font-peace-sans">Checkout</h1>
+        <p className="text-gray-700 text-lg text-center font-medium">Review and confirm your order</p>
 
         <div className="space-y-8">
           {/* Order Summary */}
-          <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Check className="w-5 h-5 text-[#D4AF37]" />
+          <div className="bg-white/40 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/60 shadow-xl">
+            <h2 className="text-xl font-black mb-6 flex items-center gap-3 text-gray-900 font-peace-sans">
+              <div className="p-2 bg-black rounded-lg">
+                <Check className="w-5 h-5 text-[#EDC520]" />
+              </div>
               Order Summary
             </h2>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-white/60">Products ({selectedProducts.length})</span>
-                <span className="font-bold">₹{(wallet.spent / 100).toFixed(2)}</span>
+                <span className="text-gray-600 font-bold">Products ({selectedProducts.length})</span>
+                <span className="font-black text-gray-900">₹{(wallet.spent / 100).toFixed(2)}</span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-green-400">
@@ -107,12 +105,12 @@ export default function Checkout() {
                   <span>-₹{(discount / 100).toFixed(2)}</span>
                 </div>
               )}
-              <div className="border-t border-white/10 pt-3 flex justify-between text-xl">
-                <span className="font-bold">Total</span>
-                <span className="font-bold text-[#D4AF37]">₹{(total / 100).toFixed(2)}</span>
+              <div className="border-t border-black/5 pt-4 flex justify-between text-2xl">
+                <span className="font-black text-gray-900 uppercase tracking-tight">Total</span>
+                <span className="font-black text-black">₹{(total / 100).toFixed(2)}</span>
               </div>
               {mode === 'monthly' && (
-                <div className="bg-[#D4AF37]/10 rounded-lg p-3 text-sm text-[#D4AF37]">
+                <div className="bg-black text-[#EDC520] font-black rounded-xl p-4 text-xs uppercase tracking-wider text-center">
                   This amount will be charged monthly on day {billingCycleDay} of each month
                 </div>
               )}
@@ -120,9 +118,11 @@ export default function Checkout() {
           </div>
 
           {/* Delivery Address */}
-          <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-[#D4AF37]" />
+          <div className="bg-white/40 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/60 shadow-xl">
+            <h2 className="text-xl font-black mb-6 flex items-center gap-3 text-gray-900 font-peace-sans">
+              <div className="p-2 bg-black rounded-lg">
+                <MapPin className="w-5 h-5 text-[#EDC520]" />
+              </div>
               Delivery Address
             </h2>
             {addresses.length === 0 ? (
@@ -136,12 +136,12 @@ export default function Checkout() {
                     className={cn(
                       'w-full text-left p-4 rounded-lg border-2 transition-all',
                       selectedAddress === addr.id
-                        ? 'border-[#D4AF37] bg-[#D4AF37]/10'
-                        : 'border-white/10 hover:border-white/20'
+                        ? 'border-black bg-white shadow-lg scale-[1.02]'
+                        : 'border-white/60 bg-white/20 hover:border-black/20 hover:bg-white/30'
                     )}
                   >
-                    <div className="font-bold mb-1">{addr.fullName}</div>
-                    <div className="text-sm text-white/60">
+                    <div className="font-black text-gray-900 mb-1">{addr.fullName}</div>
+                    <div className="text-sm text-gray-600 font-medium">
                       {addr.addressLine1}, {addr.city}, {addr.state} {addr.postalCode}
                     </div>
                   </button>
@@ -153,14 +153,16 @@ export default function Checkout() {
           {/* Billing Cycle (Monthly only) */}
           {mode === 'monthly' && (
             <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-[#D4AF37]" />
+              <h2 className="text-xl font-black mb-6 flex items-center gap-3 text-gray-900 font-peace-sans">
+                <div className="p-2 bg-black rounded-lg">
+                  <Calendar className="w-5 h-5 text-[#EDC520]" />
+                </div>
                 Billing Cycle Day
               </h2>
               <select
                 value={billingCycleDay}
                 onChange={(e) => setBillingCycleDay(parseInt(e.target.value))}
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D4AF37]"
+                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 text-gray-900 font-bold focus:outline-none focus:border-black focus:ring-1 focus:ring-black shadow-sm transition-all"
               >
                 {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
                   <option key={day} value={day}>Day {day} of each month</option>
@@ -170,9 +172,11 @@ export default function Checkout() {
           )}
 
           {/* Payment Method */}
-          <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-[#D4AF37]" />
+          <div className="bg-white/40 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/60 shadow-xl">
+            <h2 className="text-xl font-black mb-6 flex items-center gap-3 text-gray-900">
+              <div className="p-2 bg-black rounded-lg">
+                <CreditCard className="w-5 h-5 text-[#EDC520]" />
+              </div>
               Payment Method
             </h2>
             <div className="space-y-3">
@@ -183,8 +187,8 @@ export default function Checkout() {
                   className={cn(
                     'w-full text-left p-4 rounded-lg border-2 transition-all',
                     paymentMethod === method
-                      ? 'border-[#D4AF37] bg-[#D4AF37]/10'
-                      : 'border-white/10 hover:border-white/20'
+                      ? 'border-black bg-white shadow-lg scale-[1.02]'
+                      : 'border-white/60 bg-white/20 hover:border-black/20 hover:bg-white/30'
                   )}
                 >
                   {method === 'cod' && 'Cash on Delivery'}
@@ -204,7 +208,7 @@ export default function Checkout() {
           <Button
             onClick={handleConfirm}
             disabled={loading || !selectedAddress}
-            className="w-full bg-[#D4AF37] hover:bg-[#B8941F] text-black rounded-xl py-6 text-lg font-bold disabled:opacity-50"
+            className="w-full bg-black hover:bg-gray-800 text-white rounded-2xl py-7 text-xl font-black shadow-2xl transition-all disabled:opacity-50 active:scale-[0.98]"
           >
             {loading ? 'Processing...' : `Confirm ${mode === 'monthly' ? 'Monthly Plan' : 'Order'}`}
           </Button>

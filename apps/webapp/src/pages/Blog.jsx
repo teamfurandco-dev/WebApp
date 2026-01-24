@@ -67,7 +67,7 @@ const Blog = () => {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16 space-y-4 md:space-y-6">
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-furco-brown">Editorial</span>
-          <h1 className="text-4xl md:text-5xl lg:text-7xl font-serif font-medium text-black">The Fur & Co Journal</h1>
+          <h1 className="text-4xl md:text-5xl lg:text-7xl font-peace-sans font-medium text-black">The Fur & Co Journal</h1>
           <p className="text-base md:text-lg text-black/60 font-medium">Stories, science, and care for the modern pet parent.</p>
 
           {/* Search & Filter */}

@@ -21,7 +21,7 @@ const ProductCarousel = ({ title, products }) => {
     <section className="py-24 bg-[#FDFBF7] overflow-hidden w-full">
       <div className="container px-4 mx-auto">
         <div className="flex items-center justify-between mb-12">
-          <h2 className="text-4xl md:text-5xl font-serif font-bold text-black">{title}</h2>
+          <h2 className="text-4xl md:text-5xl font-peace-sans font-bold text-black">{title}</h2>
           
           <div className="flex gap-4">
             <button 

@@ -6,14 +6,10 @@ import { Button } from '@/components/ui/button';
 import { useMockUnlimitedFur } from '@/context/MockUnlimitedFurContext';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@fur-co/utils';
-
-const CATEGORIES = [
-  { value: 'food', label: 'Food & Nutrition', icon: UtensilsCrossed, description: 'Premium meals & treats' },
-  { value: 'toys', label: 'Toys & Play', icon: Gamepad2, description: 'Fun & entertainment' },
-  { value: 'accessories', label: 'Accessories', icon: Shirt, description: 'Collars, leashes & more' },
-  { value: 'grooming', label: 'Grooming', icon: Sparkles, description: 'Hygiene & care products' },
-  { value: 'health', label: 'Health & Wellness', icon: Heart, description: 'Supplements & vitamins' },
-];
+import UnlimitedBackground from '@/components/unlimited-fur/UnlimitedBackground';
+import treatImg from '@/assets/treat.png';
+import collarImg from '@/assets/collar.png';
+import boneImg from '@/assets/bone.png';
 
 export default function CategorySelection() {
   const navigate = useNavigate();
@@ -21,7 +17,7 @@ export default function CategorySelection() {
   const mode = searchParams.get('mode') || 'monthly';
   const { switchMode } = useTheme();
   const { setCategories, loading, categories } = useMockUnlimitedFur();
-  
+
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [error, setError] = useState('');
 
@@ -30,7 +26,7 @@ export default function CategorySelection() {
   }, [switchMode]);
 
   const toggleCategory = (category) => {
-    setSelectedCategories(prev => 
+    setSelectedCategories(prev =>
       prev.includes(category)
         ? prev.filter(c => c !== category)
         : [...prev, category]
@@ -48,99 +44,116 @@ export default function CategorySelection() {
       await setCategories(selectedCategories);
       navigate(`/unlimited-fur/${mode}/shopping`);
     } catch (err) {
-      setError('Failed to set categories. Please try again.');
+      setError('Failed to set categories.');
     }
   };
 
+  const getCategoryImage = (category) => {
+    const name = category.name.toLowerCase();
+    const id = category.id.toLowerCase();
+
+    if (name.includes('food') || name.includes('treat') || id === 'food') return treatImg;
+    if (name.includes('toy') || id === 'toys') return boneImg;
+    if (name.includes('access') || name.includes('collar') || id === 'accessories') return collarImg;
+    return null;
+  };
+
   return (
-    <div className="min-h-screen bg-[#1A1B23] text-white py-20 px-8">
-      <div className="container mx-auto max-w-5xl">
+    <div className="h-screen bg-[#EDC520] text-gray-900 overflow-hidden relative font-sans">
+      <UnlimitedBackground />
+
+      <div className="h-full container mx-auto max-w-5xl flex flex-col items-center justify-center p-6 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-8"
         >
-          <h1 className="text-4xl font-serif font-medium mb-4">
-            What does your pet need?
+          <h1 className="text-3xl md:text-4xl font-black font-peace-sans tracking-tighter text-gray-900 leading-tight mb-2">
+            Personalize<br />Their Box
           </h1>
-          <p className="text-white/60 text-lg">
-            Select one or more categories to personalize your shopping experience
+          <p className="text-gray-800 font-bold text-sm opacity-80">
+            Tell us which categories you'd like to explore
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          {categories.map((category, index) => {
-            const isSelected = selectedCategories.includes(category.id);
-            
-            return (
-              <motion.button
-                key={category.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                onClick={() => toggleCategory(category.id)}
-                className={cn(
-                  'relative p-8 rounded-2xl border-2 transition-all text-left',
-                  isSelected
-                    ? 'border-[#D4AF37] bg-[#D4AF37]/10'
-                    : 'border-white/10 bg-white/5 hover:border-white/20'
-                )}
-              >
-                {isSelected && (
-                  <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#D4AF37] flex items-center justify-center">
-                    <Check className="w-5 h-5 text-black" />
+        <div className="flex justify-center w-full mb-12">
+          <div className="flex flex-wrap justify-center gap-6 w-full max-w-6xl">
+            {categories.map((category, index) => {
+              const isSelected = selectedCategories.includes(category.id);
+              const imgAsset = getCategoryImage(category);
+
+              return (
+                <motion.button
+                  key={category.id}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => toggleCategory(category.id)}
+                  className={cn(
+                    'relative p-7 rounded-[2.5rem] border-2 transition-all text-center backdrop-blur-md flex flex-col items-center justify-between group min-h-[220px] w-[180px] lg:w-[210px]',
+                    isSelected
+                      ? 'border-black bg-white shadow-2xl shadow-black/10'
+                      : 'border-white/40 bg-white/20 hover:border-black/20 hover:bg-white/30 hover:shadow-xl'
+                  )}
+                >
+                  {isSelected && (
+                    <div className="absolute -top-2 -right-2 bg-black text-[#EDC520] rounded-full p-2.5 shadow-lg z-20">
+                      <Check className="w-4 h-4 stroke-[4]" />
+                    </div>
+                  )}
+
+                  <div className="flex-1 flex items-center justify-center mb-6 w-full">
+                    {imgAsset ? (
+                      <motion.img
+                        src={imgAsset}
+                        alt={category.name}
+                        className={cn(
+                          "w-24 h-24 object-contain transition-all duration-500 drop-shadow-xl",
+                          isSelected ? "scale-110 rotate-3" : "grayscale-[0.3] group-hover:grayscale-0 group-hover:scale-110"
+                        )}
+                      />
+                    ) : (
+                      <div className={cn(
+                        "w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-3xl transition-colors shadow-inner",
+                        isSelected ? "bg-black text-[#EDC520]" : "bg-white/40 text-black group-hover:bg-white"
+                      )}>
+                        {category.icon}
+                      </div>
+                    )}
                   </div>
-                )}
-                
-                <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mb-4 text-2xl">
-                  {category.icon}
-                </div>
-                
-                <h3 className="text-xl font-bold mb-2">{category.name}</h3>
-                <p className="text-white/60 text-sm">Essential items for your pet</p>
-              </motion.button>
-            );
-          })}
+
+                  <h3 className="text-[12px] font-black uppercase tracking-[0.15em] text-gray-900 font-peace-sans leading-tight mt-auto">{category.name}</h3>
+                </motion.button>
+              );
+            })}
+          </div>
         </div>
 
-        {selectedCategories.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="bg-white/5 rounded-xl p-4 mb-8 border border-white/10"
-          >
-            <div className="text-sm text-white/60 mb-2">Selected Categories:</div>
-            <div className="flex flex-wrap gap-2">
-              {selectedCategories.map(cat => {
-                const category = CATEGORIES.find(c => c.value === cat);
-                return (
-                  <span key={cat} className="bg-[#D4AF37]/20 text-[#D4AF37] px-3 py-1 rounded-full text-sm">
-                    {category?.label}
-                  </span>
-                );
-              })}
+        <div className="w-full max-w-sm space-y-4">
+          {selectedCategories.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-2 mb-2">
+              <p className="text-[10px] font-black uppercase text-gray-500 w-full text-center mb-1">Selected Focus:</p>
+              {selectedCategories.map(cat => (
+                <span key={cat} className="bg-black text-[#EDC520] px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter">
+                  {categories.find(c => c.id === cat)?.name}
+                </span>
+              ))}
             </div>
-          </motion.div>
-        )}
-
-        {error && (
-          <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-8 text-red-400">
-            {error}
-          </div>
-        )}
-
-        <Button
-          onClick={handleContinue}
-          disabled={selectedCategories.length === 0 || loading}
-          className="w-full bg-[#D4AF37] hover:bg-[#B8941F] text-black rounded-xl py-6 text-lg font-bold disabled:opacity-50"
-        >
-          {loading ? 'Processing...' : (
-            <>
-              Start Shopping
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </>
           )}
-        </Button>
+
+          <Button
+            onClick={handleContinue}
+            disabled={selectedCategories.length === 0 || loading}
+            className="w-full h-16 bg-black text-white rounded-2xl text-xl font-black uppercase tracking-tighter shadow-2xl transition-all active:scale-95 disabled:opacity-30"
+          >
+            {loading ? 'Processing...' : (
+              <div className="flex items-center justify-center gap-3">
+                Unlock Shop <ArrowRight className="w-6 h-6" />
+              </div>
+            )}
+          </Button>
+
+          {error && <p className="text-red-500 text-center text-[10px] font-bold uppercase tracking-widest">{error}</p>}
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { supabase } from '../lib/supabase.js';
-import { UnauthorizedError } from '../errors/index.js';
+import { UnauthorizedError, ForbiddenError } from '../errors/index.js';
+import { userService } from '../../modules/users/service.js';
 
 export const authenticate = async (
   request: FastifyRequest,
@@ -24,17 +25,38 @@ export const authenticate = async (
       throw new UnauthorizedError('Invalid or expired token');
     }
 
-    // Attach user to request
+    // Get user from database to get the role
+    const dbUser = await userService.getOrCreateUser(
+      user.id,
+      user.email!,
+      user.user_metadata?.name || user.email!.split('@')[0]
+    );
+
+    // Attach user to request with database role
     request.user = {
-      id: user.id,
-      email: user.email!,
-      role: user.role,
+      id: dbUser.id,
+      email: dbUser.email,
+      role: dbUser.role,
     };
   } catch (error) {
     if (error instanceof UnauthorizedError) {
       throw error;
     }
     throw new UnauthorizedError('Token verification failed');
+  }
+};
+
+// Admin authentication - requires admin role
+export const authenticateAdmin = async (
+  request: FastifyRequest,
+  reply: FastifyReply
+) => {
+  // First authenticate the user
+  await authenticate(request, reply);
+  
+  // Check if user has admin role
+  if (request.user?.role?.toLowerCase() !== 'admin') {
+    throw new ForbiddenError('Admin access required');
   }
 };
 

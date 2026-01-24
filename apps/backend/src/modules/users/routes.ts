@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { userService } from './service.js';
 import { updateProfileSchema } from './schema.js';
-import { authenticate } from '../../shared/middleware/auth.js';
+import { authenticate, authenticateAdmin } from '../../shared/middleware/auth.js';
 
 export async function userRoutes(fastify: FastifyInstance) {
   // Get current user profile
@@ -24,5 +24,25 @@ export async function userRoutes(fastify: FastifyInstance) {
     const userId = request.user.id;
     const stats = await userService.getUserStats(userId);
     return { data: stats };
+  });
+
+  // Admin routes
+  // Get all users (admin only)
+  fastify.get('/users', { preHandler: authenticateAdmin }, async (request, reply) => {
+    const users = await userService.getAllUsers();
+    return { data: users };
+  });
+
+  // Update user role (admin only)
+  fastify.patch('/users/:userId/role', { preHandler: authenticateAdmin }, async (request, reply) => {
+    const { userId } = request.params as { userId: string };
+    const { role } = request.body as { role: string };
+    
+    if (!['customer', 'admin'].includes(role)) {
+      return reply.code(400).send({ error: 'Invalid role' });
+    }
+
+    const user = await userService.updateUserRole(userId, role);
+    return { data: user };
   });
 }

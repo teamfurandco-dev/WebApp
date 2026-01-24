@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import ctaSectionImage from '@/assets/cta_section_home.png';
 
 const LifestyleCTA = () => {
     return (
@@ -8,7 +9,7 @@ const LifestyleCTA = () => {
             <div className="container mx-auto px-4 md:px-8 h-full flex flex-col justify-center">
                 <div className="relative rounded-[2rem] md:rounded-[3rem] overflow-hidden h-[400px] md:h-[500px] shadow-2xl">
                     <img
-                        src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?q=80&w=2600&auto=format&fit=crop"
+                        src={ctaSectionImage}
                         alt="Pet Love"
                         className="w-full h-full object-cover"
                     />

@@ -19,6 +19,7 @@ export default {
       fontFamily: {
         sans: ['Lato', 'sans-serif'],
         serif: ['Playfair Display', 'serif'],
+        'peace-sans': ['Poppins', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -63,7 +64,7 @@ export default {
         },
         furco: {
           yellow: {
-            DEFAULT: '#FBBF24',
+            DEFAULT: '#F8C701',
             light: '#FFE28A',
             hover: '#FFCA2C',
             gold: '#DFA417',

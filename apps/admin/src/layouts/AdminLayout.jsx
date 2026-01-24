@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Users } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, LogOut } from 'lucide-react';
 import { cn } from '@fur-co/utils';
+import { useAuth } from '../contexts/AuthContext';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -11,6 +12,7 @@ const navigation = [
 
 export default function AdminLayout({ children }) {
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -18,6 +20,7 @@ export default function AdminLayout({ children }) {
         <aside className="w-64 bg-white shadow-md min-h-screen">
           <div className="p-6">
             <h1 className="text-2xl font-bold text-furco-yellow">Fur & Co Admin</h1>
+            <p className="text-sm text-gray-600 mt-1">{user?.email}</p>
           </div>
           <nav className="mt-6">
             {navigation.map((item) => {
@@ -38,6 +41,15 @@ export default function AdminLayout({ children }) {
               );
             })}
           </nav>
+          <div className="absolute bottom-0 w-64 p-6">
+            <button
+              onClick={signOut}
+              className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-md transition-colors"
+            >
+              <LogOut className="w-5 h-5 mr-3" />
+              Sign Out
+            </button>
+          </div>
         </aside>
         <main className="flex-1 p-8">
           {children}

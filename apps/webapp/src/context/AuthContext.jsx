@@ -10,18 +10,37 @@ export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Sync user with backend database
+  const syncUserWithBackend = async (session) => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/me`, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+    } catch (error) {
+      console.error('Failed to sync user with backend:', error);
+    }
+  };
+
   useEffect(() => {
     // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        syncUserWithBackend(session);
+      }
       setLoading(false);
     });
 
     // Listen for changes on auth state (logged in, signed out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user && _event === 'SIGNED_IN') {
+        await syncUserWithBackend(session);
+      }
       setLoading(false);
     });
 

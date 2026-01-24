@@ -1,11 +1,11 @@
 import { FastifyInstance } from 'fastify';
 import { orderService } from './service.js';
 import { createOrderSchema, updateOrderStatusSchema, orderQuerySchema } from './schema.js';
-import { authenticate } from '../../shared/middleware/auth.js';
+import { authenticate, authenticateAdmin } from '../../shared/middleware/auth.js';
 
 export async function orderRoutes(fastify: FastifyInstance) {
   // Get user's orders
-  fastify.get('/orders', { preHandler: authenticate }, async (request, reply) => {
+  fastify.get('/orders/me', { preHandler: authenticate }, async (request, reply) => {
     const userId = request.user.id;
     const filters = orderQuerySchema.parse(request.query);
     const orders = await orderService.getOrders(userId, filters);
@@ -43,9 +43,16 @@ export async function orderRoutes(fastify: FastifyInstance) {
     const order = await orderService.cancelOrder(userId, id);
     return { data: order };
   });
+
+  // Admin routes
+  // Get all orders (admin only)
+  fastify.get('/orders', { preHandler: authenticateAdmin }, async (request, reply) => {
+    const orders = await orderService.getAllOrders();
+    return { data: orders };
+  });
   
-  // Update order status (admin only - add admin check middleware)
-  fastify.patch('/orders/:id/status', { preHandler: authenticate }, async (request, reply) => {
+  // Update order status (admin only)
+  fastify.patch('/orders/:id/status', { preHandler: authenticateAdmin }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const data = updateOrderStatusSchema.parse(request.body);
     const order = await orderService.updateOrderStatus(id, data);

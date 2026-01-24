@@ -4,6 +4,7 @@ import rateLimit from '@fastify/rate-limit';
 import multipart from '@fastify/multipart';
 import { config } from './config/index.js';
 import { errorHandler } from './shared/middleware/errorHandler.js';
+import { userService } from './modules/users/service.js';
 import { authenticate } from './shared/middleware/auth.js';
 import { success } from './shared/utils/response.js';
 import { productRoutes } from './modules/products/routes.js';
@@ -14,6 +15,7 @@ import { wishlistRoutes } from './modules/wishlist/routes.js';
 import { addressRoutes } from './modules/addresses/routes.js';
 import { orderRoutes } from './modules/orders/routes.js';
 import { userRoutes } from './modules/users/routes.js';
+import { categoryRoutes } from './modules/categories/routes.js';
 
 const fastify = Fastify({
   logger: {
@@ -31,6 +33,7 @@ const start = async () => {
     await fastify.register(cors, {
       origin: config.cors.origin,
       credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     });
 
     // Register rate limiting
@@ -62,6 +65,14 @@ const start = async () => {
       });
     });
 
+    // Admin verification endpoint
+    fastify.get('/api/admin/verify', { preHandler: authenticate }, async (request) => {
+      return success({
+        isAdmin: request.user?.role?.toLowerCase() === 'admin',
+        user: request.user
+      });
+    });
+
     // Register API routes
     await fastify.register(productRoutes, { prefix: '/api' });
     await fastify.register(blogRoutes, { prefix: '/api' });
@@ -71,6 +82,7 @@ const start = async () => {
     await fastify.register(addressRoutes, { prefix: '/api' });
     await fastify.register(orderRoutes, { prefix: '/api' });
     await fastify.register(userRoutes, { prefix: '/api' });
+    await fastify.register(categoryRoutes, { prefix: '/api' });
     
     // Import and register unlimited-fur routes (with error handling)
     try {

@@ -3,6 +3,25 @@ import { prisma } from '../../shared/lib/prisma.js';
 
 export class OrderService {
   /**
+   * Get all orders (admin only)
+   */
+  async getAllOrders() {
+    return prisma.order.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        items: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  /**
    * Get user's orders
    */
   async getOrders(userId: string, filters: { status?: string; limit?: number; offset?: number }) {
