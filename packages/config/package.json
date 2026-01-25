@@ -1,0 +1,10 @@
+{
+  "name": "@fur-co/config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./tailwind": "./tailwind.config.js",
+    "./postcss": "./postcss.config.js",
+    "./tsconfig": "./tsconfig.json"
+  }
+}

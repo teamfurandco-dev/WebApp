@@ -1,0 +1,30 @@
+{
+  "name": "admin",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3001",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fur-co/ui": "workspace:*",
+    "@fur-co/utils": "workspace:*",
+    "@fur-co/types": "workspace:*",
+    "@supabase/supabase-js": "^2.86.2",
+    "lucide-react": "^0.460.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.9.6"
+  },
+  "devDependencies": {
+    "@fur-co/config": "workspace:*",
+    "@types/node": "^22.10.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "vite": "^6.0.3"
+  }
+}

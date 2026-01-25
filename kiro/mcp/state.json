@@ -1,0 +1,36 @@
+{
+  "database_schema_version": "2.0.0",
+  "last_migration": "2026-01-08T17:14:27.707+05:30",
+  "current_tables": [
+    "products",
+    "categories", 
+    "orders",
+    "profiles",
+    "addresses",
+    "blog_posts",
+    "product_questions",
+    "product_answers",
+    "referrals",
+    "user_activity_summary"
+  ],
+  "optimization_status": "completed",
+  "optimizations_applied": [
+    "JSONB storage for product variants",
+    "JSONB storage for order items (eliminated order_items table)",
+    "Full-text search indexes on products",
+    "Composite indexes for shop filtering",
+    "Profile denormalization with order stats",
+    "Activity tracking aggregation"
+  ],
+  "performance_improvements": [
+    "Single-query order retrieval",
+    "Efficient product search with PostgreSQL FTS",
+    "Reduced JOINs for profile data",
+    "Optimized shop page filtering"
+  ],
+  "removed_tables": [
+    "order_items",
+    "shipments", 
+    "user_activity_logs"
+  ]
+}

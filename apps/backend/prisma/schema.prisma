@@ -1,0 +1,489 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// PRODUCTS & VARIANTS
+// ============================================
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  
+  // Flags & Configuration
+  isActive         Boolean @default(true)
+  isFeatured       Boolean @default(false)
+  homepageSection  String? // "everyday-essentials", "trending", "new-arrivals"
+  displayOrder     Int     @default(0)
+  
+  // Unlimited Fur Configuration
+  unlimitedFurEligible Boolean @default(false)
+  unlimitedFurPetTypes String[] // ['cat', 'dog']
+  unlimitedFurMinBudget Int? // minimum budget in cents
+  
+  // SEO & Metadata
+  metaTitle       String?
+  metaDescription String?
+  tags            String[] // Array of tags
+  
+  // Relations
+  variants ProductVariant[]
+  images   ProductImage[]
+  wishlistItems WishlistItem[]
+  monthlyPlanProducts MonthlyPlanProduct[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([categoryId])
+  @@index([slug])
+  @@index([isActive, isFeatured])
+  @@index([homepageSection])
+  @@index([unlimitedFurEligible])
+  @@map("products")
+}
+
+model ProductVariant {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // Variant Details
+  sku           String  @unique
+  name          String // e.g., "Small - 500g", "Large - Red"
+  size          String?
+  color         String?
+  weight        String?
+  
+  // Pricing & Stock
+  price         Int // in cents
+  compareAtPrice Int? // original price for discounts
+  stock         Int     @default(0)
+  isActive      Boolean @default(true)
+  
+  // Display
+  displayOrder Int @default(0)
+  
+  // Relations
+  cartItems     CartItem[]
+  wishlistItems WishlistItem[]
+  monthlyPlanProducts MonthlyPlanProduct[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([productId])
+  @@index([sku])
+  @@index([isActive])
+}
+
+model ProductImage {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // Supabase Storage Reference
+  bucketName String // e.g., "product-images"
+  filePath   String // e.g., "products/abc-123/image-1.jpg"
+  
+  // Metadata
+  altText      String?
+  displayOrder Int     @default(0)
+  isPrimary    Boolean @default(false)
+  
+  createdAt DateTime @default(now())
+  
+  @@index([productId])
+  @@index([isPrimary])
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  description String?
+  parentId    String?
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  
+  products Product[]
+  
+  isActive     Boolean @default(true)
+  displayOrder Int     @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([slug])
+  @@index([parentId])
+  @@map("categories")
+}
+
+// ============================================
+// BLOG
+// ============================================
+
+model Blog {
+  id      String @id @default(uuid())
+  title   String
+  slug    String @unique
+  excerpt String?
+  content String // Rich text / Markdown
+  
+  // Cover Image (Supabase Storage)
+  coverBucketName String?
+  coverFilePath   String?
+  coverAltText    String?
+  
+  // Author & Publishing
+  authorId      String
+  author        User   @relation(fields: [authorId], references: [id])
+  publishStatus String @default("draft") // "draft", "published"
+  publishedAt   DateTime?
+  
+  // Flags & Configuration
+  isFeatured      Boolean @default(false)
+  homepageSection String? // "featured-posts", "latest"
+  displayOrder    Int     @default(0)
+  
+  // SEO & Categorization
+  metaTitle       String?
+  metaDescription String?
+  tags            String[]
+  categoryId      String?
+  category        BlogCategory? @relation(fields: [categoryId], references: [id])
+  
+  // Relations
+  images BlogImage[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([slug])
+  @@index([authorId])
+  @@index([publishStatus])
+  @@index([isFeatured])
+  @@index([homepageSection])
+  @@index([categoryId])
+}
+
+model BlogImage {
+  id     String @id @default(uuid())
+  blogId String
+  blog   Blog   @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  
+  // Supabase Storage Reference
+  bucketName String
+  filePath   String
+  
+  // Metadata
+  altText      String?
+  caption      String?
+  displayOrder Int     @default(0)
+  
+  createdAt DateTime @default(now())
+  
+  @@index([blogId])
+}
+
+model BlogCategory {
+  id          String @id @default(uuid())
+  name        String
+  slug        String @unique
+  description String?
+  
+  blogs Blog[]
+  
+  isActive     Boolean @default(true)
+  displayOrder Int     @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([slug])
+}
+
+// ============================================
+// USERS & AUTH
+// ============================================
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  name          String
+  phone         String?
+  avatarUrl     String?
+  role          String   @default("customer") // "customer", "admin"
+  
+  // Supabase Auth ID
+  supabaseId String? @unique
+  
+  // Preferences
+  preferences Json? // Store user preferences as JSON
+  
+  // Relations
+  blogs     Blog[]
+  orders    Order[]
+  cart      CartItem[]
+  wishlist  WishlistItem[]
+  addresses Address[]
+  monthlyPlans MonthlyPlan[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([email])
+  @@index([supabaseId])
+}
+
+// ============================================
+// CART
+// ============================================
+
+model CartItem {
+  id        String @id @default(uuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  
+  quantity  Int @default(1)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId, variantId])
+  @@index([userId])
+  @@index([variantId])
+}
+
+// ============================================
+// WISHLIST
+// ============================================
+
+model WishlistItem {
+  id        String @id @default(uuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, productId, variantId])
+  @@index([userId])
+  @@index([productId])
+}
+
+// ============================================
+// ADDRESSES
+// ============================================
+
+model Address {
+  id        String @id @default(uuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Address Details
+  label       String? // "Home", "Office", etc.
+  fullName    String
+  phone       String
+  addressLine1 String
+  addressLine2 String?
+  city        String
+  state       String
+  postalCode  String
+  country     String @default("India")
+  
+  // Flags
+  isDefault   Boolean @default(false)
+  type        String  @default("both") // "shipping", "billing", "both"
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([isDefault])
+}
+
+// ============================================
+// ORDERS
+// ============================================
+
+model Order {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  
+  // Order Details
+  orderNumber String @unique // Human-readable order number
+  status      String @default("pending") // "pending", "confirmed", "processing", "shipped", "delivered", "cancelled"
+  
+  // Pricing
+  subtotal       Int // in cents
+  shippingCost   Int @default(0)
+  tax            Int @default(0)
+  discount       Int @default(0)
+  total          Int // in cents
+  
+  // Payment
+  paymentMethod  String? // "cod", "card", "upi", etc.
+  paymentStatus  String @default("pending") // "pending", "paid", "failed", "refunded"
+  
+  // Shipping
+  shippingAddress Json
+  billingAddress  Json?
+  trackingNumber  String?
+  
+  // Items
+  items OrderItem[]
+  
+  // Unlimited Fur Relations
+  monthlyPlanOrder   MonthlyPlanOrder?
+  oneTimeBundleOrder OneTimeBundleOrder?
+  
+  // Notes
+  customerNotes String?
+  adminNotes    String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([orderNumber])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  order     Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  // Product snapshot at time of order
+  productId   String
+  variantId   String
+  productName String
+  variantName String
+  sku         String
+  
+  quantity Int
+  price    Int // Price per unit at time of purchase
+  total    Int // quantity * price
+  
+  @@index([orderId])
+}
+
+// ============================================
+// UNLIMITED FUR SUBSCRIPTION
+// ============================================
+
+model MonthlyPlan {
+  id       String @id @default(uuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Configuration
+  monthlyBudget      Int // in cents
+  petType            String // 'cat' | 'dog'
+  selectedCategories String[] // ['food', 'toys', 'accessories']
+  
+  // Status
+  planStatus        String   @default("draft") // 'draft' | 'active' | 'paused' | 'cancelled'
+  billingCycleDay   Int? // 1-28
+  nextBillingDate   DateTime?
+  
+  // Metadata
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  activatedAt DateTime?
+  pausedAt    DateTime?
+  
+  // Relations
+  products MonthlyPlanProduct[]
+  orders   MonthlyPlanOrder[]
+  
+  @@index([userId])
+  @@index([planStatus])
+  @@index([nextBillingDate])
+}
+
+model MonthlyPlanProduct {
+  id          String @id @default(uuid())
+  planId      String
+  plan        MonthlyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  
+  productId   String
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  variantId   String
+  variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  
+  quantity      Int @default(1)
+  lockedPrice   Int // price at time of selection in cents
+  displayOrder  Int @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([planId])
+  @@index([productId])
+}
+
+model MonthlyPlanOrder {
+  id       String @id @default(uuid())
+  planId   String
+  plan     MonthlyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  
+  orderId  String @unique
+  order    Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  // Cycle Info
+  cycleNumber Int // 1, 2, 3...
+  cycleMonth  DateTime // 2026-01-01
+  
+  // Snapshot
+  budgetUsed      Int // in cents
+  budgetRemaining Int // in cents
+  productsSnapshot Json // full product details
+  
+  // Status
+  status        String  @default("pending") // 'pending' | 'confirmed' | 'skipped' | 'failed'
+  autoConfirmed Boolean @default(true)
+  
+  createdAt   DateTime  @default(now())
+  confirmedAt DateTime?
+  
+  @@index([planId])
+  @@index([orderId])
+  @@index([cycleMonth])
+}
+
+model OneTimeBundleOrder {
+  id      String @id @default(uuid())
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  // Configuration (for analytics)
+  bundleBudget       Int // in cents
+  petType            String
+  selectedCategories String[]
+  discountApplied    Int @default(0) // in cents
+  
+  createdAt DateTime @default(now())
+  
+  @@index([orderId])
+}
