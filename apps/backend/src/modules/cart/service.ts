@@ -1,6 +1,6 @@
 import { prisma } from '../../shared/lib/prisma.js';
 import { getPublicUrl } from '../../shared/lib/supabase.js';
-
+import { NotFoundError, BadRequestError } from '../../shared/errors/index.js';
 
 export class CartService {
   /**
@@ -26,47 +26,48 @@ export class CartService {
       },
       orderBy: { createdAt: 'desc' },
     });
-    
+
     return cartItems.map(item => this.transformCartItem(item));
   }
-  
+
   /**
    * Add item to cart or update quantity if exists
    */
   async addToCart(userId: string, variantId: string, quantity: number) {
+    if (quantity <= 0) throw new BadRequestError('Quantity must be greater than zero');
+
     // Check if variant exists and has stock
     const variant = await prisma.productVariant.findUnique({
       where: { id: variantId },
       include: { product: true },
     });
-    
+
     if (!variant) {
-      throw new Error('Product variant not found');
+      throw new NotFoundError('Product variant');
     }
-    
+
     if (!variant.isActive || !variant.product.isActive) {
-      throw new Error('Product is not available');
+      throw new BadRequestError('Product is currently not available');
     }
-    
+
     if (variant.stock < quantity) {
-      throw new Error(`Only ${variant.stock} items available in stock`);
+      throw new BadRequestError(`Only ${variant.stock} items available in stock`);
     }
-    
+
     // Check if item already in cart
     const existing = await prisma.cartItem.findUnique({
       where: {
         userId_variantId: { userId, variantId },
       },
     });
-    
+
     if (existing) {
-      // Update quantity
       const newQuantity = existing.quantity + quantity;
-      
+
       if (variant.stock < newQuantity) {
-        throw new Error(`Only ${variant.stock} items available in stock`);
+        throw new BadRequestError(`Only ${variant.stock} items available in stock`);
       }
-      
+
       return prisma.cartItem.update({
         where: { id: existing.id },
         data: { quantity: newQuantity },
@@ -84,8 +85,7 @@ export class CartService {
         },
       });
     }
-    
-    // Create new cart item
+
     return prisma.cartItem.create({
       data: { userId, variantId, quantity },
       include: {
@@ -102,7 +102,7 @@ export class CartService {
       },
     });
   }
-  
+
   /**
    * Update cart item quantity
    */
@@ -111,21 +111,23 @@ export class CartService {
       where: { id: itemId, userId },
       include: { variant: true },
     });
-    
+
     if (!item) {
-      throw new Error('Cart item not found');
+      throw new NotFoundError('Cart item');
     }
-    
+
+    if (quantity < 0) throw new BadRequestError('Quantity cannot be negative');
+
     // Remove if quantity is 0
     if (quantity === 0) {
       return this.removeFromCart(userId, itemId);
     }
-    
+
     // Check stock
     if (item.variant.stock < quantity) {
-      throw new Error(`Only ${item.variant.stock} items available in stock`);
+      throw new BadRequestError(`Only ${item.variant.stock} items available in stock`);
     }
-    
+
     return prisma.cartItem.update({
       where: { id: itemId },
       data: { quantity },
@@ -143,7 +145,7 @@ export class CartService {
       },
     });
   }
-  
+
   /**
    * Remove item from cart
    */
@@ -151,47 +153,52 @@ export class CartService {
     const item = await prisma.cartItem.findFirst({
       where: { id: itemId, userId },
     });
-    
+
     if (!item) {
-      throw new Error('Cart item not found');
+      throw new NotFoundError('Cart item');
     }
-    
+
     return prisma.cartItem.delete({ where: { id: itemId } });
   }
-  
+
   /**
    * Clear entire cart
    */
   async clearCart(userId: string) {
     return prisma.cartItem.deleteMany({ where: { userId } });
   }
-  
+
   /**
-   * Get cart summary (total items, total price)
+   * Get cart summary
    */
   async getCartSummary(userId: string) {
     const items = await this.getCart(userId);
-    
+
     const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = items.reduce((sum, item) => sum + (item.variant.price * item.quantity), 0);
-    
+
     return {
       totalItems,
       subtotal,
-      items: items.length,
+      itemsCount: items.length,
     };
   }
-  
+
   /**
    * Transform cart item to include image URLs
    */
   private transformCartItem(item: any) {
+    const primaryImage = item.variant.product.images[0];
     return {
       ...item,
       variant: {
         ...item.variant,
         product: {
           ...item.variant.product,
+          primaryImage: primaryImage ? {
+            ...primaryImage,
+            url: getPublicUrl(primaryImage.bucketName, primaryImage.filePath),
+          } : null,
           images: item.variant.product.images.map((img: any) => ({
             ...img,
             url: getPublicUrl(img.bucketName, img.filePath),

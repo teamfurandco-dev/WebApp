@@ -1,6 +1,6 @@
 import { prisma } from '../../shared/lib/prisma.js';
-import { WalletState } from './types';
-import { NotFoundError, BadRequestError } from '../../shared/errors';
+import { WalletState } from './types.js';
+import { NotFoundError, BadRequestError } from '../../shared/errors/index.js';
 
 
 export class MonthlyPlanService {
@@ -21,7 +21,7 @@ export class MonthlyPlanService {
     const plan = await prisma.monthlyPlan.findFirst({
       where: { id: planId, userId, planStatus: 'draft' },
     });
-    if (!plan) throw new NotFoundError('Plan not found');
+    if (!plan) throw new NotFoundError('Plan');
 
     return await prisma.monthlyPlan.update({
       where: { id: planId },
@@ -33,7 +33,7 @@ export class MonthlyPlanService {
     const plan = await prisma.monthlyPlan.findFirst({
       where: { id: planId, userId, planStatus: 'draft' },
     });
-    if (!plan) throw new NotFoundError('Plan not found');
+    if (!plan) throw new NotFoundError('Plan');
 
     return await prisma.monthlyPlan.update({
       where: { id: planId },
@@ -45,7 +45,7 @@ export class MonthlyPlanService {
     const plan = await prisma.monthlyPlan.findFirst({
       where: { id: planId, userId, planStatus: 'draft' },
     });
-    if (!plan) throw new NotFoundError('Plan not found');
+    if (!plan) throw new NotFoundError('Plan');
 
     return await prisma.monthlyPlan.update({
       where: { id: planId },
@@ -58,17 +58,17 @@ export class MonthlyPlanService {
       where: { id: planId, userId },
       include: { products: true },
     });
-    if (!plan) throw new NotFoundError('Plan not found');
+    if (!plan) throw new NotFoundError('Plan');
 
     const variant = await prisma.productVariant.findUnique({
       where: { id: variantId },
       include: { product: true },
     });
-    if (!variant) throw new NotFoundError('Variant not found');
+    if (!variant) throw new NotFoundError('Variant');
 
     const wallet = await this.calculateWallet(planId, userId);
     const totalCost = variant.price * quantity;
-    
+
     if (wallet.remaining < totalCost) {
       throw new BadRequestError('Exceeds budget');
     }
@@ -99,7 +99,7 @@ export class MonthlyPlanService {
     const plan = await prisma.monthlyPlan.findFirst({
       where: { id: planId, userId },
     });
-    if (!plan) throw new NotFoundError('Plan not found');
+    if (!plan) throw new NotFoundError('Plan');
 
     await prisma.monthlyPlanProduct.deleteMany({
       where: { planId, productId },
@@ -113,7 +113,7 @@ export class MonthlyPlanService {
       where: { id: planId, userId },
       include: { products: true },
     });
-    if (!plan) throw new NotFoundError('Plan not found');
+    if (!plan) throw new NotFoundError('Plan');
 
     const spent = plan.products.reduce((sum, p) => sum + (p.lockedPrice * p.quantity), 0);
     const remaining = plan.monthlyBudget - spent;
@@ -126,73 +126,86 @@ export class MonthlyPlanService {
     };
   }
 
+  /**
+   * Activate the monthly plan (Transactional)
+   */
   async activatePlan(planId: string, userId: string, addressId: string, paymentMethod: string, billingCycleDay: number) {
     const plan = await prisma.monthlyPlan.findFirst({
       where: { id: planId, userId, planStatus: 'draft' },
       include: { products: { include: { product: true, variant: true } } },
     });
-    if (!plan) throw new NotFoundError('Plan not found');
-    if (plan.products.length === 0) throw new BadRequestError('No products selected');
 
-    const address = await prisma.address.findUnique({ where: { id: addressId } });
-    if (!address) throw new NotFoundError('Address not found');
+    if (!plan) throw new NotFoundError('Plan');
+    if (plan.products.length === 0) throw new BadRequestError('Plan must have products to activate');
+
+    const address = await prisma.address.findUnique({ where: { id: addressId, userId } });
+    if (!address) throw new NotFoundError('Shipping address');
 
     const wallet = await this.calculateWallet(planId, userId);
-    const nextBillingDate = new Date();
-    nextBillingDate.setDate(billingCycleDay);
-    if (nextBillingDate <= new Date()) {
-      nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
-    }
+    const nextBillingDate = this.calculateNextBillingDate(billingCycleDay);
 
-    const orderNumber = `ORD${new Date().toISOString().slice(2, 10).replace(/-/g, '')}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+    const orderNumber = await this.generateOrderNumber();
 
-    const order = await prisma.order.create({
-      data: {
-        userId,
-        orderNumber,
-        subtotal: wallet.spent,
-        total: wallet.spent,
-        paymentMethod,
-        shippingAddress: address,
-        items: {
-          create: plan.products.map(p => ({
-            productId: p.productId,
-            variantId: p.variantId,
-            productName: p.product.name,
-            variantName: p.variant.name,
-            sku: p.variant.sku,
-            quantity: p.quantity,
-            price: p.lockedPrice,
-            total: p.lockedPrice * p.quantity,
-          })),
+    return await prisma.$transaction(async (tx) => {
+      // 1. Create the initial order for the first cycle
+      const order = await tx.order.create({
+        data: {
+          userId,
+          orderNumber,
+          subtotal: wallet.spent,
+          total: wallet.spent,
+          paymentMethod,
+          shippingAddress: address as any,
+          items: {
+            create: plan.products.map(p => ({
+              productId: p.productId,
+              variantId: p.variantId,
+              productName: p.product.name,
+              variantName: p.variant.name,
+              sku: p.variant.sku,
+              quantity: p.quantity,
+              price: p.lockedPrice,
+              total: p.lockedPrice * p.quantity,
+            })),
+          },
         },
-      },
-    });
+      });
 
-    await prisma.monthlyPlanOrder.create({
-      data: {
-        planId,
-        orderId: order.id,
-        cycleNumber: 1,
-        cycleMonth: new Date(),
-        budgetUsed: wallet.spent,
-        budgetRemaining: wallet.remaining,
-        productsSnapshot: plan.products,
-        status: 'confirmed',
-      },
-    });
+      // 2. Create the plan order tracking record
+      await tx.monthlyPlanOrder.create({
+        data: {
+          planId,
+          orderId: order.id,
+          cycleNumber: 1,
+          cycleMonth: new Date(),
+          budgetUsed: wallet.spent,
+          budgetRemaining: wallet.remaining,
+          productsSnapshot: plan.products as any,
+          status: 'confirmed',
+        },
+      });
 
-    await prisma.monthlyPlan.update({
-      where: { id: planId },
-      data: {
-        planStatus: 'active',
-        billingCycleDay,
-        nextBillingDate,
-        activatedAt: new Date(),
-      },
-    });
+      // 3. Update the plan status
+      const updatedPlan = await tx.monthlyPlan.update({
+        where: { id: planId },
+        data: {
+          planStatus: 'active',
+          billingCycleDay,
+          nextBillingDate,
+          activatedAt: new Date(),
+        },
+      });
 
-    return { order, plan };
+      // 4. Reduce stock for the first cycle
+      for (const p of plan.products) {
+        await tx.productVariant.update({
+          where: { id: p.variantId },
+          data: { stock: { decrement: p.quantity } }
+        });
+      }
+
+      return { order, plan: updatedPlan };
+    });
   }
 
   async getActivePlan(userId: string) {
@@ -210,14 +223,17 @@ export class MonthlyPlanService {
     const plan = await prisma.monthlyPlan.findFirst({
       where: { id: planId, userId, planStatus: 'active' },
     });
-    if (!plan) throw new NotFoundError('Plan not found');
+    if (!plan) throw new NotFoundError('Plan');
 
-    await prisma.monthlyPlanProduct.deleteMany({ where: { planId } });
+    // Simple replacement for now - can be optimized
+    return await prisma.$transaction(async (tx) => {
+      await tx.monthlyPlanProduct.deleteMany({ where: { planId } });
 
-    for (const p of products) {
-      const variant = await prisma.productVariant.findUnique({ where: { id: p.variantId } });
-      if (variant) {
-        await prisma.monthlyPlanProduct.create({
+      for (const p of products) {
+        const variant = await tx.productVariant.findUnique({ where: { id: p.variantId } });
+        if (!variant) throw new NotFoundError(`Variant ${p.variantId}`);
+
+        await tx.monthlyPlanProduct.create({
           data: {
             planId,
             productId: p.productId,
@@ -227,16 +243,19 @@ export class MonthlyPlanService {
           },
         });
       }
-    }
 
-    return await this.getActivePlan(userId);
+      return await tx.monthlyPlan.findUnique({
+        where: { id: planId },
+        include: { products: { include: { product: true, variant: true } } },
+      });
+    });
   }
 
   async pausePlan(planId: string, userId: string) {
     const plan = await prisma.monthlyPlan.findFirst({
       where: { id: planId, userId, planStatus: 'active' },
     });
-    if (!plan) throw new NotFoundError('Plan not found');
+    if (!plan) throw new NotFoundError('Plan');
 
     return await prisma.monthlyPlan.update({
       where: { id: planId },
@@ -248,11 +267,35 @@ export class MonthlyPlanService {
     const plan = await prisma.monthlyPlan.findFirst({
       where: { id: planId, userId },
     });
-    if (!plan) throw new NotFoundError('Plan not found');
+    if (!plan) throw new NotFoundError('Plan');
 
     return await prisma.monthlyPlan.update({
       where: { id: planId },
       data: { planStatus: 'cancelled' },
     });
+  }
+
+  private calculateNextBillingDate(day: number): Date {
+    const date = new Date();
+    date.setMonth(date.getMonth() + 1);
+    date.setDate(day);
+    date.setHours(6, 0, 0, 0); // Default to cycle start morning
+    return date;
+  }
+
+  private async generateOrderNumber(): Promise<string> {
+    const date = new Date();
+    const year = date.getFullYear().toString().slice(-2);
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+
+    const count = await prisma.order.count({
+      where: {
+        createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) },
+      },
+    });
+
+    const sequence = (count + 1).toString().padStart(4, '0');
+    return `SUB${year}${month}${day}${sequence}`;
   }
 }

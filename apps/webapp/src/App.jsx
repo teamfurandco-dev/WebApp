@@ -30,6 +30,8 @@ import MyMonthlyPlan from '@/pages/unlimited-fur/MyMonthlyPlan';
 import MonthlySuccess from '@/pages/unlimited-fur/MonthlySuccess';
 import BundleSuccess from '@/pages/unlimited-fur/BundleSuccess';
 
+// Mock context for unlimited fur (frontend-only)
+import { MockUnlimitedFurProvider } from '@/context/UnlimitedFurContext';
 
 // Placeholder pages
 const NotFound = () => <div className="container py-10 text-center text-xl">404 - Page Not Found</div>;
@@ -58,27 +60,31 @@ function App() {
                   <Route path="unlimited" element={<Unlimited />} />
                   <Route path="niche" element={<Niche />} />
 
-                  {/* Unlimited Fur Routes with Real Provider */}
+                  {/* Unlimited Fur Routes */}
                   <Route path="unlimited-fur/*" element={
                     <UnlimitedFurProvider>
-                      <Routes>
-                        <Route path="monthly/budget" element={<BudgetSelection />} />
-                        <Route path="monthly/pet-profile" element={<PetProfileSelection />} />
-                        <Route path="monthly/categories" element={<CategorySelection />} />
-                        <Route path="monthly/shopping" element={<Shopping />} />
-                        <Route path="monthly/checkout" element={<UnlimitedCheckout />} />
-                        <Route path="monthly/my-plan" element={<MyMonthlyPlan />} />
-                        <Route path="monthly/success" element={<MonthlySuccess />} />
+                      <UnlimitedFurProvider>
+                        <Routes>
+                          <Route path="monthly/budget" element={<BudgetSelection />} />
+                          <Route path="monthly/pet-profile" element={<PetProfileSelection />} />
+                          <Route path="monthly/categories" element={<CategorySelection />} />
+                          <Route path="monthly/shopping" element={<Shopping />} />
+                          <Route path="monthly/checkout" element={<UnlimitedCheckout />} />
+                          <Route path="monthly/my-plan" element={<MyMonthlyPlan />} />
+                          <Route path="monthly/success" element={<MonthlySuccess />} />
 
-                        <Route path="bundle/budget" element={<BudgetSelection />} />
-                        <Route path="bundle/pet-profile" element={<PetProfileSelection />} />
-                        <Route path="bundle/categories" element={<CategorySelection />} />
-                        <Route path="bundle/shopping" element={<Shopping />} />
-                        <Route path="bundle/checkout" element={<UnlimitedCheckout />} />
-                        <Route path="bundle/success" element={<BundleSuccess />} />
-                      </Routes>
+
+                          <Route path="bundle/budget" element={<BudgetSelection />} />
+                          <Route path="bundle/pet-profile" element={<PetProfileSelection />} />
+                          <Route path="bundle/categories" element={<CategorySelection />} />
+                          <Route path="bundle/shopping" element={<Shopping />} />
+                          <Route path="bundle/checkout" element={<UnlimitedCheckout />} />
+                          <Route path="bundle/success" element={<BundleSuccess />} />
+                        </Routes>
+                      </UnlimitedFurProvider>
                     </UnlimitedFurProvider>
                   } />
+
 
                   <Route path="*" element={<NotFound />} />
                 </Route>

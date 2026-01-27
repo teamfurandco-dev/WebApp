@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Star } from 'lucide-react';
+import { ArrowRight, Star, PawPrint } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { api } from '@/services/api';
 import { formatPrice } from '@fur-co/utils';
@@ -8,14 +8,21 @@ import { formatPrice } from '@fur-co/utils';
 const CuratedEssentials = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         const fetchFeaturedProducts = async () => {
             try {
                 const data = await api.getFeaturedProducts();
-                setProducts(data.slice(0, 6)); // Show only 6 products
+                if (!data || data.length === 0) {
+                    setError(true);
+                } else {
+                    setProducts(data.slice(0, 6));
+                    setError(false);
+                }
             } catch (error) {
                 console.error('Error fetching featured products:', error);
+                setError(true);
             } finally {
                 setLoading(false);
             }
@@ -52,6 +59,37 @@ const CuratedEssentials = () => {
         );
     }
 
+    if (error || products.length === 0) {
+        return (
+            <section className="py-16 md:py-24 min-h-[calc(100vh-80px-13vh)] flex flex-col justify-center bg-[#FDFBF7]">
+                <div className="container mx-auto px-4 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="max-w-md mx-auto flex flex-col items-center"
+                    >
+                        <div className="w-24 h-24 bg-black/5 rounded-full flex items-center justify-center mb-6">
+                            <PawPrint className="w-12 h-12 text-black/20" />
+                        </div>
+                        <h2 className="text-2xl md:text-3xl font-peace-sans font-medium text-black mb-4">
+                            Oops! Our shelves are empty
+                        </h2>
+                        <p className="text-black/60 text-base md:text-lg font-light mb-8">
+                            We couldn't get the products right now. Please check back in a moment or try refreshing the page.
+                        </p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="inline-flex items-center gap-2 bg-black text-white px-8 py-3 rounded-full font-medium hover:bg-black/80 transition-all"
+                        >
+                            Refresh Page
+                        </button>
+                    </motion.div>
+                </div>
+            </section>
+        );
+    }
+
     return (
         <section className="py-8 md:py-0 min-h-[calc(100vh-80px-13vh)] flex flex-col justify-center bg-[#FDFBF7]">
             <div className="container mx-auto px-4 md:px-8 h-full flex flex-col justify-center">
@@ -75,8 +113,8 @@ const CuratedEssentials = () => {
                 {/* Grid / Slider */}
                 <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-x-6 md:gap-y-8 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-none scroll-pl-4">
                     {products.map((product) => (
-                        <Link 
-                            key={product.id} 
+                        <Link
+                            key={product.id}
                             to={`/products/${product.id}`}
                             className="group cursor-pointer flex-none w-[85vw] md:w-auto"
                         >

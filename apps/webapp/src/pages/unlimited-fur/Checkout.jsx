@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { CreditCard, MapPin, Calendar, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUnlimitedFur } from '@/context/UnlimitedFurContext';
+import { useUnlimitedFur } from '@/context/UnlimitedFurContext';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@fur-co/utils';
 import UnlimitedBackground from '@/components/unlimited-fur/UnlimitedBackground';
@@ -17,7 +18,7 @@ export default function Checkout() {
   const [searchParams] = useSearchParams();
   const mode = searchParams.get('mode') || 'monthly';
   const { switchMode } = useTheme();
-  const { selectedProducts, wallet, reset } = useUnlimitedFur();
+  const { selectedProducts, wallet, activateMonthlyPlan, checkoutBundle, reset } = useUnlimitedFur();
 
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
@@ -62,14 +63,11 @@ export default function Checkout() {
       setLoading(true);
       setError('');
 
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
       if (mode === 'monthly') {
-        reset();
+        await activateMonthlyPlan(selectedAddress, paymentMethod, billingCycleDay);
         navigate('/unlimited-fur/monthly/success');
       } else {
-        reset();
+        await checkoutBundle(selectedAddress, paymentMethod);
         navigate('/unlimited-fur/bundle/success');
       }
     } catch (err) {

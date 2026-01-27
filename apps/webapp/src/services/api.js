@@ -16,7 +16,7 @@ const getAuthToken = async () => {
 const apiRequest = async (endpoint, options = {}) => {
   const token = await getAuthToken();
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   const config = {
     headers: {
       'Content-Type': 'application/json',
@@ -31,13 +31,25 @@ const apiRequest = async (endpoint, options = {}) => {
   }
 
   const response = await fetch(url, config);
-  
+
   if (!response.ok) {
     const error = await response.text();
     throw new Error(`API Error: ${response.status} - ${error}`);
   }
 
-  return response.json();
+  const result = await response.json();
+
+  // Handle standardized response format
+  if (result && typeof result === 'object' && 'success' in result) {
+    if (result.success) return result.data;
+    const errorMsg = result.error?.message || 'API Error';
+    const error = new Error(errorMsg);
+    error.code = result.error?.code;
+    error.requestId = result.requestId;
+    throw error;
+  }
+
+  return result;
 };
 
 /**
@@ -63,21 +75,21 @@ export const api = {
   get: async (endpoint) => {
     return await apiRequest(endpoint);
   },
-  
+
   post: async (endpoint, data) => {
     return await apiRequest(endpoint, {
       method: 'POST',
       body: JSON.stringify(data),
     });
   },
-  
+
   put: async (endpoint, data) => {
     return await apiRequest(endpoint, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   },
-  
+
   delete: async (endpoint) => {
     return await apiRequest(endpoint, {
       method: 'DELETE',
@@ -442,7 +454,7 @@ export const api = {
     try {
       let endpoint = '/api/products?';
       const params = new URLSearchParams();
-      
+
       if (category && category !== 'All') {
         // Find category ID by name
         const categories = await api.getCategories();
@@ -451,13 +463,13 @@ export const api = {
           params.append('categoryId', categoryObj.id);
         }
       }
-      
+
       if (search) {
         params.append('search', search);
       }
-      
+
       endpoint += params.toString();
-      
+
       const result = await apiRequest(endpoint);
       return result.data || [];
     } catch (error) {
@@ -513,9 +525,9 @@ export const api = {
       }
 
       // Determine category type from attributes or category name
-      const categoryType = product.attributes?.category_type || 
+      const categoryType = product.attributes?.category_type ||
         (product.categories.name.toLowerCase().includes('food') ? 'Food' :
-         product.categories.name.toLowerCase().includes('toy') ? 'Toys' : 'Accessories');
+          product.categories.name.toLowerCase().includes('toy') ? 'Toys' : 'Accessories');
 
       // Transform variants to match expected structure
       const productVariants = (variants || []).map(variant => ({
@@ -582,9 +594,9 @@ export const api = {
       .select('slug')
       .eq('id', id)
       .single();
-    
+
     if (!product) return null;
-    
+
     return api.getProductBySlug(product.slug);
   },
 
@@ -697,9 +709,9 @@ export const api = {
 
     const { data, error } = await supabase
       .from('product_questions')
-      .insert({ 
-        product_id: productId, 
-        user_id: userId, 
+      .insert({
+        product_id: productId,
+        user_id: userId,
         question: content,
         is_approved: false // Requires moderation
       })
@@ -832,7 +844,7 @@ export const api = {
       console.error('Error fetching trending products:', error);
       return [];
     }
-    
+
     return (data || []).map(product => ({
       ...product,
       category: product.categories?.name || 'Uncategorized',
@@ -887,7 +899,7 @@ function extractSpecifications(attributes, categoryType) {
         safety_notes: attributes.safety_notes || [],
         suitable_for: attributes.suitable_for || []
       };
-    
+
     case 'Toys':
       return {
         material: attributes.material || '',
@@ -896,7 +908,7 @@ function extractSpecifications(attributes, categoryType) {
         safety_notes: attributes.safety_notes || [],
         care_instructions: attributes.care_instructions || ''
       };
-    
+
     case 'Accessories':
       return {
         material: attributes.material || '',
@@ -905,7 +917,7 @@ function extractSpecifications(attributes, categoryType) {
         care_instructions: attributes.care_instructions || '',
         warranty: attributes.warranty || ''
       };
-    
+
     default:
       return attributes;
   }
@@ -919,35 +931,35 @@ function generateOrderEvents(order) {
   const status = order.status;
 
   return [
-    { 
-      status: 'Order Placed', 
-      date: order.created_at, 
-      completed: true, 
-      description: 'Your order has been placed.' 
+    {
+      status: 'Order Placed',
+      date: order.created_at,
+      completed: true,
+      description: 'Your order has been placed.'
     },
-    { 
-      status: 'Processing', 
-      date: order.updated_at, 
-      completed: ['processing', 'shipped', 'in_transit', 'delivered'].includes(status), 
-      description: 'We are preparing your package.' 
+    {
+      status: 'Processing',
+      date: order.updated_at,
+      completed: ['processing', 'shipped', 'in_transit', 'delivered'].includes(status),
+      description: 'We are preparing your package.'
     },
-    { 
-      status: 'Shipped', 
-      date: order.shipped_at || null, 
-      completed: ['shipped', 'in_transit', 'delivered'].includes(status), 
-      description: order.tracking_number ? `Tracking: ${order.tracking_number}` : 'Package is on the way.' 
+    {
+      status: 'Shipped',
+      date: order.shipped_at || null,
+      completed: ['shipped', 'in_transit', 'delivered'].includes(status),
+      description: order.tracking_number ? `Tracking: ${order.tracking_number}` : 'Package is on the way.'
     },
-    { 
-      status: 'Out for Delivery', 
-      date: null, 
-      completed: status === 'delivered', 
-      description: 'Agent is out for delivery.' 
+    {
+      status: 'Out for Delivery',
+      date: null,
+      completed: status === 'delivered',
+      description: 'Agent is out for delivery.'
     },
-    { 
-      status: 'Delivered', 
-      date: order.delivered_at || null, 
-      completed: status === 'delivered', 
-      description: 'Package delivered.' 
+    {
+      status: 'Delivered',
+      date: order.delivered_at || null,
+      completed: status === 'delivered',
+      description: 'Package delivered.'
     }
   ];
 }

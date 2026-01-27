@@ -1,11 +1,18 @@
-import type { PrismaClient } from '@prisma/client';
+import { prisma } from '../../shared/lib/prisma.js';
 
+/**
+ * Service for managing product categories
+ */
 export class CategoryService {
-  constructor(private prisma: PrismaClient) {}
-
-  async getCategories() {
-    return await this.prisma.categories.findMany({
-      orderBy: { name: 'asc' },
-    });
-  }
+    /**
+     * Get all active categories ordered by name
+     */
+    async getCategories() {
+        return await prisma.category.findMany({
+            where: { isActive: true },
+            orderBy: { name: 'asc' },
+        });
+    }
 }
+
+export const categoryService = new CategoryService();

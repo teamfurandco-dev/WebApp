@@ -49,12 +49,12 @@ const CareCategories = () => {
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
+                <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-x scroll-pl-4 hide-scrollbar">
                     {categories.map((cat, index) => (
                         <Link
                             key={cat.id}
                             to={cat.link}
-                            className="relative group overflow-hidden rounded-[2rem] w-full aspect-[4/3] min-h-[250px] block shadow-sm hover:shadow-2xl transition-all duration-500"
+                            className="relative group overflow-hidden rounded-[2rem] w-[85vw] md:w-full aspect-[4/3] min-h-[250px] flex-shrink-0 block shadow-sm hover:shadow-2xl transition-all duration-500 snap-start"
                         >
                             {/* Background Image */}
                             <div className="absolute inset-0">

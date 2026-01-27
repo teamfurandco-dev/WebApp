@@ -1,20 +1,24 @@
-import type { PrismaClient } from '@prisma/client';
+import { prisma } from '../../shared/lib/prisma.js';
 import type { CreateQuestion, CreateAnswer } from './schema.js';
 import { NotFoundError } from '../../shared/errors/index.js';
 
+/**
+ * Service for managing product Q&A
+ */
 export class QuestionService {
-  constructor(private prisma: PrismaClient) {}
-
+  /**
+   * Get approved questions for a product
+   */
   async getProductQuestions(productId: string) {
-    const questions = await this.prisma.product_questions.findMany({
+    const questions = await prisma.productQuestion.findMany({
       where: {
-        product_id: productId,
-        is_approved: true,
+        productId: productId,
+        isApproved: true,
       },
-      orderBy: { created_at: 'desc' },
+      orderBy: { createdAt: 'desc' },
       include: {
-        product_answers: {
-          orderBy: { created_at: 'asc' },
+        answers: {
+          orderBy: { createdAt: 'asc' },
         },
       },
     });
@@ -22,9 +26,11 @@ export class QuestionService {
     return questions;
   }
 
+  /**
+   * Add a new question for a product
+   */
   async addQuestion(productId: string, userId: string, data: CreateQuestion) {
-    // Verify product exists
-    const product = await this.prisma.products.findUnique({
+    const product = await prisma.product.findUnique({
       where: { id: productId },
     });
 
@@ -32,19 +38,21 @@ export class QuestionService {
       throw new NotFoundError('Product');
     }
 
-    return await this.prisma.product_questions.create({
+    return await prisma.productQuestion.create({
       data: {
-        product_id: productId,
-        user_id: userId,
+        productId: productId,
+        userId: userId,
         question: data.question,
-        is_approved: false, // Requires moderation
+        isApproved: false, // Requires moderation
       },
     });
   }
 
+  /**
+   * Add an answer to a question
+   */
   async addAnswer(questionId: string, userId: string, data: CreateAnswer, isStaff = false) {
-    // Verify question exists
-    const question = await this.prisma.product_questions.findUnique({
+    const question = await prisma.productQuestion.findUnique({
       where: { id: questionId },
     });
 
@@ -52,13 +60,15 @@ export class QuestionService {
       throw new NotFoundError('Question');
     }
 
-    return await this.prisma.product_answers.create({
+    return await prisma.productAnswer.create({
       data: {
-        question_id: questionId,
-        user_id: userId,
+        questionId: questionId,
+        userId: userId,
         answer: data.answer,
-        is_staff_reply: isStaff,
+        isStaffReply: isStaff,
       },
     });
   }
 }
+
+export const questionService = new QuestionService();

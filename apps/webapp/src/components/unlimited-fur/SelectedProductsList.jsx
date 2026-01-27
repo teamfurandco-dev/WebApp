@@ -1,11 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useMockUnlimitedFur } from '@/context/MockUnlimitedFurContext';
+import { useUnlimitedFur } from '@/context/UnlimitedFurContext';
 import { useState } from 'react';
 
 export const SelectedProductsList = () => {
-  const { selectedProducts, removeProduct } = useMockUnlimitedFur();
+  const { selectedProducts, removeProduct } = useUnlimitedFur();
   const [removing, setRemoving] = useState(null);
 
   const handleRemove = async (productId) => {

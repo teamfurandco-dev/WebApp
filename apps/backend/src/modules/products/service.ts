@@ -235,6 +235,21 @@ export class ProductService {
       },
     });
   }
+
+  /**
+   * Get product variants
+   */
+  async getProductVariants(productId: string) {
+    const variants = await prisma.productVariant.findMany({
+      where: { 
+        productId,
+        isActive: true 
+      },
+      orderBy: { displayOrder: 'asc' },
+    });
+
+    return variants;
+  }
 }
 
 export const productService = new ProductService();

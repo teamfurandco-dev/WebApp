@@ -1,8 +1,12 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma } from '../../shared/lib/prisma.js';
+import { success } from '../../shared/utils/response.js';
 
+/**
+ * Category routes for product categorization
+ */
 export async function categoryRoutes(fastify: FastifyInstance) {
-  // GET /categories - List all categories
+  // GET /categories - List all active categories
   fastify.get('/categories', async () => {
     const categories = await prisma.category.findMany({
       where: { isActive: true },
@@ -14,6 +18,6 @@ export async function categoryRoutes(fastify: FastifyInstance) {
         description: true,
       },
     });
-    return { data: categories };
+    return success(categories);
   });
 }

@@ -34,11 +34,17 @@ model Product {
   metaDescription String?
   tags            String[] // Array of tags
   
+  // Review Aggregation
+  averageRating   Float   @default(0)
+  reviewCount     Int     @default(0)
+  
   // Relations
   variants ProductVariant[]
   images   ProductImage[]
   wishlistItems WishlistItem[]
   monthlyPlanProducts MonthlyPlanProduct[]
+  questions    ProductQuestion[]
+  reviews      Review[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -69,6 +75,11 @@ model ProductVariant {
   stock         Int     @default(0)
   isActive      Boolean @default(true)
   
+  // Inventory Management
+  lowStockThreshold Int     @default(10)
+  stockStatus       StockStatus @default(IN_STOCK)
+  lastRestocked     DateTime?
+  
   // Display
   displayOrder Int @default(0)
   
@@ -76,6 +87,7 @@ model ProductVariant {
   cartItems     CartItem[]
   wishlistItems WishlistItem[]
   monthlyPlanProducts MonthlyPlanProduct[]
+  inventoryLogs InventoryLog[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -236,6 +248,10 @@ model User {
   wishlist  WishlistItem[]
   addresses Address[]
   monthlyPlans MonthlyPlan[]
+  bundles   BundleDraft[]
+  questions ProductQuestion[]
+  answers   ProductAnswer[]
+  reviews   Review[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -486,4 +502,164 @@ model OneTimeBundleOrder {
   createdAt DateTime @default(now())
   
   @@index([orderId])
+}
+
+model BundleDraft {
+  id                 String   @id @default(uuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bundleBudget       Int      @default(0)
+  petType            String?
+  selectedCategories String[]
+  
+  products BundleDraftProduct[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([userId])
+}
+
+model BundleDraftProduct {
+  id        String @id @default(uuid())
+  bundleId  String
+  bundle    BundleDraft @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  
+  productId String
+  variantId String
+  quantity  Int    @default(1)
+  price     Int    // current price in cents
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([bundleId])
+}
+
+// ============================================
+// PRODUCT QUESTIONS & ANSWERS
+// ============================================
+
+model ProductQuestion {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  question    String
+  isApproved  Boolean  @default(false)
+  
+  answers     ProductAnswer[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([productId])
+  @@index([userId])
+  @@index([isApproved])
+  @@map("product_questions")
+}
+
+model ProductAnswer {
+  id           String   @id @default(uuid())
+  questionId   String
+  question     ProductQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  answer       String
+  isStaffReply Boolean  @default(false)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([questionId])
+  @@index([userId])
+  @@map("product_answers")
+}
+
+// ============================================
+// PRODUCT REVIEWS
+// ============================================
+
+model Review {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  rating    Int      // 1-5 stars
+  title     String?
+  comment   String?
+  
+  // Moderation
+  status    ReviewStatus @default(PENDING)
+  
+  // Metadata
+  isVerifiedPurchase Boolean @default(false)
+  helpfulCount       Int     @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([productId])
+  @@index([userId])
+  @@index([status])
+  @@index([rating])
+  @@map("reviews")
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum StockStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+  DISCONTINUED
+}
+
+// ============================================
+// INVENTORY MANAGEMENT
+// ============================================
+
+model InventoryLog {
+  id        String   @id @default(uuid())
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  
+  // Movement Details
+  type      InventoryMovementType
+  quantity  Int // positive for additions, negative for reductions
+  reason    String
+  reference String? // order ID, restock ID, etc.
+  
+  // Stock levels after this movement
+  previousStock Int
+  newStock      Int
+  
+  // Metadata
+  userId    String? // who made the change
+  notes     String?
+  
+  createdAt DateTime @default(now())
+  
+  @@index([variantId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("inventory_logs")
+}
+
+enum InventoryMovementType {
+  RESTOCK
+  SALE
+  RETURN
+  ADJUSTMENT
+  DAMAGE
+  EXPIRED
 }

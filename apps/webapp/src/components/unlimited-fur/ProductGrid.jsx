@@ -2,18 +2,19 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useMockUnlimitedFur } from '@/context/MockUnlimitedFurContext';
+import { useUnlimitedFur } from '@/context/UnlimitedFurContext';
 import { cn } from '@fur-co/utils';
 
 export const ProductGrid = () => {
-  const { wallet, addProduct, products, loading } = useMockUnlimitedFur();
+  const { wallet, addProduct, products, loading } = useUnlimitedFur();
   const [error, setError] = useState('');
   const [addingProduct, setAddingProduct] = useState(null);
 
   const handleAddProduct = async (product) => {
     try {
+      const variantId = product.variants?.[0]?.id || product.id; // Fallback to product.id if no variants
       setAddingProduct(product.id);
-      await addProduct(product.id, 1);
+      await addProduct(product.id, variantId, 1);
     } catch (err) {
       alert(err.message || 'Failed to add product');
     } finally {
@@ -47,7 +48,9 @@ export const ProductGrid = () => {
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {products.map((product, index) => {
-          const affordable = isAffordable(product.price);
+          const price = product.variants?.[0]?.price || 0;
+          const image = product.images?.[0]?.url || product.image;
+          const affordable = isAffordable(price);
           const selectable = affordable;
 
           return (
@@ -65,7 +68,7 @@ export const ProductGrid = () => {
             >
               <div className="aspect-square relative bg-white/5">
                 <img
-                  src={product.image}
+                  src={image}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
@@ -82,7 +85,7 @@ export const ProductGrid = () => {
 
                 <div className="flex items-center justify-between mt-auto">
                   <div className="text-xl font-black text-black">
-                    ₹{(product.price / 100).toFixed(0)}
+                    ₹{(price / 100).toFixed(0)}
                   </div>
 
                   <Button

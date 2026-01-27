@@ -18,6 +18,44 @@ export const UnlimitedFurProvider = ({ children }) => {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [wallet, setWallet] = useState({ monthlyBudget: 0, spent: 0, remaining: 0, canAddMore: true });
   const [loading, setLoading] = useState(false);
+  const [categories, setCategoriesList] = useState([]);
+  const [products, setProductsList] = useState([]);
+
+  // Fetch categories on mount
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  // Fetch eligible products when filters change
+  useEffect(() => {
+    if (draftId && petType && selectedCategories.length > 0) {
+      fetchEligibleProducts();
+    }
+  }, [draftId, petType, selectedCategories]);
+
+  const fetchCategories = async () => {
+    try {
+      const data = await api.get('/api/categories');
+      setCategoriesList(data);
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+    }
+  };
+
+  const fetchEligibleProducts = async () => {
+    try {
+      // Construct query string foreligible products
+      const params = new URLSearchParams();
+      if (petType) params.append('petType', petType);
+      selectedCategories.forEach(cat => params.append('categories[]', cat));
+      if (budget) params.append('budget', budget);
+
+      const data = await api.get(`/api/unlimited-fur/products?${params.toString()}`);
+      setProductsList(data);
+    } catch (error) {
+      console.error('Failed to fetch eligible products:', error);
+    }
+  };
 
   const startMonthlyPlan = async () => {
     try {
@@ -53,7 +91,7 @@ export const UnlimitedFurProvider = ({ children }) => {
     if (!draftId) throw new Error('No draft ID');
     try {
       setLoading(true);
-      const endpoint = mode === 'monthly' 
+      const endpoint = mode === 'monthly'
         ? `/api/unlimited-fur/monthly-plan/${draftId}/budget`
         : `/api/unlimited-fur/bundle/${draftId}/budget`;
       await api.put(endpoint, { monthlyBudget: newBudget });
@@ -153,6 +191,41 @@ export const UnlimitedFurProvider = ({ children }) => {
     }
   };
 
+  const activateMonthlyPlan = async (addressId, paymentMethod, billingCycleDay) => {
+    if (!draftId) throw new Error('No draft ID');
+    try {
+      setLoading(true);
+      await api.post(`/api/unlimited-fur/monthly-plan/${draftId}/activate`, {
+        addressId,
+        paymentMethod,
+        billingCycleDay
+      });
+      reset();
+    } catch (error) {
+      console.error('Failed to activate monthly plan:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkoutBundle = async (addressId, paymentMethod) => {
+    if (!draftId) throw new Error('No draft ID');
+    try {
+      setLoading(true);
+      await api.post(`/api/unlimited-fur/bundle/${draftId}/checkout`, {
+        addressId,
+        paymentMethod
+      });
+      reset();
+    } catch (error) {
+      console.error('Failed to checkout bundle:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const reset = () => {
     setMode(null);
     setDraftId(null);
@@ -172,6 +245,8 @@ export const UnlimitedFurProvider = ({ children }) => {
     selectedProducts,
     wallet,
     loading,
+    categories,
+    products,
     startMonthlyPlan,
     startBundle,
     setBudget,
@@ -180,6 +255,8 @@ export const UnlimitedFurProvider = ({ children }) => {
     addProduct,
     removeProduct,
     getWallet,
+    activateMonthlyPlan,
+    checkoutBundle,
     reset,
   };
 

@@ -1,10 +1,10 @@
 import { createContext, useContext, useState } from 'react';
 
-const MockUnlimitedFurContext = createContext(null);
+const UnlimitedFurContext = createContext(null);
 
-export const useMockUnlimitedFur = () => {
-  const context = useContext(MockUnlimitedFurContext);
-  if (!context) throw new Error('useMockUnlimitedFur must be used within MockUnlimitedFurProvider');
+export const useUnlimitedFur = () => {
+  const context = useContext(UnlimitedFurContext);
+  if (!context) throw new Error('useUnlimitedFur must be used within MockUnlimitedFurProvider');
   return context;
 };
 
@@ -242,8 +242,8 @@ export const MockUnlimitedFurProvider = ({ children }) => {
   };
 
   return (
-    <MockUnlimitedFurContext.Provider value={value}>
+    <UnlimitedFurContext.Provider value={value}>
       {children}
-    </MockUnlimitedFurContext.Provider>
+    </UnlimitedFurContext.Provider>
   );
 };
