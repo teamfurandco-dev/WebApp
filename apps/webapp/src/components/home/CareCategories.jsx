@@ -31,7 +31,7 @@ const categories = [
 
 const CareCategories = () => {
     return (
-        <section className="py-8 md:py-12 bg-[#FDFBF7]">
+        <section className="pt-16 pb-12 md:py-20 bg-[#FDFBF7]">
             <div className="container mx-auto px-4 md:px-8">
                 {/* Standard Section Header */}
                 <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-10 md:mb-12 gap-4 py-[5px]">

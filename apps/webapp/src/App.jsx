@@ -30,8 +30,6 @@ import MyMonthlyPlan from '@/pages/unlimited-fur/MyMonthlyPlan';
 import MonthlySuccess from '@/pages/unlimited-fur/MonthlySuccess';
 import BundleSuccess from '@/pages/unlimited-fur/BundleSuccess';
 
-// Mock context for unlimited fur (frontend-only)
-import { MockUnlimitedFurProvider } from '@/context/MockUnlimitedFurContext';
 
 // Placeholder pages
 const NotFound = () => <div className="container py-10 text-center text-xl">404 - Page Not Found</div>;
@@ -59,10 +57,10 @@ function App() {
                   <Route path="blog/:id" element={<BlogPost />} />
                   <Route path="unlimited" element={<Unlimited />} />
                   <Route path="niche" element={<Niche />} />
-                  
-                  {/* Unlimited Fur Routes with Mock Provider */}
+
+                  {/* Unlimited Fur Routes with Real Provider */}
                   <Route path="unlimited-fur/*" element={
-                    <MockUnlimitedFurProvider>
+                    <UnlimitedFurProvider>
                       <Routes>
                         <Route path="monthly/budget" element={<BudgetSelection />} />
                         <Route path="monthly/pet-profile" element={<PetProfileSelection />} />
@@ -71,7 +69,7 @@ function App() {
                         <Route path="monthly/checkout" element={<UnlimitedCheckout />} />
                         <Route path="monthly/my-plan" element={<MyMonthlyPlan />} />
                         <Route path="monthly/success" element={<MonthlySuccess />} />
-                        
+
                         <Route path="bundle/budget" element={<BudgetSelection />} />
                         <Route path="bundle/pet-profile" element={<PetProfileSelection />} />
                         <Route path="bundle/categories" element={<CategorySelection />} />
@@ -79,9 +77,9 @@ function App() {
                         <Route path="bundle/checkout" element={<UnlimitedCheckout />} />
                         <Route path="bundle/success" element={<BundleSuccess />} />
                       </Routes>
-                    </MockUnlimitedFurProvider>
+                    </UnlimitedFurProvider>
                   } />
-                  
+
                   <Route path="*" element={<NotFound />} />
                 </Route>
               </Routes>

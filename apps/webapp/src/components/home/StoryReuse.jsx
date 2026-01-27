@@ -1,4 +1,5 @@
 import { ArrowRight, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 const StoryReuse = () => {
@@ -32,9 +33,11 @@ const StoryReuse = () => {
                             </div>
                             <h3 className="text-3xl md:text-4xl font-serif font-medium mb-4">Finding Calm in Chaos</h3>
                             <p className="text-white/80 mb-6 md:mb-8 max-w-md text-sm md:text-base">Our calming hemp oil isn't just a treat—it's a tool to help your pet navigate storms, separation, and travel with peace.</p>
-                            <Button className="bg-white text-black hover:bg-furco-cream border-none rounded-full px-6 md:px-8">
-                                Shop Calming Oil
-                            </Button>
+                            <Link to="/products">
+                                <Button className="bg-white text-black hover:bg-furco-cream border-none rounded-full px-6 md:px-8">
+                                    Shop Calming Oil
+                                </Button>
+                            </Link>
                         </div>
                     </div>
 
@@ -42,7 +45,7 @@ const StoryReuse = () => {
                     <div className="flex flex-col gap-6 md:gap-8">
 
                         {/* Card 1 */}
-                        <div className="bg-[#FAF8F5] rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8 group hover:bg-[#F2E8D5] transition-colors duration-500">
+                        <Link to="/products" className="bg-[#FAF8F5] rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8 group hover:bg-[#F2E8D5] transition-colors duration-500">
                             <div className="w-24 h-24 md:w-40 md:h-40 rounded-2xl overflow-hidden flex-shrink-0">
                                 <img src="https://images.unsplash.com/photo-1576201836106-db1758fd1c97?q=80&w=1000&auto=format&fit=crop" alt="Toy" className="w-full h-full object-cover" />
                             </div>
@@ -50,14 +53,14 @@ const StoryReuse = () => {
                                 <div className="text-furco-brown text-xs font-bold uppercase tracking-wider mb-2">Ideal for Apartment Living</div>
                                 <h4 className="text-xl md:text-2xl font-serif font-medium mb-2">Enrichment Play Rope</h4>
                                 <p className="text-black/60 mb-4 text-sm">Mental stimulation for indoor days. Keeps them busy, saves your furniture.</p>
-                                <div className="flex items-center gap-2 text-sm font-medium border-b border-black/10 items-start self-start inline-block">
+                                <div className="flex items-center gap-2 text-sm font-medium border-b border-black/10 group-hover:border-black transition-all items-start self-start inline-block">
                                     Read More
                                 </div>
                             </div>
-                        </div>
+                        </Link>
 
                         {/* Card 2 */}
-                        <div className="bg-[#FAF8F5] rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8 group hover:bg-[#F2E8D5] transition-colors duration-500">
+                        <Link to="/products" className="bg-[#FAF8F5] rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8 group hover:bg-[#F2E8D5] transition-colors duration-500">
                             <div className="w-24 h-24 md:w-40 md:h-40 rounded-2xl overflow-hidden flex-shrink-0">
                                 <img src="https://images.unsplash.com/photo-1591946614720-90a587da4a36?q=80&w=1000&auto=format&fit=crop" alt="Bed" className="w-full h-full object-cover" />
                             </div>
@@ -65,11 +68,11 @@ const StoryReuse = () => {
                                 <div className="text-furco-brown text-xs font-bold uppercase tracking-wider mb-2">Vet Recommended for Seniors</div>
                                 <h4 className="text-xl md:text-2xl font-serif font-medium mb-2">Orthopedic Rest</h4>
                                 <p className="text-black/60 mb-4 text-sm">Supportive memory foam that relieves joint pressure. Because they deserve the best sleep.</p>
-                                <div className="flex items-center gap-2 text-sm font-medium border-b border-black/10 items-start self-start inline-block">
+                                <div className="flex items-center gap-2 text-sm font-medium border-b border-black/10 group-hover:border-black transition-all items-start self-start inline-block">
                                     Read More
                                 </div>
                             </div>
-                        </div>
+                        </Link>
 
                     </div>
 

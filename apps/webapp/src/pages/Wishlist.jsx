@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useWishlist } from '@/context/WishlistContext';
 import { useCart } from '@/context/CartContext';
+import { useTheme } from '@/context/ThemeContext';
 import { api } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -31,7 +32,7 @@ const WishlistItem = ({ product, onRemove, onAddToCart, isRemoving, isAddingToCa
               loading="lazy"
             />
           </Link>
-          
+
           {hasDiscount && (
             <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 text-xs font-bold rounded-lg">
               SALE
@@ -77,7 +78,7 @@ const WishlistItem = ({ product, onRemove, onAddToCart, isRemoving, isAddingToCa
                 </>
               )}
             </Button>
-            
+
             <Button
               onClick={() => onRemove(product.id)}
               disabled={isRemoving}
@@ -128,14 +129,19 @@ const Wishlist = () => {
   const [error, setError] = useState(null);
   const [removingItems, setRemovingItems] = useState(new Set());
   const [addingToCart, setAddingToCart] = useState(new Set());
+  const { switchMode } = useTheme();
+
+  useEffect(() => {
+    switchMode('GATEWAY');
+  }, [switchMode]);
 
   useEffect(() => {
     const fetchWishlistProducts = async () => {
       if (wishlistLoading) return;
-      
+
       setLoading(true);
       setError(null);
-      
+
       try {
         if (wishlist.length === 0) {
           setProducts([]);
@@ -159,7 +165,7 @@ const Wishlist = () => {
 
   const handleRemoveFromWishlist = async (productId) => {
     setRemovingItems(prev => new Set(prev).add(productId));
-    
+
     try {
       await removeFromWishlist(productId);
       setProducts(prev => prev.filter(p => p.id !== productId));
@@ -177,12 +183,12 @@ const Wishlist = () => {
 
   const handleAddToCart = async (product) => {
     setAddingToCart(prev => new Set(prev).add(product.id));
-    
+
     try {
       // Get product variants to find default variant
       const variants = await api.getProductVariants(product.id);
       const defaultVariant = variants[0]; // Use first variant as default
-      
+
       if (!defaultVariant) {
         toast.error("Product variant not available");
         return;
@@ -221,8 +227,8 @@ const Wishlist = () => {
           </div>
           <h2 className="text-xl font-semibold mb-2 text-red-600">Something went wrong</h2>
           <p className="text-muted-foreground mb-4">{error}</p>
-          <Button 
-            onClick={() => window.location.reload()} 
+          <Button
+            onClick={() => window.location.reload()}
             variant="outline"
             className="rounded-xl"
           >

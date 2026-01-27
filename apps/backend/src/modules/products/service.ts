@@ -1,4 +1,5 @@
 import { prisma } from '../../shared/lib/prisma.js';
+import { getPublicUrl } from '../../shared/lib/supabase.js';
 
 export class ProductService {
   /**
@@ -23,7 +24,7 @@ export class ProductService {
       ...product,
       images: product.images.map(img => ({
         ...img,
-        url: `https://isaphgvbdyqrblwnsrmn.supabase.co/storage/v1/object/public/product-images/${img.filePath}`,
+        url: getPublicUrl('product-images', img.filePath),
       })),
     }));
   }
@@ -33,7 +34,7 @@ export class ProductService {
    */
   async getProducts(filters: any = {}) {
     const where: any = { isActive: true };
-    
+
     if (filters.categoryId) where.categoryId = filters.categoryId;
     if (filters.isFeatured !== undefined) where.isFeatured = filters.isFeatured === 'true';
     if (filters.search) {
@@ -42,7 +43,7 @@ export class ProductService {
         { description: { contains: filters.search, mode: 'insensitive' } },
       ];
     }
-    
+
     const products = await prisma.product.findMany({
       where,
       include: {
@@ -68,7 +69,7 @@ export class ProductService {
       category: product.category?.name || 'Uncategorized',
       images: product.images.map(img => ({
         ...img,
-        url: `https://isaphgvbdyqrblwnsrmn.supabase.co/storage/v1/object/public/product-images/${img.filePath}`,
+        url: getPublicUrl('product-images', img.filePath),
       })),
     }));
   }
@@ -106,7 +107,7 @@ export class ProductService {
       category: product.category?.name || 'Uncategorized',
       images: product.images.map(img => ({
         ...img,
-        url: `https://isaphgvbdyqrblwnsrmn.supabase.co/storage/v1/object/public/product-images/${img.filePath}`,
+        url: getPublicUrl('product-images', img.filePath),
       })),
     };
   }
@@ -116,9 +117,9 @@ export class ProductService {
    */
   async createProduct(data: any) {
     const { variants, images, tags, ...productData } = data;
-    
+
     console.log('Creating product with data:', { variants: variants?.length, images: images?.length, ...productData });
-    
+
     // Generate slug from name
     const slug = productData.name
       .toLowerCase()

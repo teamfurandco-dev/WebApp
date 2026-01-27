@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Search, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useMockUnlimitedFur } from '@/context/MockUnlimitedFurContext';
+import { useUnlimitedFur } from '@/context/UnlimitedFurContext';
 import { useTheme } from '@/context/ThemeContext';
 import { WalletDisplay } from '@/components/unlimited-fur/WalletDisplay';
 import { ProductGrid } from '@/components/unlimited-fur/ProductGrid';
@@ -16,7 +16,7 @@ export default function Shopping() {
   const [searchParams] = useSearchParams();
   const mode = searchParams.get('mode') || 'monthly';
   const { switchMode } = useTheme();
-  const { selectedProducts, wallet } = useMockUnlimitedFur();
+  const { selectedProducts, wallet } = useUnlimitedFur();
 
   useEffect(() => {
     switchMode('CORE');
@@ -43,7 +43,7 @@ export default function Shopping() {
               Unlimited Shop
             </h1>
             <p className="text-gray-800 font-bold text-sm">
-              Curate your pet's routine within <span className="bg-black text-[#EDC520] px-1.5 py-0.5 rounded ml-1 uppercase text-xs">₹{(wallet.budget / 100).toFixed(0)}</span>
+              Curate your pet's routine within <span className="bg-black text-[#EDC520] px-1.5 py-0.5 rounded ml-1 uppercase text-xs">₹{((wallet.monthlyBudget || 0) / 100).toFixed(0)}</span>
             </p>
           </motion.div>
 
@@ -151,7 +151,7 @@ export default function Shopping() {
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
-              className="lg:hidden fixed bottom-6 left-4 right-4 z-[60]"
+              className="lg:hidden fixed bottom-20 left-4 right-4 z-[60]"
             >
               <Button
                 onClick={handleCheckout}
