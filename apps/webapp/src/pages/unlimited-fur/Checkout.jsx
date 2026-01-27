@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { CreditCard, MapPin, Calendar, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUnlimitedFur } from '@/context/UnlimitedFurContext';
-import { useUnlimitedFur } from '@/context/UnlimitedFurContext';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@fur-co/utils';
 import UnlimitedBackground from '@/components/unlimited-fur/UnlimitedBackground';

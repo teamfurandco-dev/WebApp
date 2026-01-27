@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { Check, ArrowRight, UtensilsCrossed, Gamepad2, Shirt, Sparkles, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUnlimitedFur } from '@/context/UnlimitedFurContext';
-import { useUnlimitedFur } from '@/context/UnlimitedFurContext';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@fur-co/utils';
 import UnlimitedBackground from '@/components/unlimited-fur/UnlimitedBackground';
@@ -26,7 +25,6 @@ export default function CategorySelection() {
   const mode = searchParams.get('mode') || 'monthly';
   const { switchMode } = useTheme();
   const { setCategories, loading, categories } = useUnlimitedFur();
-  const { setCategories, loading } = useUnlimitedFur();
 
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [error, setError] = useState('');
