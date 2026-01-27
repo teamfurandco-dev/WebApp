@@ -24,7 +24,7 @@ const Footer = () => {
       )}></div>
 
       <div className="container mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
 
           {/* Brand Column */}
           <div className="md:col-span-1 space-y-6">
@@ -58,8 +58,17 @@ const Footer = () => {
           <div>
             <h4 className={cn("font-black mb-6 uppercase text-sm tracking-wider font-peace-sans", isUnlimitedMode ? "text-[#EDC520]" : "text-black")}>Company</h4>
             <ul className={cn("space-y-4 text-sm", isUnlimitedMode ? "text-gray-900 font-medium" : "text-gray-600")}>
-              {['About Us', 'Blog', 'Careers', 'Contact'].map((item) => (
-                <li key={item}><Link to={`/${item.toLowerCase().replace(' ', '-')}`} className="hover:text-black transition-colors">{item}</Link></li>
+              {[
+                { name: 'About Us', path: '/about' },
+                { name: 'Blog', path: '/blog' },
+                { name: 'Careers', path: '/careers' },
+                { name: 'Contact', path: '/contact' }
+              ].map((item) => (
+                <li key={item.name}>
+                  <Link to={item.path} className="hover:text-black transition-colors">
+                    {item.name}
+                  </Link>
+                </li>
               ))}
             </ul>
           </div>

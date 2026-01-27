@@ -20,13 +20,25 @@ import { Link } from 'react-router-dom';
 import { cn } from '@fur-co/utils';
 import unlmtHeroImage from '@/assets/unlmt_hero.png';
 import readyBg from '@/assets/ready_section_img.png';
-import unlimitedLogo from '@/assets/unlimted_logo.svg';
 import UnlimitedBackground from '@/components/unlimited-fur/UnlimitedBackground';
 
 const Unlimited = () => {
   const { switchMode } = useTheme();
   const [openFaq, setOpenFaq] = useState(null);
   const containerRef = useRef(null);
+  const faqAnswerRef = useRef(null);
+
+  const handleFaqClick = (i) => {
+    setOpenFaq(i);
+    // On mobile, scroll to the answer panel when a question is clicked
+    if (window.innerWidth < 1024) {
+      setTimeout(() => {
+        if (faqAnswerRef.current) {
+          faqAnswerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
+  };
 
   // Parallax Scroll Hooks
   const { scrollYProgress } = useScroll({
@@ -60,7 +72,7 @@ const Unlimited = () => {
 
 
       {/* --- HERO SECTION --- */}
-      <section className="relative min-h-[calc(100vh-60px)] pt-24 pb-8 px-4 container mx-auto max-w-7xl flex flex-col justify-center">
+      <section className="relative min-h-[calc(100vh-120px)] pt-4 pb-0 px-4 container mx-auto max-w-7xl flex flex-col justify-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center h-full">
 
           {/* Left: Typography (Parallax Layer 1) */}
@@ -71,7 +83,7 @@ const Unlimited = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                <h1 className="text-5xl md:text-6xl font-black tracking-tighter leading-[0.9] text-gray-900 mb-6 font-peace-sans drop-shadow-sm">
+                <h1 className="text-3xl md:text-6xl font-black tracking-tighter leading-[1] text-gray-900 mb-4 font-peace-sans drop-shadow-sm">
                   Unlimited Love.<br />
                   Tailored Care.<br />
                   On Your Terms.
@@ -176,11 +188,11 @@ const Unlimited = () => {
       </section>
 
       {/* --- PROCESS STRIP (Matches "How It Works" Reference) --- */}
-      <section className="bg-transparent py-16 relative z-10 overflow-hidden my-4">
+      <section className="bg-transparent py-12 md:py-20 relative z-10 overflow-hidden">
         <div className="container mx-auto max-w-6xl px-4 relative">
 
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 font-peace-sans">Pet Care How It Works</h2>
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 font-peace-sans">Pet Care How It Works</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
@@ -233,12 +245,12 @@ const Unlimited = () => {
       </section>
 
       {/* --- BENEFITS SECTION (Dark Cards) --- */}
-      <section className="py-20 relative z-10">
+      <section className="py-12 md:py-24 relative z-10">
         <div className="container mx-auto max-w-7xl px-4">
 
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 font-peace-sans mb-4">Why Choose Unlimited?</h2>
-            <p className="text-gray-800/80 max-w-2xl mx-auto">Experience the freedom of hassle-free pet care with benefits designed for you.</p>
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 font-peace-sans mb-3">Why Choose Unlimited?</h2>
+            <p className="text-sm md:text-base text-gray-800/80 max-w-2xl mx-auto px-4">Experience the freedom of hassle-free pet care with benefits designed for you.</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -277,7 +289,7 @@ const Unlimited = () => {
 
 
       {/* --- CREATIVE FAQ --- */}
-      <section className="container mx-auto max-w-5xl px-6 py-20 relative">
+      <section className="container mx-auto max-w-5xl px-6 py-0 md:py-20 relative">
         <h2 className="text-4xl font-black mb-12 text-gray-900 font-peace-sans">FAQs</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
@@ -290,7 +302,7 @@ const Unlimited = () => {
                 whileTap={{ scale: 0.98 }}
               >
                 <button
-                  onClick={() => setOpenFaq(i)}
+                  onClick={() => handleFaqClick(i)}
                   className={cn(
                     "w-full p-6 text-left rounded-3xl transition-all duration-300 relative border-2",
                     openFaq === i
@@ -314,7 +326,7 @@ const Unlimited = () => {
           </div>
 
           {/* Right: Answer Panel */}
-          <div className="lg:sticky lg:top-8">
+          <div ref={faqAnswerRef} className="lg:sticky lg:top-8 scroll-mt-20">
             <AnimatePresence mode="wait">
               {openFaq !== null ? (
                 <motion.div
@@ -343,7 +355,7 @@ const Unlimited = () => {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="h-80 flex flex-col items-center justify-center text-center bg-white border-2 border-dashed border-gray-300 rounded-[2rem] p-8"
+                  className="h-64 md:h-80 flex flex-col items-center justify-center text-center bg-white border-2 border-dashed border-gray-300 rounded-[2rem] p-8"
                 >
                   <div className="mb-6 p-4 bg-[#EDC520]/10 rounded-full">
                     <motion.div
@@ -366,47 +378,47 @@ const Unlimited = () => {
       </section>
 
       {/* --- GET STARTED CTA (Redesigned & Relocated) --- */}
-      <section className="py-24 relative z-10">
-        <div className="container mx-auto max-w-6xl px-6">
+      <section className="pt-12 pb-4 md:py-12 relative z-10">
+        <div className="container mx-auto max-w-6xl px-4 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="rounded-[3rem] shadow-2xl relative overflow-hidden ring-4 ring-black/5 min-h-[500px] flex items-center"
+            className="rounded-[2.5rem] md:rounded-[3rem] shadow-2xl relative overflow-hidden ring-4 ring-black/5 min-h-[420px] md:min-h-[500px] flex items-center"
           >
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
-              <img src={readyBg} alt="Background" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/20 to-black/80"></div>
+              <img src={readyBg} alt="Background" className="w-full h-full object-cover object-left md:object-center" />
+              <div className="absolute inset-0 bg-gradient-to-l md:bg-gradient-to-r from-black/95 via-black/40 to-transparent md:from-transparent md:via-black/20 md:to-black/80"></div>
             </div>
 
-            <div className="relative z-10 w-full flex justify-end p-8 md:p-16">
-              <div className="max-w-xl text-right">
+            <div className="relative z-10 w-full flex justify-end p-6 md:p-16">
+              <div className="max-w-[240px] md:max-w-xl text-right flex flex-col items-end">
 
-                <h2 className="text-5xl md:text-6xl font-black text-white mb-6 leading-[0.9] font-peace-sans drop-shadow-xl">
-                  Ready to Give Them<br />The Best?
+                <h2 className="text-3xl md:text-6xl font-black text-white mb-2 md:mb-6 leading-[1.1] md:leading-[0.9] font-peace-sans drop-shadow-xl text-right">
+                  Ready to Give Them<br className="hidden md:block" /> The Best?
                 </h2>
-                <p className="text-xl text-white/90 mb-10 leading-relaxed font-medium drop-shadow-md">
+                <p className="text-base md:text-xl text-white/90 mb-6 md:mb-10 leading-relaxed font-medium drop-shadow-md text-right">
                   Join 10,000+ happy pet parents and experience the joy of worry-free care today.
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-4 justify-end">
-                  <Link to="/unlimited-fur/bundle/budget?mode=bundle">
+                <div className="flex flex-col sm:flex-row gap-2 justify-end items-end w-full">
+                  <Link to="/unlimited-fur/bundle/budget?mode=bundle" className="w-full sm:w-auto">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="bg-white/10 backdrop-blur-md text-white border-2 border-white px-10 py-4 rounded-full font-bold text-lg shadow-lg hover:bg-white hover:text-gray-900 transition-all w-full sm:w-auto"
+                      className="bg-white/10 backdrop-blur-md text-white border-2 border-white px-6 py-2.5 rounded-full font-bold text-xs md:text-base shadow-lg hover:bg-white hover:text-gray-900 transition-all w-full"
                     >
                       Create a Bundle
                     </motion.button>
                   </Link>
-                  <Link to="/unlimited-fur/monthly/budget?mode=monthly">
+                  <Link to="/unlimited-fur/monthly/budget?mode=monthly" className="w-full sm:w-auto">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="bg-[#EDC520] text-gray-900 px-10 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-[#FFD700] transition-all flex items-center gap-3 w-full sm:w-auto justify-center"
+                      className="bg-[#EDC520] text-gray-900 px-6 py-2.5 rounded-full font-bold text-xs md:text-base shadow-xl hover:bg-[#FFD700] transition-all flex items-center gap-1.5 w-full justify-center"
                     >
-                      Start Monthly Plan <ChevronDown className="rotate-[-90deg] w-5 h-5" />
+                      Start Monthly Plan <ChevronDown className="rotate-[-90deg] w-3 h-3" />
                     </motion.button>
                   </Link>
                 </div>

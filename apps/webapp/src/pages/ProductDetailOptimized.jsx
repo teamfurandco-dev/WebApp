@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn, formatPrice } from '@fur-co/utils';
 import { getCategoryType } from '@fur-co/utils';
 import { useWishlist } from '@/context/WishlistContext';
+import { useTheme } from '@/context/ThemeContext';
 import ProductQA from '@/components/product/ProductQA';
 import FoodSpecs from '@/components/product/FoodSpecs';
 import ToySpecs from '@/components/product/ToySpecs';
@@ -31,6 +32,11 @@ const ProductDetail = () => {
 
   const { isInWishlist, toggleWishlist } = useWishlist();
   const isWishlisted = product ? isInWishlist(product.id) : false;
+  const { switchMode } = useTheme();
+
+  useEffect(() => {
+    switchMode('GATEWAY');
+  }, [switchMode]);
 
   // Determine category type for dynamic specs rendering
   const categoryType = product ? getCategoryType(product.category) : 'Accessories';
@@ -56,11 +62,11 @@ const ProductDetail = () => {
           api.getReviews(id),
           api.getProductVariants(id)
         ]);
-        
+
         setProduct(productData);
         setReviews(reviewsData);
         setProductVariants(variantsData);
-        
+
         // Set default variant selection - prioritize actual variants over legacy variants
         if (variantsData?.length > 0) {
           setSelectedVariant(variantsData[0]);
@@ -68,12 +74,12 @@ const ProductDetail = () => {
           // No variants available, use base product data
           setSelectedVariant(null);
         }
-        
+
         // Fetch related products from same category
         if (productData?.category) {
-          const related = await api.getProducts({ 
+          const related = await api.getProducts({
             category: productData.category,
-            sort: 'rating' 
+            sort: 'rating'
           });
           setRelatedProducts(related.filter(p => p.id !== id).slice(0, 4));
         }
@@ -164,7 +170,7 @@ const ProductDetail = () => {
   return (
     <div className="w-full min-h-screen bg-[#FDFBF7] relative">
       {/* Background Texture */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-multiply" 
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-multiply"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FBBF24' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }}
@@ -173,32 +179,32 @@ const ProductDetail = () => {
       <div className="container px-4 md:px-6 pt-20 pb-24 relative z-10">
         {/* PRODUCT HERO SECTION */}
         <div className="grid md:grid-cols-2 gap-12 lg:gap-20 mb-16 items-start">
-          
+
           {/* Left Column: Visual Showcase */}
           <div className="space-y-8 sticky top-20">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="relative aspect-square rounded-[2.5rem] bg-white shadow-2xl overflow-hidden group"
             >
-               <img 
-                 src={product.images?.[activeImage] || product.image} 
-                 alt={product.name} 
-                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-               />
-               <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.05)] pointer-events-none rounded-[2.5rem]" />
+              <img
+                src={product.images?.[activeImage] || product.image}
+                alt={product.name}
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.05)] pointer-events-none rounded-[2.5rem]" />
             </motion.div>
 
             {/* Thumbnails */}
             <div className="flex gap-4 justify-center">
               {(product.images || [product.image]).map((img, index) => (
-                <button 
-                  key={index} 
+                <button
+                  key={index}
                   onClick={() => setActiveImage(index)}
                   className={cn(
                     "relative w-20 h-20 rounded-full overflow-hidden border-2 transition-all duration-300 shadow-md",
-                    activeImage === index 
-                      ? "border-furco-yellow scale-110 ring-4 ring-furco-yellow/20" 
+                    activeImage === index
+                      ? "border-furco-yellow scale-110 ring-4 ring-furco-yellow/20"
                       : "border-white hover:border-furco-yellow/50"
                   )}
                 >
@@ -213,7 +219,7 @@ const ProductDetail = () => {
 
           {/* Right Column: Product Details & CTA */}
           <div className="space-y-8">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
@@ -222,7 +228,7 @@ const ProductDetail = () => {
               <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#1F1F1F] leading-tight mb-4">
                 {product.name}
               </h1>
-              
+
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-1">
                   <div className="flex text-furco-yellow">
@@ -232,7 +238,7 @@ const ProductDetail = () => {
                   </div>
                   <span className="font-bold text-lg ml-2">{product.rating || 0}</span>
                 </div>
-                <button 
+                <button
                   onClick={() => scrollToSection('reviews')}
                   className="text-sm font-medium underline decoration-furco-yellow decoration-2 underline-offset-4 hover:text-furco-yellow transition-colors"
                 >
@@ -346,19 +352,19 @@ const ProductDetail = () => {
             {/* Add to Cart Block */}
             <div className="flex flex-col sm:flex-row gap-4 pt-6">
               <div className="flex items-center bg-[#1F1F1F] rounded-full p-1.5 shadow-xl w-fit">
-                <button 
+                <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   className="w-10 h-10 rounded-full bg-transparent text-white hover:bg-white/10 flex items-center justify-center transition-colors"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
-                <input 
-                  type="number" 
-                  value={quantity} 
-                  readOnly 
+                <input
+                  type="number"
+                  value={quantity}
+                  readOnly
                   className="w-12 bg-transparent text-center text-white font-bold text-lg focus:outline-none"
                 />
-                <button 
+                <button
                   onClick={() => setQuantity(quantity + 1)}
                   className="w-10 h-10 rounded-full bg-transparent text-white hover:bg-white/10 flex items-center justify-center transition-colors"
                 >
@@ -366,9 +372,9 @@ const ProductDetail = () => {
                 </button>
               </div>
 
-              <Button 
-                size="lg" 
-                className="flex-1 h-14 rounded-full bg-furco-yellow hover:bg-furco-yellow-hover text-black text-lg font-bold shadow-[0_10px_20px_rgba(251,191,36,0.3)] hover:shadow-[0_15px_30px_rgba(251,191,36,0.4)] transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed" 
+              <Button
+                size="lg"
+                className="flex-1 h-14 rounded-full bg-furco-yellow hover:bg-furco-yellow-hover text-black text-lg font-bold shadow-[0_10px_20px_rgba(251,191,36,0.3)] hover:shadow-[0_15px_30px_rgba(251,191,36,0.4)] transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleAddToCart}
                 disabled={currentStock === 0}
               >
@@ -380,14 +386,14 @@ const ProductDetail = () => {
                 </span>
               </Button>
 
-              <Button 
-                variant="outline" 
-                size="icon" 
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={() => toggleWishlist(product.id)}
                 className={cn(
                   "h-14 w-14 rounded-full border-2 transition-colors",
-                  isWishlisted 
-                    ? "border-red-500 bg-red-50 text-red-500 hover:bg-red-100 hover:border-red-600" 
+                  isWishlisted
+                    ? "border-red-500 bg-red-50 text-red-500 hover:bg-red-100 hover:border-red-600"
                     : "border-black/10 hover:border-furco-yellow hover:text-furco-yellow hover:bg-white"
                 )}
               >
@@ -451,9 +457,9 @@ const ProductDetail = () => {
           <div className="flex gap-8 py-4 overflow-x-auto hide-scrollbar">
             {[
               { id: 'description', label: 'Description' },
-              { 
-                id: 'ingredients', 
-                label: categoryType === 'Food' ? 'Nutrition' : 'Specifications' 
+              {
+                id: 'ingredients',
+                label: categoryType === 'Food' ? 'Nutrition' : 'Specifications'
               },
               { id: 'reviews', label: 'Reviews' },
               { id: 'qa', label: 'Questions & Answers' }
@@ -463,8 +469,8 @@ const ProductDetail = () => {
                 onClick={() => scrollToSection(nav.id)}
                 className={cn(
                   "relative whitespace-nowrap px-4 py-2 font-serif font-bold text-lg transition-colors",
-                  activeSection === nav.id 
-                    ? "text-black" 
+                  activeSection === nav.id
+                    ? "text-black"
                     : "text-black/40 hover:text-black/70"
                 )}
               >
@@ -485,7 +491,7 @@ const ProductDetail = () => {
               <p className="text-muted-foreground leading-relaxed text-lg mb-6">
                 {product.description}
               </p>
-              
+
               {product.usage_instructions && (
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-black/5 mb-8">
                   <h3 className="font-bold text-xl mb-3">How to Use</h3>
@@ -527,7 +533,7 @@ const ProductDetail = () => {
           <h2 className="text-3xl font-serif font-bold mb-8">
             {categoryType === 'Food' ? 'Nutritional Analysis' : 'Product Specifications'}
           </h2>
-          
+
           {/* Dynamic specs component based on category type */}
           {categoryType === 'Food' && <FoodSpecs product={product} />}
           {categoryType === 'Toys' && <ToySpecs product={product} />}
@@ -587,42 +593,42 @@ const ProductDetail = () => {
             <h2 className="text-3xl font-serif font-bold">Customer Reviews</h2>
             <Button variant="outline" className="rounded-full">Write a Review</Button>
           </div>
-          
-            <div className="bg-white rounded-[2rem] p-8 border border-black/5 shadow-sm mb-8">
-              <div className="flex items-center gap-6 mb-6">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-furco-yellow mb-1">{product.rating || 0}</div>
-                  <div className="flex text-furco-yellow justify-center mb-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={cn("h-4 w-4", i < Math.floor(product.rating || 0) ? "fill-current" : "text-gray-300")} />
-                    ))}
-                  </div>
-                  <div className="text-sm text-muted-foreground">{reviews.length} reviews</div>
+
+          <div className="bg-white rounded-[2rem] p-8 border border-black/5 shadow-sm mb-8">
+            <div className="flex items-center gap-6 mb-6">
+              <div className="text-center">
+                <div className="text-4xl font-bold text-furco-yellow mb-1">{product.rating || 0}</div>
+                <div className="flex text-furco-yellow justify-center mb-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={cn("h-4 w-4", i < Math.floor(product.rating || 0) ? "fill-current" : "text-gray-300")} />
+                  ))}
                 </div>
-                <div className="flex-1">
-                  <div className="text-sm text-muted-foreground mb-2">
-                    Based on {reviews.length} customer reviews
-                  </div>
-                  {/* Rating breakdown */}
-                  {[5, 4, 3, 2, 1].map((rating) => {
-                    const count = reviews.filter(r => r.rating === rating).length;
-                    const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
-                    return (
-                      <div key={rating} className="flex items-center gap-2 mb-1">
-                        <span className="text-sm w-8">{rating}★</span>
-                        <div className="flex-1 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-furco-yellow h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${percentage}%` }}
-                          />
-                        </div>
-                        <span className="text-sm text-muted-foreground w-8">{count}</span>
+                <div className="text-sm text-muted-foreground">{reviews.length} reviews</div>
+              </div>
+              <div className="flex-1">
+                <div className="text-sm text-muted-foreground mb-2">
+                  Based on {reviews.length} customer reviews
+                </div>
+                {/* Rating breakdown */}
+                {[5, 4, 3, 2, 1].map((rating) => {
+                  const count = reviews.filter(r => r.rating === rating).length;
+                  const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                  return (
+                    <div key={rating} className="flex items-center gap-2 mb-1">
+                      <span className="text-sm w-8">{rating}★</span>
+                      <div className="flex-1 bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-furco-yellow h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${percentage}%` }}
+                        />
                       </div>
-                    );
-                  })}
-                </div>
+                      <span className="text-sm text-muted-foreground w-8">{count}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
+          </div>
 
           {/* Real reviews from database */}
           <div className="grid md:grid-cols-2 gap-8">
@@ -637,12 +643,12 @@ const ProductDetail = () => {
                   <div className="flex-1">
                     <div className="flex text-furco-yellow mb-1">
                       {[...Array(5)].map((_, j) => (
-                        <Star 
-                          key={j} 
+                        <Star
+                          key={j}
                           className={cn(
-                            "h-4 w-4", 
+                            "h-4 w-4",
                             j < review.rating ? "fill-current" : "text-gray-300"
-                          )} 
+                          )}
                         />
                       ))}
                     </div>
@@ -658,10 +664,10 @@ const ProductDetail = () => {
                 {review.images?.length > 0 && (
                   <div className="flex gap-2 mb-4">
                     {review.images.map((img, idx) => (
-                      <img 
+                      <img
                         key={idx}
-                        src={img} 
-                        alt="Review" 
+                        src={img}
+                        alt="Review"
                         className="w-16 h-16 rounded-lg object-cover"
                       />
                     ))}

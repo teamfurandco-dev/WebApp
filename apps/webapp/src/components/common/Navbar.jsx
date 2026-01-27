@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useCart } from '@/context/CartContext';
 import { useTheme } from '@/context/ThemeContext';
 import { ShoppingCart, User, Search, Menu, Heart, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
+  const { getCartCount } = useCart();
   const { currentMode, switchMode } = useTheme();
   const isUnlimitedMode = currentMode === 'CORE';
 
@@ -36,11 +38,11 @@ const Navbar = () => {
   }, [location]);
 
   const navLinks = [
-    { name: 'Unlimited', path: '/unlimited', featured: true },
     { name: 'Home', path: '/' },
+    { name: 'About Us', path: '/about' },
     { name: 'Shop', path: '/products' },
     { name: 'PetSchool', path: '/blog' },
-    { name: 'About Us', path: '/about' },
+    { name: 'Unlimited', path: '/unlimited' },
   ];
 
   const sparkleGoldClass = "bg-clip-text text-transparent bg-[linear-gradient(45deg,#D4AF37,#FFF78A,#D4AF37)] bg-[length:200%_auto] animate-shimmer";
@@ -70,23 +72,23 @@ const Navbar = () => {
           {/* 1. Left Section: Logo */}
           <Link to="/" className="relative z-50 group flex-shrink-0">
             <div className="flex items-center gap-2">
-              {isUnlimitedMode ? (
-                <img src={unlimitedLogo} alt="Unlimited Furs" className="h-8 md:h-12 w-auto transition-transform duration-300 group-hover:scale-105" />
-              ) : (
-                <img src={logoSvg} alt="Fur & Co" className="h-8 md:h-10 w-auto transition-transform duration-300 group-hover:scale-105" />
-              )}
+              <img
+                src={isUnlimitedMode ? unlimitedLogo : logoSvg}
+                alt="Fur & Co"
+                className="h-8 md:h-10 w-auto transition-transform duration-300 group-hover:scale-105"
+              />
             </div>
           </Link>
 
           {/* 2. Center Section: Search Bar (Desktop Only) */}
-          <div className="hidden md:flex flex-1 max-w-2xl mx-auto px-8">
+          <div className="hidden md:flex flex-1 max-w-md lg:max-w-xl xl:max-w-2xl mx-auto px-4 lg:px-8">
             <div
               className="w-full relative group"
               onClick={() => setIsSearchOpen(true)}
             >
               <div className="flex items-center w-full h-12 rounded-full border border-black/10 bg-white/90 px-4 hover:border-[#EDC520] transition-colors cursor-text">
                 <Search className="h-5 w-5 text-gray-400 mr-3" />
-                <span className="text-gray-400 text-sm font-medium">Search for science-backed essentials...</span>
+                <span className="text-gray-400 text-sm font-medium truncate">Search for science-backed essentials...</span>
               </div>
             </div>
           </div>
@@ -95,20 +97,23 @@ const Navbar = () => {
           <div className="flex items-center gap-1 md:gap-6">
             {/* Desktop Navigation Links */}
             <nav className={cn(
-              "hidden xl:flex items-center gap-2 mr-4 p-1.5 rounded-full border transition-colors duration-300",
+              "hidden lg:flex items-center gap-2 mr-4 p-1.5 rounded-full border transition-colors duration-300",
               isUnlimitedMode ? "bg-black border-black" : "bg-white border-black"
             )}>
               {navLinks.map((link) => {
                 const isActive = location.pathname === link.path;
+
                 return (
                   <Link
                     key={link.name}
                     to={link.path}
                     className={cn(
-                      "relative px-4 py-1.5 text-sm font-medium transition-colors duration-300 rounded-full",
+                      "relative px-4 py-1.5 text-sm font-medium transition-colors duration-300 rounded-full whitespace-nowrap",
                       isActive
                         ? (isUnlimitedMode ? "text-black" : "text-white")
-                        : (isUnlimitedMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-black")
+                        : (isUnlimitedMode ? "text-white/70 hover:text-white" : "text-gray-800 hover:text-black"),
+                      link.name === 'Unlimited' && !isActive ? "text-[#D4AF37] font-bold underline decoration-black decoration-2 underline-offset-4" : "",
+                      link.name === 'Unlimited' && isActive ? "font-bold underline decoration-black decoration-2 underline-offset-4" : ""
                     )}
                   >
                     {isActive && (
@@ -152,13 +157,15 @@ const Navbar = () => {
 
               {/* Cart */}
               <Link to="/cart" className={cn(
-                "p-2 relative transition-colors",
+                "hidden md:flex p-2 relative transition-colors items-center justify-center",
                 isUnlimitedMode ? "text-gray-900 hover:text-gray-700" : "text-foreground hover:text-white"
               )}>
                 <ShoppingCart className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
-                <Badge className={`absolute -top-1 -right-1 h-4 w-4 md:h-5 md:w-5 p-0 flex items-center justify-center text-[10px] font-bold border-none shadow-sm ${isUnlimitedMode ? 'bg-white text-black' : 'bg-white text-black'}`}>
-                  2
-                </Badge>
+                {getCartCount() > 0 && (
+                  <Badge className={`absolute -top-1 -right-1 h-4 w-4 md:h-5 md:w-5 p-0 flex items-center justify-center text-[10px] font-bold border-none shadow-sm ${isUnlimitedMode ? 'bg-white text-black' : 'bg-white text-black'}`}>
+                    {getCartCount()}
+                  </Badge>
+                )}
               </Link>
 
               {/* Profile (Desktop) */}
@@ -242,40 +249,60 @@ const Navbar = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-40 bg-background flex flex-col pt-24 px-6 md:hidden overflow-y-auto"
+            className={cn(
+              "fixed inset-0 z-40 flex flex-col pt-24 px-6 md:hidden overflow-y-auto",
+              isUnlimitedMode ? "bg-white" : "bg-[#FDFBF7]"
+            )}
           >
-            <nav className="flex flex-col gap-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  className={cn(
-                    "relative px-4 py-3 text-3xl font-peace-sans font-bold transition-colors rounded-xl overflow-hidden",
-                    location.pathname === link.path ? "text-background" : "text-foreground hover:text-furco-yellow pb-4 border-b border-border/50"
-                  )}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {location.pathname === link.path && (
-                    <motion.div
-                      layoutId="mobile-nav-capsule"
-                      className={cn(
-                        "absolute inset-0 -z-10",
-                        isUnlimitedMode ? "bg-[#D4AF37]" : "bg-foreground"
+            <nav className="flex flex-col py-8">
+              {navLinks.map((link) => {
+                const isActive = location.pathname === link.path;
+                return (
+                  <Link
+                    key={link.name}
+                    to={link.path}
+                    className={cn(
+                      "group flex items-center justify-between py-5 border-b border-black/5 transition-all duration-300",
+                      isActive ? "text-black" : "text-black/60 hover:text-black"
+                    )}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <div className="flex items-center gap-4">
+                      {isActive && (
+                        <motion.div
+                          layoutId="mobile-nav-indicator"
+                          className="w-2 h-2 rounded-full bg-[#D4AF37]"
+                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        />
                       )}
-                      initial={false}
-                    />
-                  )}
-                  {link.name}
+                      <span className={cn(
+                        "text-2xl font-bold tracking-tight",
+                        link.name === 'Unlimited' ? "text-[#D4AF37] font-black underline decoration-black decoration-2 underline-offset-4" : ""
+                      )}>
+                        {link.name}
+                      </span>
+                    </div>
+                    {isActive && (
+                      <motion.span
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="text-xs font-bold uppercase tracking-widest text-[#D4AF37]"
+                      >
+                        Active
+                      </motion.span>
+                    )}
+                  </Link>
+                );
+              })}
+
+              <div className="grid grid-cols-2 gap-4 mt-12 pt-8 border-t border-black/10">
+                <Link to={user ? "/account" : "/login"} onClick={() => setIsMobileMenuOpen(false)} className="flex flex-col items-center justify-center gap-3 p-6 rounded-3xl bg-black/5 hover:bg-black/10 transition-colors">
+                  <User className="w-6 h-6 text-black" />
+                  <span className="text-sm font-bold text-black font-peace-sans">Account</span>
                 </Link>
-              ))}
-              <div className="flex flex-col gap-4 mt-4">
-                <Link to={user ? "/account" : "/login"} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-lg font-medium text-foreground p-2 hover:bg-muted rounded-lg">
-                  <User className="w-6 h-6" />
-                  <span>Account</span>
-                </Link>
-                <Link to="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-lg font-medium text-foreground p-2 hover:bg-muted rounded-lg">
-                  <Heart className="w-6 h-6" />
-                  <span>Wishlist</span>
+                <Link to="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="flex flex-col items-center justify-center gap-3 p-6 rounded-3xl bg-black/5 hover:bg-black/10 transition-colors">
+                  <Heart className="w-6 h-6 text-black" />
+                  <span className="text-sm font-bold text-black font-peace-sans">Wishlist</span>
                 </Link>
               </div>
             </nav>

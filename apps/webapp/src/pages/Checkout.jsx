@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTheme } from '@/context/ThemeContext';
 import { ArrowLeft, CreditCard, Truck, CheckCircle } from 'lucide-react';
 import { logActivity } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
@@ -16,12 +17,17 @@ const Checkout = () => {
   const { user } = useAuth();
   const [step, setStep] = useState(1); // 1: Address, 2: Payment, 3: Review
   const [loading, setLoading] = useState(false);
+  const { switchMode } = useTheme();
+
+  useEffect(() => {
+    switchMode('GATEWAY');
+  }, [switchMode]);
 
   const handlePlaceOrder = async () => {
     setLoading(true);
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     if (user) {
       await logActivity(user.id, 'place_order', 'order', 'ord_mock_123', { total_amount_cents: 189700 });
     }
@@ -114,7 +120,7 @@ const Checkout = () => {
                     </Label>
                   </div>
                 </RadioGroup>
-                
+
                 <div className="space-y-2 pt-4">
                   <Label>Card Details (Mock)</Label>
                   <Input placeholder="0000 0000 0000 0000" />
@@ -140,7 +146,7 @@ const Checkout = () => {
 
           {/* Step 3: Review */}
           <Card className={step === 3 ? 'border-primary ring-1 ring-primary' : ''}>
-             <CardHeader>
+            <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm ${step >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>3</div>
                 Review & Place Order
@@ -163,7 +169,7 @@ const Checkout = () => {
                   <span>Order Total</span>
                   <span>₹1897</span>
                 </div>
-                
+
                 <div className="flex gap-4 mt-6">
                   <Button variant="outline" onClick={() => setStep(2)}>Back</Button>
                   <Button className="flex-1 bg-green-600 hover:bg-green-700 text-white" onClick={handlePlaceOrder} disabled={loading}>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTheme } from '@/context/ThemeContext';
 import { Minus, Plus, Trash2, ArrowRight, Tag, Lock, PawPrint } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,11 @@ const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { switchMode } = useTheme();
+
+  useEffect(() => {
+    switchMode('GATEWAY');
+  }, [switchMode]);
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -112,7 +118,7 @@ const Cart = () => {
   return (
     <div className="w-full min-h-screen bg-[#FDFBF7] relative overflow-hidden">
       {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FBBF24' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }}
@@ -120,7 +126,7 @@ const Cart = () => {
 
       <div className="container mx-auto px-4 md:px-6 pt-32 pb-16 relative z-10">
         <div className="grid lg:grid-cols-12 gap-12 items-start">
-          
+
           {/* Left Column: Cart Items (7 cols) */}
           <div className="lg:col-span-7 space-y-8">
             <h1 className="text-4xl font-serif font-bold text-black">
@@ -129,7 +135,7 @@ const Cart = () => {
 
             <div className="space-y-6">
               {cartItems.map((item) => (
-                <motion.div 
+                <motion.div
                   key={item.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -137,9 +143,9 @@ const Cart = () => {
                 >
                   {/* Product Image */}
                   <div className="w-full sm:w-40 h-40 bg-gray-50 rounded-2xl overflow-hidden shrink-0 relative">
-                    <img 
-                      src={getItemImage(item)} 
-                      alt={getItemName(item)} 
+                    <img
+                      src={getItemImage(item)}
+                      alt={getItemName(item)}
                       className="w-full h-full object-cover mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
                       onError={(e) => {
                         e.target.src = '/placeholder-product.jpg';
@@ -166,14 +172,14 @@ const Cart = () => {
                     <div className="flex justify-between items-end mt-6">
                       {/* Quantity Selector */}
                       <div className="flex items-center bg-gray-50 rounded-full p-1 border border-black/5">
-                        <button 
+                        <button
                           onClick={() => updateQuantity(item.id, -1)}
                           className="w-8 h-8 rounded-full bg-white text-black hover:bg-furco-yellow hover:text-white flex items-center justify-center transition-colors shadow-sm"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
                         <span className="w-10 text-center font-bold text-black">{item.quantity}</span>
-                        <button 
+                        <button
                           onClick={() => updateQuantity(item.id, 1)}
                           className="w-8 h-8 rounded-full bg-furco-yellow text-black hover:bg-black hover:text-white flex items-center justify-center transition-colors shadow-sm"
                         >
@@ -182,7 +188,7 @@ const Cart = () => {
                       </div>
 
                       {/* Remove Button */}
-                      <button 
+                      <button
                         onClick={() => removeItem(item.id)}
                         className="flex items-center gap-2 text-red-500/60 hover:text-red-500 font-medium text-sm transition-colors group/trash"
                       >
@@ -233,8 +239,8 @@ const Cart = () => {
                 <div className="mt-8 mb-8">
                   <div className="relative flex items-center">
                     <Tag className="absolute left-4 w-4 h-4 text-black/40" />
-                    <Input 
-                      placeholder="Promo Code" 
+                    <Input
+                      placeholder="Promo Code"
                       className="pl-10 h-12 rounded-xl border-black/10 bg-gray-50 focus:bg-white transition-colors"
                     />
                     <Button className="absolute right-1 top-1 bottom-1 bg-furco-yellow text-black hover:bg-black hover:text-white rounded-lg px-4 font-bold transition-colors">

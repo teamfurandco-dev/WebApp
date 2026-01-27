@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Check, ArrowRight, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useMockUnlimitedFur } from '@/context/MockUnlimitedFurContext';
+import { useUnlimitedFur } from '@/context/UnlimitedFurContext';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@fur-co/utils';
 import UnlimitedBackground from '@/components/unlimited-fur/UnlimitedBackground';
@@ -20,7 +20,7 @@ export default function BudgetSelection() {
   const [searchParams] = useSearchParams();
   const mode = searchParams.get('mode') || 'monthly';
   const { switchMode } = useTheme();
-  const { startMonthlyPlan, startBundle, setBudget, loading } = useMockUnlimitedFur();
+  const { startMonthlyPlan, startBundle, setBudget, loading } = useUnlimitedFur();
 
   const [selectedBudget, setSelectedBudget] = useState(null);
   const [customBudget, setCustomBudget] = useState('');
@@ -48,10 +48,10 @@ export default function BudgetSelection() {
   };
 
   return (
-    <div className="h-screen bg-[#EDC520] text-gray-900 overflow-hidden relative font-sans">
+    <div className="min-h-screen bg-[#EDC520] text-gray-900 overflow-y-auto relative font-sans">
       <UnlimitedBackground />
 
-      <div className="h-full container mx-auto max-w-5xl flex flex-col items-center justify-center p-6 relative z-10">
+      <div className="min-h-screen container mx-auto max-w-5xl flex flex-col items-center justify-center p-6 py-12 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

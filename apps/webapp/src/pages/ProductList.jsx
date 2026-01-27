@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTheme } from '@/context/ThemeContext';
 import { api } from '@/services/api';
 import ProductCard from '@/components/product/ProductCard';
 import FilterSidebar from '@/components/product/FilterSidebar';
@@ -11,7 +12,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 const ProductList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get('category') || 'All';
-  
+  const { switchMode } = useTheme();
+
+  useEffect(() => {
+    switchMode('GATEWAY');
+  }, [switchMode]);
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,10 +55,10 @@ const ProductList = () => {
   return (
     <div className="min-h-screen bg-[#FDFBF7] relative overflow-hidden">
       {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-           style={{ 
-             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 30c2-2 6-2 8 0s2 6 0 8-6 2-8 0-2-6 0-8zm-10-10c2-2 6-2 8 0s2 6 0 8-6 2-8 0-2-6 0-8zm20 0c2-2 6-2 8 0s2 6 0 8-6 2-8 0-2-6 0-8z' fill='%231F1F1F' fill-rule='evenodd'/%3E%3C/svg%3E")` 
-           }} 
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 30c2-2 6-2 8 0s2 6 0 8-6 2-8 0-2-6 0-8zm-10-10c2-2 6-2 8 0s2 6 0 8-6 2-8 0-2-6 0-8zm20 0c2-2 6-2 8 0s2 6 0 8-6 2-8 0-2-6 0-8z' fill='%231F1F1F' fill-rule='evenodd'/%3E%3C/svg%3E")`
+        }}
       />
 
       {/* Paw Trail Scroll Indicator */}
@@ -62,13 +68,13 @@ const ProductList = () => {
         ))}
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 pt-8 pb-24 relative z-10">
+      <div className="container mx-auto px-4 md:px-6 pt-4 md:pt-12 pb-24 relative z-10">
         <div className="flex flex-col md:flex-row gap-12">
           {/* Sidebar - Desktop */}
           <aside className="hidden md:block w-72 shrink-0">
-            <FilterSidebar 
-              categories={categories} 
-              selectedCategory={selectedCategory} 
+            <FilterSidebar
+              categories={categories}
+              selectedCategory={selectedCategory}
               onCategoryChange={handleCategoryChange}
               priceRange={priceRange}
               onPriceChange={setPriceRange}
@@ -77,35 +83,38 @@ const ProductList = () => {
 
           {/* Main Content */}
           <div className="flex-1">
-            <div className="flex flex-col gap-6 mb-8">
-              <div className="flex items-center justify-between">
-                <h1 className="text-4xl font-serif font-bold text-black">
+            <div className="flex flex-col gap-6 mb-12">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                <h1 className="text-3xl md:text-5xl font-serif font-bold text-black leading-[1.1]">
                   {selectedCategory === 'All' ? 'All Products' : selectedCategory}
                 </h1>
-                
-                <div className="flex items-center gap-3">
+
+                <div className="flex items-center gap-3 w-full sm:w-auto">
                   {/* Mobile Filter Trigger */}
                   <Sheet>
                     <SheetTrigger asChild>
-                      <Button variant="outline" size="sm" className="md:hidden gap-2 rounded-full border-black/20">
+                      <Button variant="outline" size="sm" className="md:hidden flex-1 sm:flex-none h-11 gap-2 rounded-full border-black/20 font-bold bg-white shadow-sm">
                         <Filter className="h-4 w-4" /> Filters
                       </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="bg-[#FDFBF7]">
-                      <FilterSidebar 
-                        categories={categories} 
-                        selectedCategory={selectedCategory} 
-                        onCategoryChange={handleCategoryChange}
-                        priceRange={priceRange}
-                        onPriceChange={setPriceRange}
-                      />
+                    <SheetContent side="left" className="bg-[#FDFBF7] p-0">
+                      <div className="p-6 pt-14">
+                        <FilterSidebar
+                          categories={categories}
+                          selectedCategory={selectedCategory}
+                          onCategoryChange={handleCategoryChange}
+                          priceRange={priceRange}
+                          onPriceChange={setPriceRange}
+                          isMobile={true}
+                        />
+                      </div>
                     </SheetContent>
                   </Sheet>
 
                   {/* Sort Dropdown */}
-                  <div className="relative">
-                    <select 
-                      className="h-10 pl-4 pr-10 rounded-full border border-black/10 bg-white text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-furco-yellow appearance-none cursor-pointer hover:border-black/30 transition-colors"
+                  <div className="relative flex-1 sm:flex-none">
+                    <select
+                      className="w-full h-11 pl-4 pr-10 rounded-full border border-black/10 bg-white text-xs sm:text-sm font-bold shadow-sm focus:outline-none focus:ring-2 focus:ring-furco-yellow appearance-none cursor-pointer hover:border-black/30 transition-all"
                       value={sort}
                       onChange={(e) => setSort(e.target.value)}
                     >
@@ -114,7 +123,7 @@ const ProductList = () => {
                       <option value="price-high">Price: High to Low</option>
                       <option value="rating">Best Rating</option>
                     </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-furco-gold pointer-events-none" />
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-black/40 pointer-events-none" />
                   </div>
                 </div>
               </div>
@@ -122,7 +131,7 @@ const ProductList = () => {
               {/* Active Filters */}
               {selectedCategory !== 'All' && (
                 <div className="flex items-center gap-2">
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-furco-yellow text-black text-sm font-bold shadow-sm"
@@ -132,8 +141,8 @@ const ProductList = () => {
                       <X className="h-3 w-3" />
                     </button>
                   </motion.div>
-                  <Button 
-                    variant="link" 
+                  <Button
+                    variant="link"
                     className="text-muted-foreground hover:text-furco-gold h-auto p-0 text-sm"
                     onClick={() => handleCategoryChange('All')}
                   >
@@ -173,11 +182,10 @@ const ProductList = () => {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-all duration-300 ${
-                        currentPage === page
-                          ? 'bg-furco-yellow text-black shadow-md scale-110'
-                          : 'bg-white border border-black/10 text-black hover:border-furco-yellow hover:text-furco-yellow'
-                      }`}
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-all duration-300 ${currentPage === page
+                        ? 'bg-furco-yellow text-black shadow-md scale-110'
+                        : 'bg-white border border-black/10 text-black hover:border-furco-yellow hover:text-furco-yellow'
+                        }`}
                     >
                       {page}
                     </button>
@@ -185,19 +193,26 @@ const ProductList = () => {
                 </div>
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center py-24 bg-white rounded-[2rem] border border-black/5 shadow-sm">
-                <div className="w-24 h-24 bg-black/5 rounded-full flex items-center justify-center mb-6">
-                  <PawPrint className="w-12 h-12 text-black/20" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col items-center justify-center py-20 px-6 bg-white rounded-[3rem] border border-black/5 shadow-xl text-center"
+              >
+                <div className="w-24 h-24 bg-furco-yellow/10 rounded-full flex items-center justify-center mb-8">
+                  <PawPrint className="w-12 h-12 text-furco-yellow" />
                 </div>
-                <h3 className="text-2xl font-serif font-bold text-black mb-2">No treats here!</h3>
-                <p className="text-black/60 text-lg mb-6">We couldn't find what you're looking for.</p>
-                <Button 
+                <h3 className="text-3xl font-serif font-bold text-black mb-4">No treats here!</h3>
+                <p className="text-black/50 text-base md:text-lg mb-10 max-w-md">
+                  We couldn't find any products matching your selection. Try adjusting your filters or search terms.
+                </p>
+                <Button
                   onClick={() => handleCategoryChange('All')}
-                  className="bg-furco-yellow text-black hover:bg-black hover:text-white rounded-full px-8 font-bold transition-all duration-300"
+                  size="lg"
+                  className="bg-furco-yellow text-black hover:bg-black hover:text-white rounded-full px-12 h-12 font-bold shadow-lg transition-all duration-300"
                 >
                   Clear Filters
                 </Button>
-              </div>
+              </motion.div>
             )}
           </div>
         </div>

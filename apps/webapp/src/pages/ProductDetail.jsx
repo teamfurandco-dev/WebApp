@@ -12,6 +12,7 @@ import ProductCard from '@/components/product/ProductCard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn, formatPrice } from '@fur-co/utils';
 import { useWishlist } from '@/context/WishlistContext';
+import { useTheme } from '@/context/ThemeContext';
 import ProductQA from '@/components/product/ProductQA';
 
 const ProductDetail = () => {
@@ -25,6 +26,11 @@ const ProductDetail = () => {
 
   const { isInWishlist, toggleWishlist } = useWishlist();
   const isWishlisted = product ? isInWishlist(product.id) : false;
+  const { switchMode } = useTheme();
+
+  useEffect(() => {
+    switchMode('GATEWAY');
+  }, [switchMode]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -35,7 +41,7 @@ const ProductDetail = () => {
         if (data && data.variants.length > 0) {
           setSelectedVariant(data.variants[0].options[0]);
         }
-        
+
         const allProducts = await api.getProducts({ category: data?.category });
         setRelatedProducts(allProducts.filter(p => p.id !== id).slice(0, 4));
       } catch (error) {
@@ -74,14 +80,14 @@ const ProductDetail = () => {
   }
 
   // Mocking specific data for the "Wholesome Kibble" feel if missing
-  const discountPercentage = product.compare_at_price_cents 
+  const discountPercentage = product.compare_at_price_cents
     ? Math.round(((product.compare_at_price_cents - product.base_price_cents) / product.compare_at_price_cents) * 100)
     : 0;
 
   return (
     <div className="w-full min-h-screen bg-[#FDFBF7] relative">
       {/* Background Texture */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-multiply" 
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-multiply"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FBBF24' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }}
@@ -89,33 +95,33 @@ const ProductDetail = () => {
 
       <div className="container px-4 md:px-6 pt-32 pb-24 relative z-10">
         <div className="grid md:grid-cols-2 gap-12 lg:gap-20 mb-24 items-start">
-          
+
           {/* Left Column: Visual Showcase */}
           <div className="space-y-8 sticky top-32">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="relative aspect-square rounded-[2.5rem] bg-white shadow-2xl overflow-hidden group"
             >
-               <img 
-                 src={product.images?.[activeImage] || product.image} 
-                 alt={product.name} 
-                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-               />
-               {/* 3D Lift Effect Shadow */}
-               <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.05)] pointer-events-none rounded-[2.5rem]" />
+              <img
+                src={product.images?.[activeImage] || product.image}
+                alt={product.name}
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              {/* 3D Lift Effect Shadow */}
+              <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.05)] pointer-events-none rounded-[2.5rem]" />
             </motion.div>
 
             {/* Thumbnails */}
             <div className="flex gap-4 justify-center">
               {(product.images || [product.image]).map((img, index) => (
-                <button 
-                  key={index} 
+                <button
+                  key={index}
                   onClick={() => setActiveImage(index)}
                   className={cn(
                     "relative w-20 h-20 rounded-full overflow-hidden border-2 transition-all duration-300 shadow-md",
-                    activeImage === index 
-                      ? "border-furco-yellow scale-110 ring-4 ring-furco-yellow/20" 
+                    activeImage === index
+                      ? "border-furco-yellow scale-110 ring-4 ring-furco-yellow/20"
                       : "border-white hover:border-furco-yellow/50"
                   )}
                 >
@@ -131,7 +137,7 @@ const ProductDetail = () => {
 
           {/* Right Column: Product Details & CTA */}
           <div className="space-y-8">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
@@ -140,7 +146,7 @@ const ProductDetail = () => {
               <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#1F1F1F] leading-tight mb-4">
                 {product.name}
               </h1>
-              
+
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-1">
                   <div className="flex text-furco-yellow">
@@ -199,19 +205,19 @@ const ProductDetail = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-6">
               {/* Custom Quantity Input */}
               <div className="flex items-center bg-[#1F1F1F] rounded-full p-1.5 shadow-xl w-fit">
-                <button 
+                <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   className="w-10 h-10 rounded-full bg-transparent text-white hover:bg-white/10 flex items-center justify-center transition-colors"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
-                <input 
-                  type="number" 
-                  value={quantity} 
-                  readOnly 
+                <input
+                  type="number"
+                  value={quantity}
+                  readOnly
                   className="w-12 bg-transparent text-center text-white font-bold text-lg focus:outline-none"
                 />
-                <button 
+                <button
                   onClick={() => setQuantity(quantity + 1)}
                   className="w-10 h-10 rounded-full bg-transparent text-white hover:bg-white/10 flex items-center justify-center transition-colors"
                 >
@@ -219,9 +225,9 @@ const ProductDetail = () => {
                 </button>
               </div>
 
-              <Button 
-                size="lg" 
-                className="flex-1 h-14 rounded-full bg-furco-yellow hover:bg-furco-yellow-hover text-black text-lg font-bold shadow-[0_10px_20px_rgba(251,191,36,0.3)] hover:shadow-[0_15px_30px_rgba(251,191,36,0.4)] transition-all duration-300 group" 
+              <Button
+                size="lg"
+                className="flex-1 h-14 rounded-full bg-furco-yellow hover:bg-furco-yellow-hover text-black text-lg font-bold shadow-[0_10px_20px_rgba(251,191,36,0.3)] hover:shadow-[0_15px_30px_rgba(251,191,36,0.4)] transition-all duration-300 group"
                 onClick={handleAddToCart}
               >
                 <span className="flex items-center gap-2">
@@ -230,14 +236,14 @@ const ProductDetail = () => {
                 </span>
               </Button>
 
-              <Button 
-                variant="outline" 
-                size="icon" 
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={() => toggleWishlist(product.id)}
                 className={cn(
                   "h-14 w-14 rounded-full border-2 transition-colors",
-                  isWishlisted 
-                    ? "border-red-500 bg-red-50 text-red-500 hover:bg-red-100 hover:border-red-600" 
+                  isWishlisted
+                    ? "border-red-500 bg-red-50 text-red-500 hover:bg-red-100 hover:border-red-600"
                     : "border-black/10 hover:border-furco-yellow hover:text-furco-yellow hover:bg-white"
                 )}
               >
@@ -274,9 +280,9 @@ const ProductDetail = () => {
           <Tabs defaultValue="description" className="w-full">
             <TabsList className="w-full justify-start border-b border-black/10 bg-transparent p-0 h-auto gap-8 overflow-x-auto hide-scrollbar">
               {['Description', 'Ingredients', 'Reviews', 'Q&A'].map((tab) => (
-                <TabsTrigger 
-                  key={tab} 
-                  value={tab.toLowerCase().replace('&', '')} 
+                <TabsTrigger
+                  key={tab}
+                  value={tab.toLowerCase().replace('&', '')}
                   className="relative rounded-none border-none bg-transparent px-0 py-4 text-lg font-serif font-bold text-black/40 data-[state=active]:text-black data-[state=active]:shadow-none transition-colors whitespace-nowrap"
                 >
                   {tab === 'Reviews' ? `Customer Reviews (${product.reviewsCount})` : tab === 'Q&A' ? 'Questions & Answers' : `Product ${tab}`}
@@ -292,10 +298,10 @@ const ProductDetail = () => {
                 <div className="prose prose-lg max-w-none">
                   <h3 className="font-serif font-bold text-2xl mb-4">Give your dog the nutrition they deserve.</h3>
                   <p className="text-muted-foreground leading-relaxed text-lg">
-                    {product.description} Our Wholesome Kibble is crafted with love and science to provide a balanced diet for your adult dog. 
+                    {product.description} Our Wholesome Kibble is crafted with love and science to provide a balanced diet for your adult dog.
                     Packed with high-quality proteins and essential nutrients, it supports muscle maintenance, shiny coats, and boundless energy.
                   </p>
-                  
+
                   <div className="grid md:grid-cols-3 gap-8 mt-12">
                     {[
                       { title: "Muscle Health", desc: "High-quality protein sources to support lean muscle mass." },
@@ -369,7 +375,7 @@ const ProductDetail = () => {
               </TabsContent>
 
               <TabsContent value="qa" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                 <ProductQA productId={id} />
+                <ProductQA productId={id} />
               </TabsContent>
             </div>
           </Tabs>

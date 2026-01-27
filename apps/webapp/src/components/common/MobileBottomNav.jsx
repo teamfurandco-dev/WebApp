@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { Home, Search, ShoppingCart, User } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@fur-co/utils';
@@ -15,8 +16,15 @@ const MobileBottomNav = () => {
         { icon: User, label: 'Profile', path: user ? '/account' : '/login' },
     ];
 
-    return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-t border-gray-100 md:hidden pb-safe px-4">
+    return createPortal(
+        <div
+            className="fixed bottom-0 left-0 right-0 z-[1000] bg-white border-t border-gray-100 md:hidden px-4 shadow-[0_-8px_30px_rgb(0,0,0,0.12)]"
+            style={{
+                transform: 'translateZ(0)',
+                WebkitTransform: 'translateZ(0)',
+                paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))'
+            }}
+        >
             <div className="flex justify-around items-center h-16 relative">
                 {navItems.map((item) => {
                     const isActive = location.pathname === item.path;
@@ -42,7 +50,8 @@ const MobileBottomNav = () => {
                     );
                 })}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

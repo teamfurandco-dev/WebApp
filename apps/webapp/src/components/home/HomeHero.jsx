@@ -6,7 +6,7 @@ import heroImage from '@/assets/hero.png';
 
 const HomeHero = () => {
   return (
-    <section className="relative w-full min-h-[calc(100vh-80px-15vh)] flex flex-col justify-center overflow-hidden bg-background">
+    <section className="relative w-full min-h-[calc(100vh-80px-5vh)] flex flex-col justify-center overflow-hidden bg-background">
       {/* 1. Static Hero Image with Art Direction */}
       <picture className="absolute inset-0 w-full h-full">
         <source
@@ -16,26 +16,26 @@ const HomeHero = () => {
         <img
           src={heroImage}
           alt="Fur & Co - The Science of Happy Pets"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-[70%_center] md:object-center"
         />
       </picture>
 
       {/* 2. Gradient Overlay - Subtle & Premium */}
-      <div className="absolute inset-0 bg-black/20" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent md:bg-gradient-to-r md:from-black/40 md:via-transparent md:to-transparent" />
+      <div className="absolute inset-0 bg-black/30 md:bg-black/20" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent md:bg-gradient-to-r md:from-black/40 md:via-transparent md:to-transparent" />
 
       {/* 3. Content - Minimal & Editorial */}
-      <div className="relative z-10 w-full flex flex-col justify-center px-4 md:px-20 h-full">
-        <div className="max-w-4xl text-center md:text-left text-white space-y-6">
+      <div className="relative z-10 w-full flex flex-col justify-center px-6 md:px-20 h-full">
+        <div className="max-w-4xl text-center md:text-left text-white space-y-4 md:space-y-6">
           <motion.div
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <h1 className="text-4xl md:text-6xl lg:text-[4.5rem] font-peace-sans font-medium leading-tight mb-5 drop-shadow-lg tracking-tight">
-              Curated Care for <br /> <i className="font-serif italic">Your Best Friend.</i>
+            <h1 className="text-3xl md:text-6xl lg:text-[4.5rem] font-peace-sans font-medium leading-[1.2] mb-4 md:mb-5 drop-shadow-lg tracking-tight">
+              Curated Care for <br /> <i className="font-serif italic font-light">Your Best Friend.</i>
             </h1>
-            <p className="text-lg md:text-xl text-white/95 font-sans font-light leading-relaxed mb-8 drop-shadow-md max-w-lg mx-auto md:mx-0">
+            <p className="text-base md:text-xl text-white/90 font-sans font-light leading-relaxed mb-8 drop-shadow-md max-w-lg mx-auto md:mx-0">
               Science-backed nutrition and thoughtfully designed essentials for the ones who trust you the most.
             </p>
             <Link to="/products">

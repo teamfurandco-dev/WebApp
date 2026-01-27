@@ -41,7 +41,7 @@ const PetParentingTips = () => {
 
                 <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-none scroll-pl-4">
                     {tips.map((tip, index) => (
-                        <div key={index} className="group cursor-pointer flex-none w-[80vw] md:w-auto">
+                        <Link to="/blog" key={index} className="group flex-none w-[80vw] md:w-auto">
                             <div className="aspect-[3/2] overflow-hidden rounded-2xl md:rounded-3xl mb-4 md:mb-6">
                                 <img
                                     src={tip.image}
@@ -52,7 +52,7 @@ const PetParentingTips = () => {
                             <h3 className="text-xl md:text-2xl font-serif font-medium text-black mb-2 md:mb-3 group-hover:text-furco-brown transition-colors">{tip.title}</h3>
                             <p className="text-black/60 mb-3 md:mb-4 leading-relaxed text-sm md:text-base">{tip.desc}</p>
                             <span className="text-sm font-bold text-black border-b border-black/20 pb-1 group-hover:border-black transition-all inline-block">Read Article</span>
-                        </div>
+                        </Link>
                     ))}
                 </div>
                 {/* Mobile View All Link */}

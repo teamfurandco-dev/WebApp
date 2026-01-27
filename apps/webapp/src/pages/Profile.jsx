@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { User, Package, MapPin, Heart, LogOut, Mail, Pencil, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -71,7 +72,7 @@ const MonthlyPlanCard = () => {
 const ProfileDashboard = ({ user, stats, loading }) => (
   <div className="space-y-6">
     <MonthlyPlanCard />
-    
+
     <Card className="p-6">
       <div className="flex items-center gap-6">
         <Avatar className="h-20 w-20">
@@ -80,14 +81,14 @@ const ProfileDashboard = ({ user, stats, loading }) => (
             {user?.full_name ? user.full_name.split(' ').map(n => n[0]).join('') : "U"}
           </AvatarFallback>
         </Avatar>
-        
+
         <div className="flex-1">
           <h2 className="text-2xl font-semibold mb-1">{user?.full_name || 'User'}</h2>
           <div className="flex items-center gap-2 text-muted-foreground mb-4">
             <Mail className="h-4 w-4" />
             <span>{user?.email}</span>
           </div>
-          
+
           {stats && (
             <div className="grid grid-cols-1 gap-4 text-sm">
               <div>
@@ -103,7 +104,7 @@ const ProfileDashboard = ({ user, stats, loading }) => (
             </div>
           )}
         </div>
-        
+
         <Button size="sm" className="gap-2">
           <Pencil className="h-4 w-4" />
           Edit Profile
@@ -142,14 +143,14 @@ const Orders = ({ orders, loading }) => (
                     {order.status?.charAt(0).toUpperCase() + order.status?.slice(1) || 'Processing'}
                   </Badge>
                 </div>
-                
+
                 {order.items?.slice(0, 2).map((item, idx) => (
                   <div key={idx} className="flex items-center gap-3 mb-2">
                     <div className="h-10 w-10 bg-muted rounded overflow-hidden">
-                      <img 
-                        src={item.product?.images?.[0] || item.image} 
-                        alt={item.product?.name || item.name} 
-                        className="h-full w-full object-cover" 
+                      <img
+                        src={item.product?.images?.[0] || item.image}
+                        alt={item.product?.name || item.name}
+                        className="h-full w-full object-cover"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -158,11 +159,11 @@ const Orders = ({ orders, loading }) => (
                     </div>
                   </div>
                 ))}
-                
+
                 {order.items?.length > 2 && (
                   <p className="text-xs text-muted-foreground mb-3">+{order.items.length - 2} more items</p>
                 )}
-                
+
                 <Separator className="my-3" />
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Total</span>
@@ -204,7 +205,7 @@ const Addresses = ({ addresses, loading, onRefresh }) => {
         <h2 className="text-xl font-semibold">Saved Addresses</h2>
         <Button size="sm">Add New Address</Button>
       </div>
-      
+
       {loading ? (
         <div className="text-center py-8 text-muted-foreground">Loading addresses...</div>
       ) : addresses && addresses.length > 0 ? (
@@ -219,14 +220,14 @@ const Addresses = ({ addresses, loading, onRefresh }) => {
                     {addr.is_default && <Badge variant="secondary" className="text-xs">Default</Badge>}
                   </div>
                 </div>
-                
+
                 <div className="text-sm text-muted-foreground mb-4">
                   {addr.full_name && <div className="font-medium text-foreground">{addr.full_name}</div>}
                   <div>{addr.line1}</div>
                   {addr.line2 && <div>{addr.line2}</div>}
                   <div>{addr.city}, {addr.state} - {addr.postal_code}</div>
                 </div>
-                
+
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm">Edit</Button>
                   {!addr.is_default && (
@@ -234,10 +235,10 @@ const Addresses = ({ addresses, loading, onRefresh }) => {
                       Set Default
                     </Button>
                   )}
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-destructive hover:text-destructive" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
                     onClick={() => handleDelete(addr.id)}
                   >
                     Delete
@@ -280,20 +281,25 @@ const Profile = () => {
   const [addresses, setAddresses] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { switchMode } = useTheme();
+
+  useEffect(() => {
+    switchMode('GATEWAY');
+  }, [switchMode]);
 
   const fetchProfileData = async () => {
     if (!authUser) return;
 
     try {
       setLoading(true);
-      
+
       const [profileData, ordersData, addressesData, statsData] = await Promise.all([
         api.getUserProfile().catch(() => authUser),
         api.getOrders().catch(() => []),
         api.getAddresses().catch(() => []),
         api.getUserStats().catch(() => null)
       ]);
-      
+
       setUser(profileData);
       setOrders(ordersData || []);
       setAddresses(addressesData || []);
@@ -331,8 +337,8 @@ const Profile = () => {
               {/* Phase 2: Referral system */}
               {/* <SidebarLink to="/account/referrals" icon={Users} label="Referrals" active={location.pathname === '/account/referrals'} /> */}
               <Separator className="my-2" />
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="w-full justify-start gap-3 h-10 text-sm text-destructive hover:text-destructive hover:bg-destructive/10"
                 onClick={handleLogout}
               >

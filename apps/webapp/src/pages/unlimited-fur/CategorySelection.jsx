@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Check, ArrowRight, UtensilsCrossed, Gamepad2, Shirt, Sparkles, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useMockUnlimitedFur } from '@/context/MockUnlimitedFurContext';
+import { useUnlimitedFur } from '@/context/UnlimitedFurContext';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@fur-co/utils';
 import UnlimitedBackground from '@/components/unlimited-fur/UnlimitedBackground';
@@ -11,12 +11,20 @@ import treatImg from '@/assets/treat.png';
 import collarImg from '@/assets/collar.png';
 import boneImg from '@/assets/bone.png';
 
+const CATEGORIES_LIST = [
+  { id: 'food', name: 'Food & Treats', icon: <UtensilsCrossed /> },
+  { id: 'toys', name: 'Toys & Entertainment', icon: <Gamepad2 /> },
+  { id: 'accessories', name: 'Accessories & Care', icon: <Shirt /> },
+  { id: 'grooming', name: 'Grooming', icon: <Sparkles /> },
+  { id: 'health', name: 'Health', icon: <Heart /> },
+];
+
 export default function CategorySelection() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const mode = searchParams.get('mode') || 'monthly';
   const { switchMode } = useTheme();
-  const { setCategories, loading, categories } = useMockUnlimitedFur();
+  const { setCategories, loading } = useUnlimitedFur();
 
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [error, setError] = useState('');
@@ -59,10 +67,10 @@ export default function CategorySelection() {
   };
 
   return (
-    <div className="h-screen bg-[#EDC520] text-gray-900 overflow-hidden relative font-sans">
+    <div className="min-h-screen bg-[#EDC520] text-gray-900 overflow-y-auto relative font-sans">
       <UnlimitedBackground />
 
-      <div className="h-full container mx-auto max-w-5xl flex flex-col items-center justify-center p-6 relative z-10">
+      <div className="min-h-screen container mx-auto max-w-5xl flex flex-col items-center justify-center p-6 pb-40 md:pb-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -78,7 +86,7 @@ export default function CategorySelection() {
 
         <div className="flex justify-center w-full mb-12">
           <div className="flex flex-wrap justify-center gap-6 w-full max-w-6xl">
-            {categories.map((category, index) => {
+            {CATEGORIES_LIST.map((category, index) => {
               const isSelected = selectedCategories.includes(category.id);
               const imgAsset = getCategoryImage(category);
 
@@ -134,7 +142,7 @@ export default function CategorySelection() {
               <p className="text-[10px] font-black uppercase text-gray-500 w-full text-center mb-1">Selected Focus:</p>
               {selectedCategories.map(cat => (
                 <span key={cat} className="bg-black text-[#EDC520] px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter">
-                  {categories.find(c => c.id === cat)?.name}
+                  {CATEGORIES_LIST.find(c => c.id === cat)?.name}
                 </span>
               ))}
             </div>

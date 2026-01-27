@@ -8,10 +8,12 @@ const MainLayout = () => {
   return (
     <div className="w-full flex min-h-screen flex-col bg-background font-sans antialiased">
       <Navbar />
-      <main className="flex-1 w-full pb-16 md:pb-0">
+      <main className="flex-1 w-full md:pb-0">
         <Outlet />
       </main>
-      <Footer />
+      <div className="pb-24 md:pb-0">
+        <Footer />
+      </div>
       <MobileBottomNav />
       <Toaster />
     </div>

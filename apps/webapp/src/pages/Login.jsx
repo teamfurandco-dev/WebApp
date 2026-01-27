@@ -1,16 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
+import { Chrome, Facebook, ArrowRight, PawPrint } from 'lucide-react';
+import logoSvg from '@/assets/logo.svg';
 
 const Login = () => {
   const navigate = useNavigate();
   const { signIn, signInWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
+  const { switchMode } = useTheme();
+
+  useEffect(() => {
+    switchMode('GATEWAY');
+  }, [switchMode]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -39,74 +47,120 @@ const Login = () => {
   };
 
   return (
-    <div className="container flex items-center justify-center py-24">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Login to Fur & Co</CardTitle>
-          <CardDescription className="text-center">
-            Enter your email below to login to your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-6">
-            <Button variant="outline" onClick={handleGoogleLogin}>
-              Google
-            </Button>
-            <Button variant="outline" disabled>
-              Facebook
-            </Button>
-          </div>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
-          </div>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="m@example.com" 
-                required 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <Link to="/forgot-password" className="text-sm text-primary hover:underline">
-                  Forgot password?
-                </Link>
-              </div>
-              <Input 
-                id="password" 
-                type="password" 
-                required 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <Button type="submit" className="w-full bg-furco-black text-white hover:bg-furco-brown-dark" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign In'}
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <div className="text-sm text-muted-foreground">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-primary hover:underline">
-              Sign up
+    <div className="min-h-[calc(100vh-80px)] bg-[#FDFBF7] relative flex items-center justify-center py-12 px-4 overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 30c2-2 6-2 8 0s2 6 0 8-6 2-8 0-2-6 0-8zm-10-10c2-2 6-2 8 0s2 6 0 8-6 2-8 0-2-6 0-8zm20 0c2-2 6-2 8 0s2 6 0 8-6 2-8 0-2-6 0-8z' fill='%231F1F1F' fill-rule='evenodd'/%3E%3C/svg%3E")`
+        }}
+      />
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md relative z-10"
+      >
+        <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-black/5 p-8 md:p-12">
+          {/* Logo & Header */}
+          <div className="text-center mb-10">
+            <Link to="/" className="inline-block mb-8">
+              <img src={logoSvg} alt="Fur & Co" className="h-10 mx-auto" />
             </Link>
+            <h1 className="text-3xl font-peace-sans font-bold text-black mb-3">Welcome Back</h1>
+            <p className="text-black/50 text-sm font-medium">Continue your premium pet care journey</p>
           </div>
-        </CardFooter>
-      </Card>
+
+          <div className="space-y-6">
+            {/* Social Logins */}
+            <div className="grid grid-cols-2 gap-4">
+              <Button
+                variant="outline"
+                onClick={handleGoogleLogin}
+                className="h-14 rounded-2xl border-black/5 hover:border-furco-yellow hover:bg-furco-yellow/5 gap-3 font-bold transition-all duration-300"
+              >
+                <Chrome className="w-5 h-5 text-furco-yellow" />
+                Google
+              </Button>
+              <Button
+                variant="outline"
+                disabled
+                className="h-14 rounded-2xl border-black/5 hover:border-black/10 gap-3 font-bold opacity-50"
+              >
+                <Facebook className="w-5 h-5 text-blue-600" />
+                Facebook
+              </Button>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-black/5" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-4 text-black/30 font-bold tracking-widest">
+                  Or Email
+                </span>
+              </div>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-black/40 ml-1">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-14 bg-[#FDFBF7] border-black/5 rounded-2xl focus:ring-furco-yellow focus:border-furco-yellow text-black font-medium"
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between ml-1">
+                  <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-black/40">Password</Label>
+                  <Link to="/forgot-password" title="Recover Password" className="text-xs font-bold text-furco-yellow hover:text-black transition-colors">
+                    Forgot password?
+                  </Link>
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-14 bg-[#FDFBF7] border-black/5 rounded-2xl focus:ring-furco-yellow focus:border-furco-yellow text-black font-medium"
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full h-14 bg-black text-white hover:bg-furco-yellow hover:text-black rounded-2xl text-lg font-bold shadow-xl transition-all duration-300 flex items-center justify-center gap-3 group"
+                disabled={loading}
+              >
+                {loading ? 'Entering...' : (
+                  <>
+                    Sign In <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                  </>
+                )}
+              </Button>
+            </form>
+
+            <div className="pt-6 text-center">
+              <p className="text-sm font-medium text-black/40">
+                Don't have an account?{' '}
+                <Link to="/signup" className="text-furco-yellow font-bold hover:text-black transition-all">
+                  Sign up for free
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Decorative */}
+        <div className="mt-8 flex justify-center opacity-10">
+          <PawPrint className="w-12 h-12 text-black" />
+        </div>
+      </motion.div>
     </div>
   );
 };

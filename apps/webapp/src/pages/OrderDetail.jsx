@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTheme } from '@/context/ThemeContext';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '@/services/api';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,11 @@ const OrderDetail = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { switchMode } = useTheme();
+
+  useEffect(() => {
+    switchMode('GATEWAY');
+  }, [switchMode]);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -36,7 +42,7 @@ const OrderDetail = () => {
 
   const handleCancelOrder = async () => {
     if (!order || order.status === 'cancelled' || order.status === 'delivered') return;
-    
+
     try {
       await api.cancelOrder(order.id);
       toast.success('Order cancelled successfully');
@@ -55,35 +61,35 @@ const OrderDetail = () => {
   // Generate order events based on status
   const generateOrderEvents = (order) => {
     const events = [
-      { 
-        status: 'Order Placed', 
-        date: order.created_at, 
-        completed: true, 
-        description: 'Your order has been placed.' 
+      {
+        status: 'Order Placed',
+        date: order.created_at,
+        completed: true,
+        description: 'Your order has been placed.'
       },
-      { 
-        status: 'Processing', 
-        date: order.updated_at, 
-        completed: ['processing', 'shipped', 'in_transit', 'delivered'].includes(order.status), 
-        description: 'We are preparing your package.' 
+      {
+        status: 'Processing',
+        date: order.updated_at,
+        completed: ['processing', 'shipped', 'in_transit', 'delivered'].includes(order.status),
+        description: 'We are preparing your package.'
       },
-      { 
-        status: 'Shipped', 
-        date: order.shipped_at || null, 
-        completed: ['shipped', 'in_transit', 'delivered'].includes(order.status), 
-        description: order.tracking_number ? `Tracking: ${order.tracking_number}` : 'Package is on the way.' 
+      {
+        status: 'Shipped',
+        date: order.shipped_at || null,
+        completed: ['shipped', 'in_transit', 'delivered'].includes(order.status),
+        description: order.tracking_number ? `Tracking: ${order.tracking_number}` : 'Package is on the way.'
       },
-      { 
-        status: 'Out for Delivery', 
-        date: null, 
-        completed: order.status === 'delivered', 
-        description: 'Agent is out for delivery.' 
+      {
+        status: 'Out for Delivery',
+        date: null,
+        completed: order.status === 'delivered',
+        description: 'Agent is out for delivery.'
       },
-      { 
-        status: 'Delivered', 
-        date: order.delivered_at || null, 
-        completed: order.status === 'delivered', 
-        description: 'Package delivered.' 
+      {
+        status: 'Delivered',
+        date: order.delivered_at || null,
+        completed: order.status === 'delivered',
+        description: 'Package delivered.'
       }
     ];
 
@@ -109,24 +115,24 @@ const OrderDetail = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link to="/account/orders">
-             <Button variant="ghost" size="icon" className="rounded-full">
-               <ArrowLeft className="w-5 h-5" />
-             </Button>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
           </Link>
           <div>
             <h2 className="text-3xl font-serif font-bold">Order #{order.order_number || order.id}</h2>
             <p className="text-muted-foreground">
-               Placed on {new Date(order.created_at).toLocaleDateString()}
+              Placed on {new Date(order.created_at).toLocaleDateString()}
             </p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4">
-          <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'} 
-                 className={order.status === 'delivered' ? 'bg-green-600' : order.status === 'cancelled' ? 'bg-red-600' : ''}>
+          <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'}
+            className={order.status === 'delivered' ? 'bg-green-600' : order.status === 'cancelled' ? 'bg-red-600' : ''}>
             {order.status?.charAt(0).toUpperCase() + order.status?.slice(1) || 'Processing'}
           </Badge>
-          
+
           {order.status === 'pending' || order.status === 'processing' ? (
             <Button variant="outline" onClick={handleCancelOrder} className="text-red-600 hover:text-red-700">
               Cancel Order
@@ -138,38 +144,38 @@ const OrderDetail = () => {
       {/* Tracking Timeline */}
       <Card className="border-none shadow-md bg-white overflow-hidden">
         <CardHeader className="bg-stone-50 border-b border-stone-100">
-           <CardTitle className="flex items-center gap-2">
-             <Truck className="w-5 h-5 text-furco-yellow" />
-             Shipment Tracking
-           </CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Truck className="w-5 h-5 text-furco-yellow" />
+            Shipment Tracking
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-8">
           <div className="relative">
-             {/* Progress Bar Background */}
-             <div className="absolute left-4 top-4 bottom-4 w-0.5 bg-gray-100 md:w-full md:h-0.5 md:left-0 md:top-4 md:bottom-auto" />
-             
-             <div className="flex flex-col md:flex-row justify-between relative z-10 gap-8 md:gap-0">
-               {orderEvents.map((event, index) => {
-                 const Icon = event.completed ? CheckCircle : Clock;
-                 return (
-                   <div key={index} className="flex md:flex-col items-start md:items-center gap-4 md:gap-2 bg-white md:bg-transparent p-2 md:p-0 rounded-lg">
-                      <div className={cn(
-                        "w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2",
-                        event.completed 
-                          ? "bg-green-100 border-green-500 text-green-600" 
-                          : "bg-gray-50 border-gray-200 text-gray-300"
-                      )}>
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <div className="md:text-center">
-                        <p className={cn("font-bold text-sm", event.completed ? "text-black" : "text-muted-foreground")}>{event.status}</p>
-                        <p className="text-xs text-muted-foreground">{event.date ? new Date(event.date).toLocaleDateString() : 'Pending'}</p>
-                        <p className="text-xs text-gray-400 mt-1 max-w-[150px]">{event.description}</p>
-                      </div>
-                   </div>
-                 );
-               })}
-             </div>
+            {/* Progress Bar Background */}
+            <div className="absolute left-4 top-4 bottom-4 w-0.5 bg-gray-100 md:w-full md:h-0.5 md:left-0 md:top-4 md:bottom-auto" />
+
+            <div className="flex flex-col md:flex-row justify-between relative z-10 gap-8 md:gap-0">
+              {orderEvents.map((event, index) => {
+                const Icon = event.completed ? CheckCircle : Clock;
+                return (
+                  <div key={index} className="flex md:flex-col items-start md:items-center gap-4 md:gap-2 bg-white md:bg-transparent p-2 md:p-0 rounded-lg">
+                    <div className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2",
+                      event.completed
+                        ? "bg-green-100 border-green-500 text-green-600"
+                        : "bg-gray-50 border-gray-200 text-gray-300"
+                    )}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div className="md:text-center">
+                      <p className={cn("font-bold text-sm", event.completed ? "text-black" : "text-muted-foreground")}>{event.status}</p>
+                      <p className="text-xs text-muted-foreground">{event.date ? new Date(event.date).toLocaleDateString() : 'Pending'}</p>
+                      <p className="text-xs text-gray-400 mt-1 max-w-[150px]">{event.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </CardContent>
       </Card>
