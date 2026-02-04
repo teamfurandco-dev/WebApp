@@ -11,31 +11,33 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const ProductList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const categoryParam = searchParams.get('category') || 'All';
   const { switchMode } = useTheme();
+
+  // Sync state with URL params
+  const category = searchParams.get('category') || 'All';
+  const sort = searchParams.get('sort') || 'featured';
+  const currentPage = parseInt(searchParams.get('page') || '1');
+
+  const [exploreData, setExploreData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [priceRange, setPriceRange] = useState([0, 5000]);
 
   useEffect(() => {
     switchMode('GATEWAY');
   }, [switchMode]);
 
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState(categoryParam);
-  const [priceRange, setPriceRange] = useState([0, 5000]);
-  const [sort, setSort] = useState('featured');
-  const [currentPage, setCurrentPage] = useState(1);
-
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const [prods, cats] = await Promise.all([
-          api.getProducts({ category: selectedCategory === 'All' ? null : selectedCategory, sort }),
-          api.getCategories()
-        ]);
-        setProducts(prods);
-        setCategories(cats);
+        console.log('Fetching products with filters:', { category, sort, page: currentPage });
+        const data = await api.getProductsExplore({
+          category: category === 'All' ? null : category,
+          sort,
+          page: currentPage,
+          limit: 20
+        });
+        setExploreData(data);
       } catch (error) {
         console.error("Failed to load products", error);
       } finally {
@@ -44,12 +46,32 @@ const ProductList = () => {
     };
 
     loadData();
-  }, [selectedCategory, sort]);
+  }, [category, sort, currentPage]);
+
+  const products = exploreData?.products || [];
+  const categories = exploreData?.categories || [];
+  const pagination = exploreData?.pagination || {};
 
   const handleCategoryChange = (cat) => {
-    setSelectedCategory(cat);
-    setSearchParams({ category: cat === 'All' ? '' : cat });
-    setCurrentPage(1);
+    const newParams = new URLSearchParams(searchParams);
+    if (cat === 'All') newParams.delete('category');
+    else newParams.set('category', cat);
+    newParams.set('page', '1');
+    setSearchParams(newParams);
+  };
+
+  const handleSortChange = (newSort) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('sort', newSort);
+    newParams.set('page', '1');
+    setSearchParams(newParams);
+  };
+
+  const handlePageChange = (newPage) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('page', newPage.toString());
+    setSearchParams(newParams);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -74,7 +96,7 @@ const ProductList = () => {
           <aside className="hidden md:block w-72 shrink-0">
             <FilterSidebar
               categories={categories}
-              selectedCategory={selectedCategory}
+              selectedCategory={category}
               onCategoryChange={handleCategoryChange}
               priceRange={priceRange}
               onPriceChange={setPriceRange}
@@ -86,7 +108,7 @@ const ProductList = () => {
             <div className="flex flex-col gap-6 mb-12">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <h1 className="text-3xl md:text-5xl font-serif font-bold text-black leading-[1.1]">
-                  {selectedCategory === 'All' ? 'All Products' : selectedCategory}
+                  {category === 'All' ? 'All Products' : category}
                 </h1>
 
                 <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -101,7 +123,7 @@ const ProductList = () => {
                       <div className="p-6 pt-14">
                         <FilterSidebar
                           categories={categories}
-                          selectedCategory={selectedCategory}
+                          selectedCategory={category}
                           onCategoryChange={handleCategoryChange}
                           priceRange={priceRange}
                           onPriceChange={setPriceRange}
@@ -116,7 +138,7 @@ const ProductList = () => {
                     <select
                       className="w-full h-11 pl-4 pr-10 rounded-full border border-black/10 bg-white text-xs sm:text-sm font-bold shadow-sm focus:outline-none focus:ring-2 focus:ring-furco-yellow appearance-none cursor-pointer hover:border-black/30 transition-all"
                       value={sort}
-                      onChange={(e) => setSort(e.target.value)}
+                      onChange={(e) => handleSortChange(e.target.value)}
                     >
                       <option value="featured">Sort by: Featured</option>
                       <option value="price-low">Price: Low to High</option>
@@ -129,14 +151,14 @@ const ProductList = () => {
               </div>
 
               {/* Active Filters */}
-              {selectedCategory !== 'All' && (
+              {category !== 'All' && (
                 <div className="flex items-center gap-2">
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-furco-yellow text-black text-sm font-bold shadow-sm"
                   >
-                    {selectedCategory}
+                    {category}
                     <button onClick={() => handleCategoryChange('All')} className="hover:bg-black/10 rounded-full p-0.5 transition-colors">
                       <X className="h-3 w-3" />
                     </button>
@@ -168,7 +190,7 @@ const ProductList = () => {
               </div>
             ) : products.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
                   <AnimatePresence>
                     {products.map((product) => (
                       <ProductCard key={product.id} product={product} />
@@ -177,20 +199,22 @@ const ProductList = () => {
                 </div>
 
                 {/* Pagination */}
-                <div className="mt-16 flex justify-center gap-2">
-                  {[1, 2, 3].map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-all duration-300 ${currentPage === page
-                        ? 'bg-furco-yellow text-black shadow-md scale-110'
-                        : 'bg-white border border-black/10 text-black hover:border-furco-yellow hover:text-furco-yellow'
-                        }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                </div>
+                {pagination.totalPages > 1 && (
+                  <div className="mt-16 flex justify-center gap-2">
+                    {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-all duration-300 ${currentPage === page
+                          ? 'bg-furco-yellow text-black shadow-md scale-110'
+                          : 'bg-white border border-black/10 text-black hover:border-furco-yellow hover:text-furco-yellow'
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </>
             ) : (
               <motion.div

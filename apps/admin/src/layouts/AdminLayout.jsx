@@ -1,11 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, BookOpen } from 'lucide-react';
 import { cn } from '@fur-co/utils';
 import { useAuth } from '../contexts/AuthContext';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Products', href: '/products', icon: Package },
+  { name: 'Blogs', href: '/blogs', icon: BookOpen },
   { name: 'Orders', href: '/orders', icon: ShoppingCart },
   { name: 'Users', href: '/users', icon: Users },
 ];

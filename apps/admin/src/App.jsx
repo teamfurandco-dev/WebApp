@@ -5,6 +5,7 @@ import AdminLogin from './components/AdminLogin';
 import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
+import Blogs from './pages/Blogs';
 import Orders from './pages/Orders';
 import Users from './pages/Users';
 
@@ -38,6 +39,7 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/blogs" element={<Blogs />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/users" element={<Users />} />
       </Routes>

@@ -71,6 +71,83 @@ const apiRequest = async (endpoint, options = {}) => {
  */
 
 export const api = {
+  // ===== OPTIMIZED CONSOLIDATED ENDPOINTS =====
+  /**
+   * GET /api/home
+   * Get all home page data in one call
+   */
+  getHomeData: async () => {
+    try {
+      console.log('Calling /api/home...');
+      const result = await apiRequest('/api/home');
+      console.log('Home API response:', result);
+      return result;
+    } catch (error) {
+      console.error('Error fetching home data:', error);
+      console.error('Error details:', error.message, error.stack);
+      return {
+        hero: { title: 'Welcome to Fur & Co', subtitle: 'Premium pet care', ctaText: 'Shop Now', ctaLink: '/products' },
+        featuredProducts: [],
+        categories: [],
+        featuredBlogs: []
+      };
+    }
+  },
+
+  /**
+   * GET /api/products/explore
+   * Get products with filters, categories, and pagination in one call
+   */
+  getProductsExplore: async (params = {}) => {
+    try {
+      // Clean up params - remove null/undefined values
+      const cleanParams = Object.fromEntries(
+        Object.entries(params).filter(([_, v]) => v != null)
+      );
+      const query = new URLSearchParams(cleanParams).toString();
+      return await apiRequest(`/api/products/explore?${query}`);
+    } catch (error) {
+      console.error('Error fetching products explore:', error);
+      return {
+        products: [],
+        categories: [],
+        pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
+        appliedFilters: {}
+      };
+    }
+  },
+
+  /**
+   * GET /api/products/{slug}/full
+   * Get complete product details with variants, reviews, Q&A, and related products
+   */
+  getProductFull: async (slug) => {
+    try {
+      return await apiRequest(`/api/products/${slug}/full`);
+    } catch (error) {
+      console.error('Error fetching product full details:', error);
+      return null;
+    }
+  },
+
+  /**
+   * GET /api/cart/summary
+   * Get complete cart data with items, totals, stock warnings, and recommendations
+   */
+  getCartSummaryOptimized: async () => {
+    try {
+      return await apiRequest('/api/cart/summary');
+    } catch (error) {
+      console.error('Error fetching cart summary:', error);
+      return {
+        items: [],
+        totals: { subtotal: 0, shipping: 0, tax: 0, total: 0, itemCount: 0 },
+        stockWarnings: [],
+        recommendedProducts: []
+      };
+    }
+  },
+
   // Generic HTTP methods
   get: async (endpoint) => {
     return await apiRequest(endpoint);
@@ -471,7 +548,7 @@ export const api = {
       endpoint += params.toString();
 
       const result = await apiRequest(endpoint);
-      return result.data || [];
+      return result || [];
     } catch (error) {
       console.error('Error fetching products:', error);
       return [];
@@ -615,7 +692,7 @@ export const api = {
   getCategories: async () => {
     try {
       const result = await apiRequest('/api/categories');
-      return result.data || [];
+      return result || [];
     } catch (error) {
       console.error('Error fetching categories:', error);
       return [];
@@ -822,7 +899,7 @@ export const api = {
   getFeaturedProducts: async () => {
     try {
       const result = await apiRequest('/api/products?isFeatured=true&limit=6');
-      return result.data || [];
+      return result || [];
     } catch (error) {
       console.error('Error fetching featured products:', error);
       return [];
@@ -880,6 +957,47 @@ export const api = {
       stock_quantity: variant.stock_quantity,
       attributes: variant.attributes
     }));
+  },
+
+  // ===== BLOGS API =====
+  /**
+   * GET /api/blogs
+   * Fetch blogs with filters
+   */
+  getBlogs: async (params = {}) => {
+    try {
+      const query = new URLSearchParams(params).toString();
+      return await apiRequest(`/api/blogs?${query}`);
+    } catch (error) {
+      console.error('Error fetching blogs:', error);
+      return [];
+    }
+  },
+
+  /**
+   * GET /api/blogs/:idOrSlug
+   * Fetch a single blog post
+   */
+  getBlogBySlug: async (idOrSlug) => {
+    try {
+      return await apiRequest(`/api/blogs/${idOrSlug}`);
+    } catch (error) {
+      console.error('Error fetching blog post:', error);
+      return null;
+    }
+  },
+
+  /**
+   * GET /api/blogs/categories
+   * Fetch blog categories
+   */
+  getBlogCategories: async () => {
+    try {
+      return await apiRequest('/api/blogs/categories');
+    } catch (error) {
+      console.error('Error fetching blog categories:', error);
+      return [];
+    }
   }
 };
 

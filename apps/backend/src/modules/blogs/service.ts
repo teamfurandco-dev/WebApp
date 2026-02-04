@@ -17,13 +17,13 @@ export class BlogService {
     offset?: number;
   }) {
     const where: any = {};
-    
+
     if (filters.publishStatus) where.publishStatus = filters.publishStatus;
     if (filters.isFeatured !== undefined) where.isFeatured = filters.isFeatured;
     if (filters.homepageSection) where.homepageSection = filters.homepageSection;
     if (filters.categoryId) where.categoryId = filters.categoryId;
     if (filters.authorId) where.authorId = filters.authorId;
-    
+
     if (filters.search) {
       where.OR = [
         { title: { contains: filters.search, mode: 'insensitive' } },
@@ -31,7 +31,7 @@ export class BlogService {
         { content: { contains: filters.search, mode: 'insensitive' } },
       ];
     }
-    
+
     const blogs = await prisma.blog.findMany({
       where,
       include: {
@@ -51,10 +51,10 @@ export class BlogService {
       take: filters.limit || 50,
       skip: filters.offset || 0,
     });
-    
+
     return blogs.map(blog => this.transformBlog(blog));
   }
-  
+
   /**
    * Get single blog by ID or slug
    */
@@ -76,11 +76,11 @@ export class BlogService {
         },
       },
     });
-    
+
     if (!blog) return null;
     return this.transformBlog(blog);
   }
-  
+
   /**
    * Get homepage blogs by section
    */
@@ -91,13 +91,34 @@ export class BlogService {
       limit: 10,
     });
   }
-  
+
   /**
    * Create blog
    */
   async createBlog(data: any) {
+    const { tags, images, ...blogData } = data;
+
+    // Generate slug if not provided
+    if (!blogData.slug && blogData.title) {
+      blogData.slug = blogData.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    }
+
     return prisma.blog.create({
-      data,
+      data: {
+        ...blogData,
+        tags: tags || [],
+        images: images?.length ? {
+          create: images.map((image: any, index: number) => ({
+            bucketName: image.bucketName || 'blogs-images',
+            filePath: image.filePath,
+            altText: image.altText || blogData.title,
+            displayOrder: index,
+          })),
+        } : undefined,
+      },
       include: {
         author: true,
         category: true,
@@ -105,14 +126,40 @@ export class BlogService {
       },
     });
   }
-  
+
   /**
    * Update blog
    */
   async updateBlog(id: string, data: any) {
+    const { tags, images, ...blogData } = data;
+
+    // Update slug if title changed and slug not provided
+    if (blogData.title && !blogData.slug) {
+      blogData.slug = blogData.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    }
+
+    // If images are provided, replace them
+    if (images) {
+      await prisma.blogImage.deleteMany({ where: { blogId: id } });
+    }
+
     return prisma.blog.update({
       where: { id },
-      data,
+      data: {
+        ...blogData,
+        tags: tags || [],
+        images: images?.length ? {
+          create: images.map((image: any, index: number) => ({
+            bucketName: image.bucketName || 'blogs-images',
+            filePath: image.filePath,
+            altText: image.altText || blogData.title,
+            displayOrder: index,
+          })),
+        } : undefined,
+      },
       include: {
         author: true,
         category: true,
@@ -120,28 +167,38 @@ export class BlogService {
       },
     });
   }
-  
+
   /**
    * Delete blog
    */
   async deleteBlog(id: string) {
     return prisma.blog.delete({ where: { id } });
   }
-  
+
   /**
    * Add blog image
    */
   async addBlogImage(data: any) {
     return prisma.blogImage.create({ data });
   }
-  
+
   /**
    * Delete blog image
    */
   async deleteBlogImage(id: string) {
     return prisma.blogImage.delete({ where: { id } });
   }
-  
+
+  /**
+   * Get all blog categories
+   */
+  async getBlogCategories() {
+    return prisma.blogCategory.findMany({
+      where: { isActive: true },
+      orderBy: { displayOrder: 'asc' },
+    });
+  }
+
   /**
    * Transform blog to include image URLs
    */
@@ -153,12 +210,20 @@ export class BlogService {
         url: getPublicUrl(img.bucketName, img.filePath),
       })),
     };
-    
+
+    // Brand authorship: Force admin authors to appear as "Fur&Co"
+    if (blog.author?.role?.toLowerCase() === 'admin') {
+      transformed.author = {
+        ...transformed.author,
+        name: 'Fur&Co'
+      };
+    }
+
     // Add cover image URL if exists
     if (blog.coverBucketName && blog.coverFilePath) {
       transformed.coverImageUrl = getPublicUrl(blog.coverBucketName, blog.coverFilePath);
     }
-    
+
     return transformed;
   }
 }

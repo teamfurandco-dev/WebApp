@@ -1,25 +1,38 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
-const tips = [
+// Fallback tips if no blogs provided
+const fallbackTips = [
     {
         title: "5 Signs Your Dog Stressed",
         desc: "Learn to read your pet's body language and help them find their calm.",
-        image: "https://images.unsplash.com/photo-1544568100-847a948585b9?q=80&w=1000&auto=format&fit=crop"
+        image: "https://images.unsplash.com/photo-1544568100-847a948585b9?q=80&w=1000&auto=format&fit=crop",
+        slug: "#"
     },
     {
-        title: "Nutrition Myths Debunked",
+        title: "Nutrition Myths Debunked", 
         desc: "We spoke to top vets to separate fact from fiction in pet diets.",
-        image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=1000&auto=format&fit=crop"
+        image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=1000&auto=format&fit=crop",
+        slug: "#"
     },
     {
         title: "Apartment Enrichment 101",
         desc: "Small space? No problem. Keeping your pet active indoors.",
-        image: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?q=80&w=1000&auto=format&fit=crop"
+        image: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?q=80&w=1000&auto=format&fit=crop",
+        slug: "#"
     }
 ];
 
-const PetParentingTips = () => {
+const PetParentingTips = ({ blogs = [] }) => {
+    // Use provided blogs or fallback to hardcoded tips
+    const displayTips = blogs.length > 0 
+        ? blogs.slice(0, 3).map(blog => ({
+            title: blog.title,
+            desc: blog.excerpt,
+            image: blog.coverImage || fallbackTips[0].image,
+            slug: `/blog/${blog.slug}`
+          }))
+        : fallbackTips;
     return (
         <section className="pt-16 md:pt-20 pb-8 md:pb-12 bg-white border-t border-black/5">
             <div className="container mx-auto px-4 md:px-8">
@@ -40,8 +53,8 @@ const PetParentingTips = () => {
                 </div>
 
                 <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-none scroll-pl-4">
-                    {tips.map((tip, index) => (
-                        <Link to="/blog" key={index} className="group flex-none w-[80vw] md:w-auto">
+                    {displayTips.map((tip, index) => (
+                        <Link to={tip.slug} key={index} className="group flex-none w-[80vw] md:w-auto">
                             <div className="aspect-[3/2] overflow-hidden rounded-2xl md:rounded-3xl mb-4 md:mb-6">
                                 <img
                                     src={tip.image}

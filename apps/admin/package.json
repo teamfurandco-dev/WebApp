@@ -9,13 +9,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fur-co/types": "workspace:*",
     "@fur-co/ui": "workspace:*",
     "@fur-co/utils": "workspace:*",
-    "@fur-co/types": "workspace:*",
     "@supabase/supabase-js": "^2.86.2",
+    "@uiw/react-md-editor": "^4.0.11",
     "lucide-react": "^0.460.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.9.6"
   },
   "devDependencies": {

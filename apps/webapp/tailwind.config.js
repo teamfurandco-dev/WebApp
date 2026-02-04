@@ -1,4 +1,5 @@
 import baseConfig from '@fur-co/config/tailwind';
+import typography from '@tailwindcss/typography';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -6,5 +7,8 @@ export default {
   content: [
     './index.html',
     './src/**/*.{js,jsx}',
+  ],
+  plugins: [
+    typography,
   ],
 }

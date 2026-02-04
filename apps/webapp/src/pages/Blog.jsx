@@ -1,64 +1,76 @@
-import { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Search, RefreshCcw, PenTool } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import FeaturedPost from '@/components/blog/FeaturedPost';
 import BlogCard from '@/components/blog/BlogCard';
 import Newsletter from '@/components/blog/Newsletter';
 import { useTheme } from '@/context/ThemeContext';
-
-// Mock Data
-const BLOG_POSTS = [
-  {
-    id: 1,
-    title: "Why Your Dog Needs a Gut Reset: The Science of Probiotics",
-    excerpt: "Digestion is the cornerstone of health. Learn how simple dietary changes can improve mood, energy, and longevity.",
-    category: "Nutrition",
-    image: "https://images.unsplash.com/photo-1535295972055-1c762f4483e5?q=80&w=1000&auto=format&fit=crop",
-    readTime: "5 min read",
-    author: { name: "Dr. Sarah Miller", avatar: "https://randomuser.me/api/portraits/women/44.jpg" },
-    date: "Oct 12, 2025"
-  },
-  {
-    id: 2,
-    title: "Apartment Living: Enrichment Tips for Indoor Cats",
-    excerpt: "Small space? No problem. Discover vertical territory hacks and puzzle toys that keep your feline friend mentally sharp.",
-    category: "Lifestyle",
-    image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1000&auto=format&fit=crop",
-    readTime: "4 min read",
-    author: { name: "Rahul Kapoor", avatar: "https://randomuser.me/api/portraits/men/32.jpg" },
-    date: "Oct 08, 2025"
-  },
-  {
-    id: 3,
-    title: "Understanding Separation Anxiety in Rescue Dogs",
-    excerpt: "Patience is key. A behavioral expert shares a step-by-step guide to building confidence and trust.",
-    category: "Behavior",
-    image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=1000&auto=format&fit=crop",
-    readTime: "7 min read",
-    author: { name: "Dr. Sarah Miller", avatar: "https://randomuser.me/api/portraits/women/44.jpg" },
-    date: "Sep 28, 2025"
-  },
-  {
-    id: 4,
-    title: "The Ultimate Guide to Sustainable Pet Care",
-    excerpt: "From biodegradable poop bags to ethically sourced treats, here is how to reduce your pawprint.",
-    category: "Sustainability",
-    image: "https://images.unsplash.com/photo-1544568100-847a948585b9?q=80&w=1000&auto=format&fit=crop",
-    readTime: "6 min read",
-    author: { name: "Emma Wilson", avatar: "https://randomuser.me/api/portraits/women/68.jpg" },
-    date: "Sep 15, 2025"
-  }
-];
-
-const CATEGORIES = ["All", "Nutrition", "Behavior", "Lifestyle", "Sustainability", "Wellness"];
+import { api } from '@/services/api';
 
 const Blog = () => {
   const { switchMode } = useTheme();
   const [activeCategory, setActiveCategory] = useState("All");
+  const [blogs, setBlogs] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     switchMode('GATEWAY');
     window.scrollTo(0, 0);
+
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [blogData, categoryData] = await Promise.all([
+          api.getBlogs({ publishStatus: 'published' }),
+          api.getBlogCategories()
+        ]);
+
+        setBlogs(blogData || []);
+        setCategories([{ id: 'all', name: 'All' }, ...categoryData] || []);
+      } catch (error) {
+        console.error('Error fetching blog data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [switchMode]);
+
+  const handleRefresh = async () => {
+    setLoading(true);
+    try {
+      const blogData = await api.getBlogs({ publishStatus: 'published' });
+      setBlogs(blogData || []);
+    } catch (error) {
+      console.error('Error refreshing blogs:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredBlogs = useMemo(() => {
+    let result = blogs;
+
+    if (activeCategory !== "All") {
+      result = result.filter(blog => blog.category?.name === activeCategory);
+    }
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(blog =>
+        blog.title.toLowerCase().includes(query) ||
+        blog.excerpt?.toLowerCase().includes(query)
+      );
+    }
+
+    return result;
+  }, [blogs, activeCategory, searchQuery]);
+
+  const featuredPost = blogs.find(blog => blog.isFeatured) || blogs[0];
+  const otherPosts = filteredBlogs.filter(blog => blog.id !== featuredPost?.id);
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] pt-16 md:pt-20">
@@ -76,43 +88,91 @@ const Blog = () => {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" />
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search articles..."
                 className="w-full h-10 md:h-12 pl-10 pr-4 rounded-full bg-white border border-black/5 focus:border-black/20 focus:outline-none transition-all placeholder:text-black/30 text-sm md:text-base"
               />
             </div>
 
             <div className="flex flex-wrap justify-center gap-2">
-              {CATEGORIES.map(cat => (
+              {categories.map(cat => (
                 <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition-all ${activeCategory === cat
-                      ? "bg-black text-white"
-                      : "bg-white border border-black/5 text-black/60 hover:text-black hover:border-black/20"
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.name)}
+                  className={`px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition-all ${activeCategory === cat.name
+                    ? "bg-black text-white"
+                    : "bg-white border border-black/5 text-black/60 hover:text-black hover:border-black/20"
                     }`}
                 >
-                  {cat}
+                  {cat.name}
                 </button>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Featured Post */}
-        <div className="mb-12 md:mb-20">
-          <FeaturedPost post={BLOG_POSTS[0]} />
-        </div>
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+          </div>
+        ) : (
+          <>
+            {/* Featured Post */}
+            {featuredPost && (
+              <div className="mb-12 md:mb-20">
+                <FeaturedPost post={{
+                  ...featuredPost,
+                  image: featuredPost.coverImageUrl || featuredPost.images?.[0]?.url || '/mockupImages/Blog.png',
+                  category: featuredPost.category?.name || 'Uncategorized',
+                  date: featuredPost.publishedAt ? new Date(featuredPost.publishedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Draft'
+                }} />
+              </div>
+            )}
 
-        {/* Post Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-x-8 md:gap-y-16 mb-16 md:mb-24">
-          {BLOG_POSTS.slice(1).map(post => (
-            <BlogCard key={post.id} post={post} />
-          ))}
-          {/* Repeating for grid density visual */}
-          {BLOG_POSTS.slice(1).map(post => (
-            <BlogCard key={`dup-${post.id}`} post={{ ...post, id: `dup-${post.id}` }} />
-          ))}
-        </div>
+            {/* Post Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-x-8 md:gap-y-16 mb-16 md:mb-24">
+              {otherPosts.map(post => (
+                <BlogCard key={post.id} post={{
+                  ...post,
+                  image: post.coverImageUrl || post.images?.[0]?.url || '/mockupImages/Blog.png',
+                  category: post.category?.name || 'Uncategorized',
+                  readTime: post.readTime || '5 min read' // Placeholder if not in schema
+                }} />
+              ))}
+            </div>
+
+            {otherPosts.length === 0 && !featuredPost && (
+              <div className="flex flex-col items-center justify-center pb-24 md:pb-32 pt-8 md:pt-12 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="w-20 h-20 md:w-24 md:h-24 bg-furco-cream rounded-full flex items-center justify-center mb-8 border border-furco-yellow/20">
+                  <PenTool className="w-10 h-10 md:w-12 md:h-12 text-furco-brown" />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-serif font-medium text-black mb-4 italic">The Journal is being updated</h3>
+                <p className="text-black/50 max-w-sm mb-10 leading-relaxed">
+                  Our editors are currently crafting new stories and science-backed insights for you.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button
+                    onClick={handleRefresh}
+                    className="bg-black text-white hover:bg-furco-gold hover:text-black rounded-full px-8 h-12 transition-all flex items-center gap-2"
+                  >
+                    <RefreshCcw className="w-4 h-4" /> Refresh Journal
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setActiveCategory("All");
+                      setSearchQuery("");
+                    }}
+                    className="rounded-full px-8 h-12 border-black/10 hover:border-black/30 hover:bg-white"
+                  >
+                    View All Categories
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
 
       </div>
 

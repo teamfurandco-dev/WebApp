@@ -81,7 +81,7 @@ const FilterSidebar = ({ categories, selectedCategory, onCategoryChange, priceRa
                 step={100}
                 value={priceRange}
                 onValueChange={onPriceChange}
-                className="cursor-pointer [&>.relative>.absolute]:bg-furco-yellow [&>.relative>.absolute]:w-4 [&>.relative>.absolute]:h-4 [&>.relative>.absolute]:rounded-full [&>.relative>.absolute]:border-2 [&>.relative>.absolute]:border-black"
+                className="cursor-pointer"
               />
               <div className="flex items-center justify-between text-sm font-bold text-black">
                 <span className="bg-white px-3 py-1 rounded-full border border-black/10">₹{priceRange[0]}</span>

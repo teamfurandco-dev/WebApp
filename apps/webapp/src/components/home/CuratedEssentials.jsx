@@ -1,35 +1,13 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Star, PawPrint } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { api } from '@/services/api';
 import { formatPrice } from '@fur-co/utils';
 
-const CuratedEssentials = () => {
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
+const CuratedEssentials = ({ products = [] }) => {
+    const loading = false; // No loading since data comes from parent
+    const error = products.length === 0;
 
-    useEffect(() => {
-        const fetchFeaturedProducts = async () => {
-            try {
-                const data = await api.getFeaturedProducts();
-                if (!data || data.length === 0) {
-                    setError(true);
-                } else {
-                    setProducts(data.slice(0, 6));
-                    setError(false);
-                }
-            } catch (error) {
-                console.error('Error fetching featured products:', error);
-                setError(true);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchFeaturedProducts();
-    }, []);
+    // No useEffect needed - data comes from parent component
 
     if (loading) {
         return (

@@ -13,7 +13,7 @@ export const blogQuerySchema = z.object({
 
 export const createBlogSchema = z.object({
   title: z.string().min(1),
-  slug: z.string().min(1),
+  slug: z.string().optional(),
   excerpt: z.string().optional(),
   content: z.string().min(1),
   coverBucketName: z.string().optional(),

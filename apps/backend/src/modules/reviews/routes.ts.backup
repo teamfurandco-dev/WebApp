@@ -12,7 +12,7 @@ export const reviewRoutes = async (fastify: FastifyInstance) => {
       preHandler: optionalAuth,
       schema: {
         description: 'Get reviews for a specific product',
-        tags: ['Currently in Use', 'Reviews'],
+        tags: ['Reviews'],
         params: {
           type: 'object',
           properties: {
@@ -92,7 +92,7 @@ export const reviewRoutes = async (fastify: FastifyInstance) => {
       preHandler: authenticate,
       schema: {
         description: 'Create a new review for a product',
-        tags: ['Currently in Use', 'Reviews'],
+        tags: ['Reviews'],
         security: [{ bearerAuth: [] }],
         params: {
           type: 'object',

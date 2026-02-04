@@ -102,13 +102,38 @@ Each app has its own `.env` file:
 
 Copy `.env.example` files and configure as needed.
 
-## 🎨 Tri-State Ecosystem
+## 🎨 Key Features
 
-The webapp features a unique "Tri-State Ecosystem" that adapts the user experience:
+### Tri-State Ecosystem
+The webapp features a unique "Tri-State  Ecosystem" that adapts the user experience:
 
-1. **GATEWAY (Default)** - Neutral, minimal theme
-2. **CORE (Unlimited)** - High-contrast, commercial theme at `/unlimited`
-3. **ORIGIN (Niche)** - Organic, artisanal theme at `/niche`
+1. **GATEWAY (Default)** - Neutral, minimal theme for standard shopping
+2. **CORE (Unlimited)** - High-contrast, commercial theme at `/unlimited` for subscription plans
+3. **ORIGIN (Niche)** - Organic, artisanal theme at `/niche` for curated products
+
+### Unlimited Fur Subscription System
+A comprehensive subscription management system allowing customers to:
+- Create monthly subscription plans with custom budgets
+- Build one-time pet care bundles
+- Select personalized products based on pet profiles
+- Manage recurring deliveries and billing
+
+### Consolidated API Architecture
+Backend implements "one-page" consolidated endpoints for optimal performance:
+- `/api/home` - All homepage data in single call
+- `/api/products/explore` - Products with filters, categories, pagination
+- `/api/products/:slug/full` - Complete product details with variants, reviews, Q&A
+- `/api/cart/summary` - Cart totals, stock warnings, recommendations
+
+## 🔧 Tech Stack
+
+- **Frontend**: Vite + React + Tailwind CSS
+- **Backend**: Fastify + Prisma + PostgreSQL (Supabase)
+- **Authentication**: Supabase Auth with JWT
+- **Storage**: Supabase Storage for media files
+- **Real-time**: WebSocket support
+- **Validation**: Zod schemas
+- **API Docs**: Swagger/OpenAPI
 
 ## 🤝 Contributing
 

@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { blogService } from './service.js';
 import { success } from '../../shared/utils/response.js';
+import { authenticateAdmin } from '../../shared/middleware/auth.js';
 import {
   blogQuerySchema,
   createBlogSchema,
@@ -34,14 +35,14 @@ export async function blogRoutes(fastify: FastifyInstance) {
   });
 
   // Create blog (admin only)
-  fastify.post('/blogs', async (request, reply) => {
+  fastify.post('/blogs', { preHandler: authenticateAdmin }, async (request, reply) => {
     const data = createBlogSchema.parse(request.body);
     const blog = await blogService.createBlog(data);
     return reply.code(201).send(success(blog));
   });
 
   // Update blog (admin only)
-  fastify.patch('/blogs/:id', async (request, reply) => {
+  fastify.patch('/blogs/:id', { preHandler: authenticateAdmin }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const data = updateBlogSchema.parse(request.body);
     const blog = await blogService.updateBlog(id, data);
@@ -49,10 +50,16 @@ export async function blogRoutes(fastify: FastifyInstance) {
   });
 
   // Delete blog (admin only)
-  fastify.delete('/blogs/:id', async (request, reply) => {
+  fastify.delete('/blogs/:id', { preHandler: authenticateAdmin }, async (request, reply) => {
     const { id } = request.params as { id: string };
     await blogService.deleteBlog(id);
     return reply.code(204).send();
+  });
+
+  // Admin list all blogs (includes drafts)
+  fastify.get('/admin/blogs', { preHandler: authenticateAdmin }, async (request, reply) => {
+    const blogs = await blogService.getBlogs({});
+    return success(blogs);
   });
 
   // Image routes
@@ -66,5 +73,11 @@ export async function blogRoutes(fastify: FastifyInstance) {
     const { id } = request.params as { id: string };
     await blogService.deleteBlogImage(id);
     return reply.code(204).send();
+  });
+
+  // Blog Categories
+  fastify.get('/blogs/categories', async (request, reply) => {
+    const categories = await blogService.getBlogCategories();
+    return success(categories);
   });
 }

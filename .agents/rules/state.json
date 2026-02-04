@@ -1,0 +1,68 @@
+{
+    "mode": "production",
+    "codebase_status": "active_ecommerce_platform",
+    "project_type": "pet_care_ecommerce_platform",
+    "architecture": "tri_state_ecosystem",
+    "current_focus": "feature_implementation",
+    "deployment_status": "production_ready",
+    "allowed_actions": [
+        "read",
+        "analyze",
+        "summarize",
+        "map_structure",
+        "ask_questions",
+        "draft_documentation",
+        "refactor",
+        "add_features",
+        "modify_code",
+        "optimize_performance"
+    ],
+    "key_features": {
+        "unique_features": [
+            "tri_state_theming_system",
+            "context_aware_components",
+            "supabase_integration",
+            "referral_system",
+            "unlimited_fur_subscription_system",
+            "consolidated_api_endpoints"
+        ],
+        "tech_stack": {
+            "frontend": "react_vite_tailwind",
+            "backend": "fastify_prisma_postgresql",
+            "database": "supabase_postgresql",
+            "ui": "shadcn_radix",
+            "animations": "framer_motion",
+            "validation": "zod",
+            "realtime": "websocket"
+        },
+        "business_model": [
+            "ecommerce",
+            "subscription_service",
+            "referral_program",
+            "bundle_system"
+        ]
+    },
+    "implemented_modules": [
+        "home",
+        "products",
+        "cart",
+        "wishlist",
+        "orders",
+        "users",
+        "addresses",
+        "categories",
+        "blogs",
+        "reviews",
+        "questions",
+        "inventory",
+        "uploads",
+        "unlimited-fur",
+        "websocket"
+    ],
+    "deployment_info": {
+        "frontend_deployment": "github_pages",
+        "backend_deployment": "pending",
+        "database_hosting": "supabase",
+        "storage": "supabase_storage"
+    }
+}

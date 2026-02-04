@@ -11,6 +11,7 @@ import { success } from './shared/utils/response.js';
 import './shared/types/index.js'; // Ensure FastifyRequest types are extended
 
 // Route imports
+import { homeRoutes } from './modules/home/routes.js';
 import { productRoutes } from './modules/products/routes.js';
 import { blogRoutes } from './modules/blogs/routes.js';
 import { uploadRoutes } from './modules/uploads/routes.js';
@@ -90,9 +91,25 @@ const start = async () => {
     });
 
     await fastify.register(cors, {
-      origin: config.cors.origin,
+      origin: (origin, cb) => {
+        // In development, we allow all origins by echoing them back
+        if (config.nodeEnv === 'development') {
+          cb(null, true);
+          return;
+        }
+
+        const allowedOrigins = config.cors.origin;
+        if (!origin || allowedOrigins.includes(origin)) {
+          cb(null, true);
+          return;
+        }
+        cb(new Error('Not allowed by CORS'), false);
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+      preflightContinue: false,
+      optionsSuccessStatus: 204
     });
 
     await fastify.register(rateLimit, {
@@ -150,6 +167,7 @@ const start = async () => {
     });
 
     const apiPrefix = { prefix: '/api' };
+    await fastify.register(homeRoutes, apiPrefix);
     await fastify.register(productRoutes, apiPrefix);
     await fastify.register(blogRoutes, apiPrefix);
     await fastify.register(uploadRoutes, apiPrefix);

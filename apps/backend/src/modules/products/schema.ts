@@ -12,16 +12,37 @@ export const productQuerySchema = z.object({
 
 export const createProductSchema = z.object({
   name: z.string().min(1),
-  slug: z.string().min(1),
+  slug: z.string().optional(),
   description: z.string().optional(),
+  descriptionSections: z.array(z.object({
+    title: z.string(),
+    content: z.string(),
+  })).optional(),
   categoryId: z.string().uuid(),
   isActive: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
   homepageSection: z.string().optional(),
   displayOrder: z.number().default(0),
+
+  // Unlimited Fur Configuration
+  unlimitedFurEligible: z.boolean().default(false),
+  unlimitedFurPetTypes: z.array(z.string()).default([]),
+  unlimitedFurMinBudget: z.number().optional(),
+
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   tags: z.array(z.string()).default([]),
+
+  // Rich Content (Markdown)
+  usageInstructions: z.string().optional(),
+  ingredients: z.string().optional(),
+  suitableFor: z.string().optional(),
+  safetyNotes: z.string().optional(),
+  specifications: z.string().optional(),
+
+  // Relationships (for creation)
+  variants: z.array(z.any()).optional(),
+  images: z.array(z.any()).optional(),
 });
 
 export const updateProductSchema = createProductSchema.partial();

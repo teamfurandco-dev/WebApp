@@ -4,7 +4,7 @@ import { cn } from '@fur-co/utils';
 
 const BlogCard = ({ post, className }) => {
     return (
-        <Link to={`/blog/${post.id}`} className={cn("group flex flex-col h-full", className)}>
+        <Link to={`/blog/${post.slug || post.id}`} className={cn("group flex flex-col h-full", className)}>
             {/* Image */}
             <div className="aspect-[3/2] overflow-hidden rounded-xl md:rounded-2xl mb-4 md:mb-5 border border-black/5 bg-gray-100">
                 <img

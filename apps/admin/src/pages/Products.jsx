@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import MDEditor from '@uiw/react-md-editor';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -19,7 +20,7 @@ export default function Products() {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setProducts(data.data || []);
@@ -39,7 +40,7 @@ export default function Products() {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setCategories(data.data || []);
@@ -51,7 +52,7 @@ export default function Products() {
 
   const deleteProduct = async (productId) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
-    
+
     try {
       const token = (await supabase.auth.getSession()).data.session?.access_token;
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/products/${productId}`, {
@@ -84,7 +85,7 @@ export default function Products() {
       });
 
       if (response.ok) {
-        setProducts(products.map(p => 
+        setProducts(products.map(p =>
           p.id === productId ? { ...p, isActive: !currentStatus } : p
         ));
       } else {
@@ -105,12 +106,12 @@ export default function Products() {
   }, []);
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = 
+    const matchesSearch =
       product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesCategory = categoryFilter === 'all' || product.categoryId === categoryFilter;
-    
+
     return matchesSearch && matchesCategory;
   });
 
@@ -261,11 +262,10 @@ export default function Products() {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <button
                     onClick={() => toggleProductStatus(product.id, product.isActive)}
-                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      product.isActive 
-                        ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                        : 'bg-red-100 text-red-800 hover:bg-red-200'
-                    }`}
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.isActive
+                      ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                      : 'bg-red-100 text-red-800 hover:bg-red-200'
+                      }`}
                   >
                     {product.isActive ? 'Active' : 'Inactive'}
                   </button>
@@ -292,8 +292,8 @@ export default function Products() {
         {filteredProducts.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-500">
-              {searchTerm || categoryFilter !== 'all' 
-                ? 'No products found matching your filters.' 
+              {searchTerm || categoryFilter !== 'all'
+                ? 'No products found matching your filters.'
                 : 'No products found. Add your first product!'}
             </div>
           </div>
@@ -308,16 +308,27 @@ function ProductForm({ product, categories, onSave, onCancel }) {
   const [formData, setFormData] = useState({
     name: product?.name || '',
     description: product?.description || '',
+    descriptionSections: product?.descriptionSections || [],
     categoryId: product?.categoryId || '',
     isActive: product?.isActive ?? true,
     isFeatured: product?.isFeatured || false,
+    homepageSection: product?.homepageSection || '',
+    displayOrder: product?.displayOrder || 0,
     tags: product?.tags?.join(', ') || '',
     metaTitle: product?.metaTitle || '',
     metaDescription: product?.metaDescription || '',
+    unlimitedFurEligible: product?.unlimitedFurEligible || false,
+    unlimitedFurPetTypes: product?.unlimitedFurPetTypes?.join(', ') || '',
+    unlimitedFurMinBudget: product?.unlimitedFurMinBudget || '',
+    usageInstructions: product?.usageInstructions || '',
+    ingredients: product?.ingredients || '',
+    suitableFor: product?.suitableFor || '',
+    safetyNotes: product?.safetyNotes || '',
+    specifications: product?.specifications || '',
   });
-  
+
   const [variants, setVariants] = useState(product?.variants || [{ name: '', price: '', stock: '', sku: '' }]);
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState(product?.images || []);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -332,24 +343,15 @@ function ProductForm({ product, categories, onSave, onCancel }) {
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
         const filePath = `products/${fileName}`;
 
-        console.log('Uploading file:', file.name, 'to path:', filePath);
-
         const { data, error } = await supabase.storage
           .from('product-images')
           .upload(filePath, file);
 
-        if (error) {
-          console.error('Supabase storage error:', error);
-          throw error;
-        }
-
-        console.log('Upload successful:', data);
+        if (error) throw error;
 
         const { data: { publicUrl } } = supabase.storage
           .from('product-images')
           .getPublicUrl(filePath);
-
-        console.log('Public URL:', publicUrl);
 
         uploadedImages.push({
           url: publicUrl,
@@ -357,7 +359,6 @@ function ProductForm({ product, categories, onSave, onCancel }) {
           altText: formData.name
         });
       } catch (err) {
-        console.error('Full error details:', err);
         setError(`Failed to upload image: ${file.name} - ${err.message}`);
       }
     }
@@ -394,6 +395,18 @@ function ProductForm({ product, categories, onSave, onCancel }) {
     setVariants(updated);
   };
 
+  const templates = {
+    food: `| Nutrient | Amount |\n|----------|--------|\n| Protein  | 25%    |\n| Fat      | 15%    |\n| Fiber    | 4%     |`,
+    toys: `* **Material**: Durable Rubber\n* **Durability**: High\n* **Safety Rating**: 5/5`,
+    accessories: `* **Material**: Genuine Leather\n* **Care**: Wipe clean with damp cloth\n* **Warranty**: 1 Year`
+  };
+
+  const applyTemplate = (type) => {
+    if (confirm('This will overwrite the current specifications. Continue?')) {
+      setFormData({ ...formData, specifications: templates[type] });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -401,21 +414,26 @@ function ProductForm({ product, categories, onSave, onCancel }) {
 
     try {
       const token = (await supabase.auth.getSession()).data.session?.access_token;
-      
+
       const productData = {
         ...formData,
-        tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-        variants: variants.filter(v => v.name && v.price),
+        tags: typeof formData.tags === 'string' ? formData.tags.split(',').map(tag => tag.trim()).filter(Boolean) : formData.tags,
+        unlimitedFurPetTypes: typeof formData.unlimitedFurPetTypes === 'string' ? formData.unlimitedFurPetTypes.split(',').map(t => t.trim()).filter(Boolean) : formData.unlimitedFurPetTypes,
+        unlimitedFurMinBudget: formData.unlimitedFurMinBudget ? Math.round(parseFloat(formData.unlimitedFurMinBudget) * 100) : null,
+        variants: variants
+          .filter(v => v.name && v.price)
+          .map(v => ({
+            ...v,
+            price: typeof v.price === 'string' ? parseFloat(v.price) : v.price,
+            stock: typeof v.stock === 'string' ? parseInt(v.stock) : v.stock
+          })),
         images: images
       };
 
-      console.log('Sending product data:', productData);
-      console.log('Images being sent:', images);
-
-      const url = product 
+      const url = product
         ? `${import.meta.env.VITE_API_URL}/api/admin/products/${product.id}`
         : `${import.meta.env.VITE_API_URL}/api/admin/products`;
-      
+
       const method = product ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -442,7 +460,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
   };
 
   return (
-    <div>
+    <div className="max-w-6xl mx-auto pb-20">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">
           {product ? 'Edit Product' : 'Add Product'}
@@ -461,10 +479,11 @@ function ProductForm({ product, categories, onSave, onCancel }) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Basic Info */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium mb-4">Basic Information</h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -474,11 +493,11 @@ function ProductForm({ product, categories, onSave, onCancel }) {
                 type="text"
                 required
                 value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Category *
@@ -486,8 +505,8 @@ function ProductForm({ product, categories, onSave, onCancel }) {
               <select
                 required
                 value={formData.categoryId}
-                onChange={(e) => setFormData({...formData, categoryId: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select Category</option>
                 {categories.map(category => (
@@ -499,59 +518,251 @@ function ProductForm({ product, categories, onSave, onCancel }) {
             </div>
           </div>
 
-          <div className="mt-4">
+          <div className="mt-6" data-color-mode="light">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
+              Main Description (Markdown)
             </label>
-            <textarea
-              rows={4}
+            <MDEditor
               value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              onChange={(val) => setFormData({ ...formData, description: val || '' })}
+              height={300}
+              preview="edit"
             />
           </div>
+        </div>
 
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tags (comma separated)
-              </label>
-              <input
-                type="text"
-                value={formData.tags}
-                onChange={(e) => setFormData({...formData, tags: e.target.value})}
-                placeholder="dog food, premium, organic"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        {/* Structured Sections */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium">Structured Description Sections</h3>
+            <button
+              type="button"
+              onClick={() => setFormData({
+                ...formData,
+                descriptionSections: [...formData.descriptionSections, { title: '', content: '' }]
+              })}
+              className="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 text-sm font-medium"
+            >
+              + Add New Section
+            </button>
+          </div>
+
+          <div className="space-y-6">
+            {formData.descriptionSections.map((section, idx) => (
+              <div key={idx} className="p-4 border border-gray-100 rounded-lg bg-gray-50/30 shadow-sm">
+                <div className="flex justify-between items-start mb-4">
+                  <input
+                    type="text"
+                    placeholder="Section Title (e.g., Features, Ingredients)"
+                    value={section.title}
+                    onChange={(e) => {
+                      const newSections = [...formData.descriptionSections];
+                      newSections[idx].title = e.target.value;
+                      setFormData({ ...formData, descriptionSections: newSections });
+                    }}
+                    className="flex-1 mr-4 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 font-medium"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newSections = formData.descriptionSections.filter((_, i) => i !== idx);
+                      setFormData({ ...formData, descriptionSections: newSections });
+                    }}
+                    className="text-red-500 hover:text-red-700 p-2"
+                  >
+                    Remove Section
+                  </button>
+                </div>
+                <div data-color-mode="light">
+                  <MDEditor
+                    value={section.content}
+                    onChange={(val) => {
+                      const newSections = [...formData.descriptionSections];
+                      newSections[idx].content = val || '';
+                      setFormData({ ...formData, descriptionSections: newSections });
+                    }}
+                    height={200}
+                    preview="edit"
+                  />
+                </div>
+              </div>
+            ))}
+            {formData.descriptionSections.length === 0 && (
+              <div className="text-center py-8 text-gray-500 border-2 border-dashed rounded-lg">
+                No structured sections. Add sections for Features, Highlights, etc.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Rich Product Details (Markdown) */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h3 className="text-xl font-bold mb-6 border-b pb-2">Rich Product Details</h3>
+
+          <div className="space-y-8">
+            <div data-color-mode="light">
+              <label className="block text-sm font-bold text-gray-700 mb-2">Usage Instructions</label>
+              <MDEditor
+                value={formData.usageInstructions}
+                onChange={(val) => setFormData({ ...formData, usageInstructions: val || '' })}
+                height={200}
+                preview="edit"
               />
             </div>
-            
-            <div className="flex items-center space-x-4 pt-6">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div data-color-mode="light">
+                <label className="block text-sm font-bold text-gray-700 mb-2">Ingredients</label>
+                <MDEditor
+                  value={formData.ingredients}
+                  onChange={(val) => setFormData({ ...formData, ingredients: val || '' })}
+                  height={200}
+                  preview="edit"
+                />
+              </div>
+              <div data-color-mode="light">
+                <label className="block text-sm font-bold text-gray-700 mb-2">Suitable For</label>
+                <MDEditor
+                  value={formData.suitableFor}
+                  onChange={(val) => setFormData({ ...formData, suitableFor: val || '' })}
+                  height={200}
+                  preview="edit"
+                />
+              </div>
+            </div>
+
+            <div data-color-mode="light">
+              <label className="block text-sm font-bold text-gray-700 mb-2">Safety Notes</label>
+              <MDEditor
+                value={formData.safetyNotes}
+                onChange={(val) => setFormData({ ...formData, safetyNotes: val || '' })}
+                height={150}
+                preview="edit"
+              />
+            </div>
+
+            <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <h4 className="font-bold text-lg">Category Specifications</h4>
+                  <p className="text-sm text-gray-500">Add nutritional info, materials, or technical specs here.</p>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-xs font-medium text-gray-400 self-center uppercase mr-2">Quick Templates:</span>
+                  <button type="button" onClick={() => applyTemplate('food')} className="px-3 py-1 bg-white border rounded text-xs hover:bg-gray-100">Food</button>
+                  <button type="button" onClick={() => applyTemplate('toys')} className="px-3 py-1 bg-white border rounded text-xs hover:bg-gray-100">Toys</button>
+                  <button type="button" onClick={() => applyTemplate('accessories')} className="px-3 py-1 bg-white border rounded text-xs hover:bg-gray-100">Accessories</button>
+                </div>
+              </div>
+              <div data-color-mode="light">
+                <MDEditor
+                  value={formData.specifications}
+                  onChange={(val) => setFormData({ ...formData, specifications: val || '' })}
+                  height={250}
+                  preview="edit"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Settings & Unlimited Fur */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-lg font-medium mb-4">Status & Display</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Display Order
+                </label>
+                <input
+                  type="number"
+                  value={formData.displayOrder}
+                  onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Homepage Section
+                </label>
+                <input
+                  type="text"
+                  value={formData.homepageSection}
+                  onChange={(e) => setFormData({ ...formData, homepageSection: e.target.value })}
+                  placeholder="featured, hot-picks"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="mt-4 flex space-x-6">
               <label className="flex items-center">
                 <input
                   type="checkbox"
                   checked={formData.isActive}
-                  onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
-                  className="mr-2"
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  className="w-4 h-4 text-blue-600 rounded"
                 />
-                Active
+                <span className="ml-2 text-sm text-gray-700">Active</span>
               </label>
               <label className="flex items-center">
                 <input
                   type="checkbox"
                   checked={formData.isFeatured}
-                  onChange={(e) => setFormData({...formData, isFeatured: e.target.checked})}
-                  className="mr-2"
+                  onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                  className="w-4 h-4 text-blue-600 rounded"
                 />
-                Featured
+                <span className="ml-2 text-sm text-gray-700">Featured</span>
               </label>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-lg font-medium mb-4">Unlimited Fur Integration</h3>
+            <div className="space-y-4">
+              <label className="flex items-center mb-2">
+                <input
+                  type="checkbox"
+                  checked={formData.unlimitedFurEligible}
+                  onChange={(e) => setFormData({ ...formData, unlimitedFurEligible: e.target.checked })}
+                  className="w-4 h-4 text-blue-600 rounded"
+                />
+                <span className="ml-2 text-sm text-gray-700 font-medium">Eligible for Unlimited Fur</span>
+              </label>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Pet Types (e.g. dog, cat)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.unlimitedFurPetTypes}
+                    onChange={(e) => setFormData({ ...formData, unlimitedFurPetTypes: e.target.value })}
+                    placeholder="dog, cat"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Min Budget (₹)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.unlimitedFurMinBudget}
+                    onChange={(e) => setFormData({ ...formData, unlimitedFurMinBudget: e.target.value })}
+                    placeholder="500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Product Images */}
+        {/* Images */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium mb-4">Product Images</h3>
-          
           <div className="mb-4">
             <input
               type="file"
@@ -560,101 +771,88 @@ function ProductForm({ product, categories, onSave, onCancel }) {
               onChange={(e) => handleImageUpload(Array.from(e.target.files))}
               className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
             />
-            {uploading && <p className="text-sm text-blue-600 mt-2">Uploading images...</p>}
+            {uploading && <p className="mt-2 text-sm text-blue-600 animate-pulse">Uploading images...</p>}
           </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {images.map((image, index) => (
-              <div key={index} className="relative">
-                <img
-                  src={image.url}
-                  alt={`Product ${index + 1}`}
-                  className="w-full h-32 object-cover rounded-lg"
-                />
+              <div key={index} className="relative group aspect-square">
+                <img src={image.url} alt="" className="w-full h-full object-cover rounded-lg border" />
                 <button
                   type="button"
                   onClick={() => removeImage(index)}
-                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
                 >
                   ×
                 </button>
+                {index === 0 && (
+                  <span className="absolute bottom-2 left-2 bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded shadow">
+                    Primary
+                  </span>
+                )}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Product Variants */}
+        {/* Variants */}
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium">Product Variants</h3>
             <button
               type="button"
               onClick={addVariant}
-              className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+              className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700"
             >
-              Add Variant
+              + Add Variant
             </button>
           </div>
-
           <div className="space-y-4">
             {variants.map((variant, index) => (
-              <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border border-gray-200 rounded-lg">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Variant Name *
-                  </label>
+              <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border rounded-lg bg-gray-50/20">
+                <div className="md:col-span-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
                   <input
                     type="text"
                     required
                     value={variant.name}
                     onChange={(e) => updateVariant(index, 'name', e.target.value)}
-                    placeholder="e.g., Small - 500g"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Small - 500g"
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Price (₹) *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹) *</label>
                   <input
                     type="number"
                     required
                     value={variant.price}
                     onChange={(e) => updateVariant(index, 'price', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stock
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
                   <input
                     type="number"
                     value={variant.stock}
                     onChange={(e) => updateVariant(index, 'stock', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    SKU
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">SKU</label>
                   <input
                     type="text"
                     value={variant.sku}
                     onChange={(e) => updateVariant(index, 'sku', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
                 <div className="flex items-end">
                   <button
                     type="button"
                     onClick={() => removeVariant(index)}
-                    className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600"
+                    className="w-full py-2 text-red-600 font-medium hover:bg-red-50 rounded-lg transition-colors border border-red-100"
                   >
                     Remove
                   </button>
@@ -664,49 +862,56 @@ function ProductForm({ product, categories, onSave, onCancel }) {
           </div>
         </div>
 
-        {/* SEO */}
+        {/* SEO & Tags */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium mb-4">SEO Settings</h3>
-          
-          <div className="grid grid-cols-1 gap-4">
+          <h3 className="text-lg font-medium mb-4">Metadata & SEO Settings</h3>
+          <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Meta Title
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma separated)</label>
               <input
                 type="text"
-                value={formData.metaTitle}
-                onChange={(e) => setFormData({...formData, metaTitle: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={formData.tags}
+                onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                placeholder="dog food, premium, organic"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Meta Description
-              </label>
-              <textarea
-                rows={3}
-                value={formData.metaDescription}
-                onChange={(e) => setFormData({...formData, metaDescription: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Meta Title</label>
+                <input
+                  type="text"
+                  value={formData.metaTitle}
+                  onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Meta Description</label>
+                <textarea
+                  rows={2}
+                  value={formData.metaDescription}
+                  onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
           </div>
         </div>
 
+        {/* Footer Actions */}
         <div className="flex justify-end space-x-4">
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            className="px-8 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium shadow-sm transition-all"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={saving || uploading}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="px-10 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 font-medium shadow-md transition-all active:scale-95"
           >
             {saving ? 'Saving...' : (product ? 'Update Product' : 'Create Product')}
           </button>

@@ -15,10 +15,35 @@ export async function cartRoutes(fastify: FastifyInstance) {
     return success(cart);
   });
 
-  // Get cart summary
-  fastify.get('/cart/summary', { preHandler: authenticate }, async (request: any, reply) => {
+  // Get cart summary - Consolidated cart data
+  fastify.get('/cart/summary', { 
+    schema: {
+      description: 'Get complete cart data with items, totals, stock warnings, and recommendations in one call',
+      tags: ['Currently in Use - Optimized'],
+      security: [{ bearerAuth: [] }],
+      response: {
+        200: {
+          description: 'Complete cart summary',
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: {
+              type: 'object',
+              properties: {
+                items: { type: 'array' },
+                totals: { type: 'object' },
+                stockWarnings: { type: 'array' },
+                recommendedProducts: { type: 'array' }
+              }
+            }
+          }
+        }
+      }
+    },
+    preHandler: authenticate 
+  }, async (request: any, reply) => {
     const userId = request.user.id;
-    const summary = await cartService.getCartSummary(userId);
+    const summary = await cartService.getCartSummaryOptimized(userId);
     return success(summary);
   });
 

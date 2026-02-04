@@ -7,7 +7,7 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import { UnlimitedFurProvider } from '@/context/UnlimitedFurContext';
 import Home from '@/pages/Home';
 import ProductList from '@/pages/ProductList';
-import ProductDetailOptimized from '@/pages/ProductDetailOptimized';
+import ProductDetail from '@/pages/ProductDetail';
 import Cart from '@/pages/Cart';
 import Wishlist from '@/pages/Wishlist';
 import Checkout from '@/pages/Checkout';
@@ -47,7 +47,7 @@ function App() {
                 <Route path="/" element={<MainLayout />}>
                   <Route index element={<Home />} />
                   <Route path="products" element={<ProductList />} />
-                  <Route path="product/:id" element={<ProductDetailOptimized />} />
+                  <Route path="product/:id" element={<ProductDetail />} />
                   <Route path="cart" element={<Cart />} />
                   <Route path="wishlist" element={<Wishlist />} />
                   <Route path="checkout" element={<Checkout />} />
@@ -56,7 +56,7 @@ function App() {
                   <Route path="account/*" element={<Profile />} />
                   <Route path="about" element={<About />} />
                   <Route path="blog" element={<Blog />} />
-                  <Route path="blog/:id" element={<BlogPost />} />
+                  <Route path="blog/:slug" element={<BlogPost />} />
                   <Route path="unlimited" element={<Unlimited />} />
                   <Route path="niche" element={<Niche />} />
 

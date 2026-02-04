@@ -14,7 +14,9 @@ model Product {
   id          String   @id @default(uuid())
   name        String
   slug        String   @unique
-  description String?
+  description         String?
+  descriptionSections Json?    @default("[]") // Structured markdown sections
+
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
   
@@ -46,6 +48,13 @@ model Product {
   questions    ProductQuestion[]
   reviews      Review[]
   
+  // Rich Content (Markdown)
+  usageInstructions String?
+  ingredients       String?
+  suitableFor       String?
+  safetyNotes       String?
+  specifications    String? // Category-specific details (e.g. nutrition table, materials)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   

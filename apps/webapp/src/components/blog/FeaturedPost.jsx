@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 
 const FeaturedPost = ({ post }) => {
     return (
-        <Link to={`/blog/${post.id}`} className="group relative block w-full rounded-[2.5rem] overflow-hidden bg-white shadow-sm border border-black/5 hover:shadow-xl transition-all duration-500">
+        <Link to={`/blog/${post.slug || post.id}`} className="group relative block w-full rounded-[2.5rem] overflow-hidden bg-white shadow-sm border border-black/5 hover:shadow-xl transition-all duration-500">
             <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
                 {/* Image Side */}
                 <div className="relative h-[300px] md:h-[400px] lg:h-[600px] overflow-hidden">
@@ -35,11 +35,17 @@ const FeaturedPost = ({ post }) => {
                     <div className="flex items-center gap-4 mt-auto">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
-                                <img src={post.author.avatar} alt={post.author.name} className="w-full h-full object-cover" />
+                                {post.author?.avatarUrl ? (
+                                    <img src={post.author.avatarUrl} alt={post.author.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-black text-white font-bold">
+                                        {post.author?.name?.charAt(0) || 'F'}
+                                    </div>
+                                )}
                             </div>
                             <div className="text-sm">
-                                <p className="font-bold text-black">{post.author.name}</p>
-                                <p className="text-black/40">{post.readTime}</p>
+                                <p className="font-bold text-black">{post.author?.name || 'Fur & Co'}</p>
+                                <p className="text-black/40">{post.readTime || '5 min read'}</p>
                             </div>
                         </div>
                     </div>
