@@ -101,7 +101,7 @@ const Niche = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#14522D]/90 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
 
                 <div className="relative z-10 text-[#FDFCF0]">
-                  <span className="text-xs font-sans tracking-widest uppercase mb-2 block text-[#F8C701]">{story.category}</span>
+                  <span className="text-xs font-sans tracking-widest uppercase mb-2 block text-[#ffcc00]">{story.category}</span>
                   <h3 className="text-2xl font-serif mb-2 leading-none">{story.title}</h3>
                   <div className="h-0 overflow-hidden group-hover:h-auto transition-all duration-300">
                     <p className="text-sm font-sans pt-4 opacity-90 leading-relaxed border-t border-white/20 mt-4">
@@ -122,12 +122,12 @@ const Niche = () => {
             <div className="aspect-[4/5] bg-[#A0522D] rounded-t-full opacity-80 mix-blend-screen"></div>
           </div>
           <div className="w-full md:w-1/2">
-            <span className="text-[#F8C701] font-sans tracking-widest uppercase mb-4 block">The Hands Behind The Product</span>
+            <span className="text-[#ffcc00] font-sans tracking-widest uppercase mb-4 block">The Hands Behind The Product</span>
             <h2 className="text-5xl md:text-7xl font-serif mb-8 leading-none">Meet Preetha.</h2>
             <p className="text-xl md:text-2xl font-light opacity-90 leading-relaxed mb-12">
               "Every item you buy supports a family. We believe that when an artisan’s hand touches a product, it carries a different energy—one that is safer and kinder for your pet."
             </p>
-            <button className="text-[#F8C701] border-b border-[#F8C701] pb-1 hover:text-white hover:border-white transition-colors">Read Full Journal Entry</button>
+            <button className="text-[#ffcc00] border-b border-[#ffcc00] pb-1 hover:text-white hover:border-white transition-colors">Read Full Journal Entry</button>
           </div>
         </div>
       </section>

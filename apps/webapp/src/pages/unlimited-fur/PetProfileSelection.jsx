@@ -55,7 +55,7 @@ export default function PetProfileSelection() {
   };
 
   return (
-    <div className="min-h-screen bg-[#EDC520] text-gray-900 overflow-y-auto relative font-sans">
+    <div className="min-h-screen bg-[#ffcc00] text-gray-900 overflow-y-auto relative font-sans">
       <UnlimitedBackground />
 
       <div className="min-h-screen container mx-auto max-w-4xl flex flex-col items-center justify-center p-6 py-12 relative z-10">
@@ -97,7 +97,7 @@ export default function PetProfileSelection() {
 
 
                   {selectedPet === pet.value && (
-                    <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black text-[#EDC520] flex items-center justify-center shadow-xl border-2 border-[#EDC520]/20 z-20">
+                    <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black text-[#ffcc00] flex items-center justify-center shadow-xl border-2 border-[#ffcc00]/20 z-20">
                       <Check className="w-6 h-6" />
                     </div>
                   )}

@@ -65,7 +65,7 @@ const Unlimited = () => {
   ];
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#EDC520] text-gray-900 font-sans selection:bg-black/10 selection:text-black overflow-hidden relative">
+    <div ref={containerRef} className="min-h-screen bg-[#ffcc00] text-gray-900 font-sans selection:bg-black/10 selection:text-black overflow-hidden relative">
 
       {/* --- LIVE ORGANIC BG (6 Blobs) --- */}
       <UnlimitedBackground />
@@ -84,13 +84,9 @@ const Unlimited = () => {
                 transition={{ duration: 0.8 }}
               >
                 <h1 className="text-3xl md:text-6xl font-black tracking-tighter leading-[1] text-gray-900 mb-4 font-peace-sans drop-shadow-sm">
-                  Unlimited Love.<br />
-                  Tailored Care.<br />
+                  Love Tailored.<br />
                   On Your Terms.
                 </h1>
-                <p className="text-lg font-medium text-gray-900/90 max-w-md leading-relaxed mb-8">
-                  Trusted by 10,000+ Pet Parents
-                </p>
               </motion.div>
             </motion.div>
           </div>
@@ -112,10 +108,10 @@ const Unlimited = () => {
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <Link to="/unlimited-fur/monthly/budget?mode=monthly" className="group block">
-                    <div className="bg-white p-8 rounded-[2rem] shadow-xl border-2 border-transparent hover:border-[#EDC520] min-h-[340px] flex flex-col items-center text-center justify-between relative overflow-hidden transition-all duration-300">
+                    <div className="bg-white p-8 rounded-[2rem] shadow-xl border-2 border-transparent hover:border-[#ffcc00] min-h-[340px] flex flex-col items-center text-center justify-between relative overflow-hidden transition-all duration-300">
 
                       {/* Badge */}
-                      <div className="absolute top-4 right-4 bg-[#EDC520]/20 text-[#C7A317] text-[10px] uppercase font-bold px-3 py-1 rounded-full tracking-wider">
+                      <div className="absolute top-4 right-4 bg-[#ffcc00]/20 text-[#C7A317] text-[10px] uppercase font-bold px-3 py-1 rounded-full tracking-wider">
                         Popular
                       </div>
 
@@ -134,7 +130,7 @@ const Unlimited = () => {
                         <motion.div
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className="bg-gray-900 text-white w-full py-4 rounded-xl text-base font-bold shadow-lg flex items-center justify-center gap-2 group-hover:bg-[#EDC520] group-hover:text-gray-900 transition-colors"
+                          className="bg-gray-900 text-white w-full py-4 rounded-xl text-base font-bold shadow-lg flex items-center justify-center gap-2 group-hover:bg-[#ffcc00] group-hover:text-gray-900 transition-colors"
                         >
                           <Sparkles className="w-5 h-5" />
                           Start Monthly Plan
@@ -151,14 +147,14 @@ const Unlimited = () => {
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <Link to="/unlimited-fur/bundle/budget?mode=bundle" className="group block">
-                    <div className="bg-gray-900 p-8 rounded-[2rem] shadow-xl border-2 border-[#EDC520] min-h-[340px] flex flex-col items-center text-center justify-between relative overflow-hidden group-hover:shadow-[0_0_30px_-5px_#EDC520] transition-all duration-300">
+                    <div className="bg-gray-900 p-8 rounded-[2rem] shadow-xl border-2 border-[#ffcc00] min-h-[340px] flex flex-col items-center text-center justify-between relative overflow-hidden group-hover:shadow-[0_0_30px_-5px_#ffcc00] transition-all duration-300">
 
                       {/* Decorative Glow */}
-                      <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#EDC520]/10 rounded-full blur-3xl"></div>
+                      <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#ffcc00]/10 rounded-full blur-3xl"></div>
 
                       <div className="relative z-10 w-full flex flex-col items-center pt-4">
-                        <div className="mb-5 w-20 h-20 rounded-2xl bg-gray-800/50 flex items-center justify-center shadow-inner border border-[#EDC520]/20">
-                          <Gift className="w-10 h-10 text-[#EDC520]" />
+                        <div className="mb-5 w-20 h-20 rounded-2xl bg-gray-800/50 flex items-center justify-center shadow-inner border border-[#ffcc00]/20">
+                          <Gift className="w-10 h-10 text-[#ffcc00]" />
                         </div>
 
                         <h3 className="text-2xl font-black leading-tight text-white mb-3 font-peace-sans">The Celebration<br />Box</h3>
@@ -171,7 +167,7 @@ const Unlimited = () => {
                         <motion.div
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className="bg-[#EDC520] text-gray-900 w-full py-4 rounded-xl text-base font-bold shadow-lg flex items-center justify-center gap-2 group-hover:bg-white transition-colors"
+                          className="bg-[#ffcc00] text-gray-900 w-full py-4 rounded-xl text-base font-bold shadow-lg flex items-center justify-center gap-2 group-hover:bg-white transition-colors"
                         >
                           <Package className="w-5 h-5" />
                           Build a Bundle
@@ -215,20 +211,20 @@ const Unlimited = () => {
                   // Alternating Pattern: Odd=White, Even=Dark
                   idx % 2 === 0
                     ? "bg-white border-transparent text-gray-900"
-                    : "bg-gray-900 border-[#EDC520]/30 text-white"
+                    : "bg-gray-900 border-[#ffcc00]/30 text-white"
                 )}
               >
                 {/* Number Badge */}
                 <div className={cn(
                   "absolute -top-5 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-md ring-4",
                   idx % 2 === 0
-                    ? "bg-gray-900 text-[#EDC520] ring-white"
-                    : "bg-[#EDC520] text-gray-900 ring-gray-900"
+                    ? "bg-gray-900 text-[#ffcc00] ring-white"
+                    : "bg-[#ffcc00] text-gray-900 ring-gray-900"
                 )}>
                   {step.num}
                 </div>
 
-                <div className={cn("mt-6 mb-4 flex justify-center", idx % 2 === 0 ? "text-[#EDC520]" : "text-white")}>
+                <div className={cn("mt-6 mb-4 flex justify-center", idx % 2 === 0 ? "text-[#ffcc00]" : "text-white")}>
                   {step.icon}
                 </div>
 
@@ -271,15 +267,15 @@ const Unlimited = () => {
                   "rounded-3xl p-6 text-center border-2 hover:scale-105 transition-all duration-300 shadow-xl min-h-[180px] flex flex-col justify-center",
                   // Alternating Pattern: White -> Dark -> White ...
                   idx % 2 === 0
-                    ? "bg-white border-transparent hover:border-[#EDC520] text-gray-900"
-                    : "bg-gray-900 border-[#EDC520]/20 hover:border-[#EDC520] text-white"
+                    ? "bg-white border-transparent hover:border-[#ffcc00] text-gray-900"
+                    : "bg-gray-900 border-[#ffcc00]/20 hover:border-[#ffcc00] text-white"
                 )}
               >
-                <div className={cn("mb-4 flex justify-center", idx % 2 === 0 ? "text-gray-900" : "text-[#EDC520]")}>
+                <div className={cn("mb-4 flex justify-center", idx % 2 === 0 ? "text-gray-900" : "text-[#ffcc00]")}>
                   {benefit.icon}
                 </div>
                 <h3 className="font-bold text-sm mb-1 leading-tight font-peace-sans">{benefit.title}</h3>
-                <p className={cn("text-xs", idx % 2 === 0 ? "text-gray-500" : "text-[#EDC520]/80")}>{benefit.desc}</p>
+                <p className={cn("text-xs", idx % 2 === 0 ? "text-gray-500" : "text-[#ffcc00]/80")}>{benefit.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -306,8 +302,8 @@ const Unlimited = () => {
                   className={cn(
                     "w-full p-6 text-left rounded-3xl transition-all duration-300 relative border-2",
                     openFaq === i
-                      ? "bg-gray-900 text-[#EDC520] border-gray-900 shadow-xl"
-                      : "bg-white text-gray-900 border-gray-200 hover:border-[#EDC520] shadow-sm"
+                      ? "bg-gray-900 text-[#ffcc00] border-gray-900 shadow-xl"
+                      : "bg-white text-gray-900 border-gray-200 hover:border-[#ffcc00] shadow-sm"
                   )}
                 >
                   <div className="flex justify-between items-center">
@@ -315,7 +311,7 @@ const Unlimited = () => {
                       {faq.q}
                     </span>
                     {openFaq === i ? (
-                      <motion.span layoutId="active-dot" className="w-3 h-3 rounded-full bg-[#EDC520]" />
+                      <motion.span layoutId="active-dot" className="w-3 h-3 rounded-full bg-[#ffcc00]" />
                     ) : (
                       <span className="w-3 h-3 rounded-full bg-gray-200" />
                     )}
@@ -335,17 +331,17 @@ const Unlimited = () => {
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ type: "spring", bounce: 0.3 }}
-                  className="bg-gray-900 border-2 border-[#EDC520] rounded-[2rem] p-10 shadow-2xl relative overflow-hidden"
+                  className="bg-gray-900 border-2 border-[#ffcc00] rounded-[2rem] p-10 shadow-2xl relative overflow-hidden"
                 >
                   {/* Decorative Elements */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#EDC520]/10 rounded-full blur-2xl"></div>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#ffcc00]/10 rounded-full blur-2xl"></div>
 
                   <div className="relative z-10">
                     <div className="flex gap-4 mb-6">
-                      <Cat className="w-10 h-10 text-[#EDC520]" strokeWidth={2.5} />
+                      <Cat className="w-10 h-10 text-[#ffcc00]" strokeWidth={2.5} />
                       <Dog className="w-10 h-10 text-white" strokeWidth={2.5} />
                     </div>
-                    <h3 className="font-black text-xl mb-4 text-[#EDC520] font-peace-sans">Answer:</h3>
+                    <h3 className="font-black text-xl mb-4 text-[#ffcc00] font-peace-sans">Answer:</h3>
                     <p className="text-xl text-gray-300 leading-relaxed font-medium">
                       {faqs[openFaq].a}
                     </p>
@@ -357,7 +353,7 @@ const Unlimited = () => {
                   animate={{ opacity: 1 }}
                   className="h-64 md:h-80 flex flex-col items-center justify-center text-center bg-white border-2 border-dashed border-gray-300 rounded-[2rem] p-8"
                 >
-                  <div className="mb-6 p-4 bg-[#EDC520]/10 rounded-full">
+                  <div className="mb-6 p-4 bg-[#ffcc00]/10 rounded-full">
                     <motion.div
                       animate={{ rotate: [0, 10, -10, 0] }}
                       transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
@@ -416,7 +412,7 @@ const Unlimited = () => {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="bg-[#EDC520] text-gray-900 px-6 py-2.5 rounded-full font-bold text-xs md:text-base shadow-xl hover:bg-[#FFD700] transition-all flex items-center gap-1.5 w-full justify-center"
+                      className="bg-[#ffcc00] text-gray-900 px-6 py-2.5 rounded-full font-bold text-xs md:text-base shadow-xl hover:bg-[#FFD700] transition-all flex items-center gap-1.5 w-full justify-center"
                     >
                       Start Monthly Plan <ChevronDown className="rotate-[-90deg] w-3 h-3" />
                     </motion.button>

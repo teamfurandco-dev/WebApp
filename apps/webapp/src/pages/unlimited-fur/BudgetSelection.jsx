@@ -48,7 +48,7 @@ export default function BudgetSelection() {
   };
 
   return (
-    <div className="min-h-screen bg-[#EDC520] text-gray-900 overflow-y-auto relative font-sans">
+    <div className="min-h-screen bg-[#ffcc00] text-gray-900 overflow-y-auto relative font-sans">
       <UnlimitedBackground />
 
       <div className="min-h-screen container mx-auto max-w-5xl flex flex-col items-center justify-center p-6 py-12 relative z-10">
@@ -81,7 +81,7 @@ export default function BudgetSelection() {
               <div className="text-sm font-black text-gray-500 uppercase tracking-widest mb-1">{tier.description}</div>
               <div className="text-2xl font-black text-gray-900 font-peace-sans">{tier.label}</div>
               {selectedBudget === tier.value && !showCustom && (
-                <div className="absolute -bottom-2 -translate-x-1/2 left-1/2 bg-black text-[#EDC520] rounded-full p-1 shadow-lg">
+                <div className="absolute -bottom-2 -translate-x-1/2 left-1/2 bg-black text-[#ffcc00] rounded-full p-1 shadow-lg">
                   <Check className="w-3 h-3" />
                 </div>
               )}
@@ -97,7 +97,7 @@ export default function BudgetSelection() {
               showCustom ? "bg-white border-black" : "bg-white/10 border-white/40 hover:bg-white/30 text-gray-700"
             )}
           >
-            Custom Amount {showCustom && <span className="text-[#EDC520] bg-black px-2 py-0.5 rounded ml-2">₹</span>}
+            Custom Amount {showCustom && <span className="text-[#ffcc00] bg-black px-2 py-0.5 rounded ml-2">₹</span>}
           </button>
 
           {showCustom && (

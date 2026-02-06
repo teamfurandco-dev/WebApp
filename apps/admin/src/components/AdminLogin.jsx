@@ -36,14 +36,14 @@ export default function AdminLogin({ onLogin }) {
             Sign in with your Google account to access the admin panel
           </p>
         </div>
-        
+
         <div>
           {error && (
             <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-md">
               {error}
             </div>
           )}
-          
+
           <button
             onClick={handleGoogleLogin}
             disabled={loading}

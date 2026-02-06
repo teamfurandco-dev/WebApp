@@ -6,7 +6,7 @@ import heroImage from '@/assets/hero.png';
 
 const HomeHero = () => {
   return (
-    <section className="relative w-full min-h-[calc(100vh-80px-5vh)] flex flex-col justify-center overflow-hidden bg-background">
+    <section className="relative w-full min-h-[65vh] md:min-h-[calc(100vh-80px-5vh)] flex flex-col justify-start md:justify-center overflow-hidden bg-background">
       {/* 1. Static Hero Image with Art Direction */}
       <picture className="absolute inset-0 w-full h-full">
         <source
@@ -25,7 +25,7 @@ const HomeHero = () => {
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent md:bg-gradient-to-r md:from-black/40 md:via-transparent md:to-transparent" />
 
       {/* 3. Content - Minimal & Editorial */}
-      <div className="relative z-10 w-full flex flex-col justify-center px-6 md:px-20 h-full">
+      <div className="relative z-10 w-full flex flex-col justify-start md:justify-center px-6 md:px-20 pt-20 md:pt-0 h-full">
         <div className="max-w-4xl text-center md:text-left text-white space-y-4 md:space-y-6">
           <motion.div
             initial={{ y: 30, opacity: 0 }}

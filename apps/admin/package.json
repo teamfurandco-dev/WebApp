@@ -14,6 +14,7 @@
     "@fur-co/utils": "workspace:*",
     "@supabase/supabase-js": "^2.86.2",
     "@uiw/react-md-editor": "^4.0.11",
+    "framer-motion": "^12.23.25",
     "lucide-react": "^0.460.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

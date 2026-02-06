@@ -67,7 +67,7 @@ export default function CategorySelection() {
   };
 
   return (
-    <div className="min-h-screen bg-[#EDC520] text-gray-900 overflow-y-auto relative font-sans">
+    <div className="min-h-screen bg-[#ffcc00] text-gray-900 overflow-y-auto relative font-sans">
       <UnlimitedBackground />
 
       <div className="min-h-screen container mx-auto max-w-5xl flex flex-col items-center justify-center p-6 pb-40 md:pb-6 relative z-10">
@@ -104,7 +104,7 @@ export default function CategorySelection() {
                   )}
                 >
                   {isSelected && (
-                    <div className="absolute -top-2 -right-2 bg-black text-[#EDC520] rounded-full p-2.5 shadow-lg z-20">
+                    <div className="absolute -top-2 -right-2 bg-black text-[#ffcc00] rounded-full p-2.5 shadow-lg z-20">
                       <Check className="w-4 h-4 stroke-[4]" />
                     </div>
                   )}
@@ -122,7 +122,7 @@ export default function CategorySelection() {
                     ) : (
                       <div className={cn(
                         "w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-3xl transition-colors shadow-inner",
-                        isSelected ? "bg-black text-[#EDC520]" : "bg-white/40 text-black group-hover:bg-white"
+                        isSelected ? "bg-black text-[#ffcc00]" : "bg-white/40 text-black group-hover:bg-white"
                       )}>
                         {category.icon}
                       </div>
@@ -141,7 +141,7 @@ export default function CategorySelection() {
             <div className="flex flex-wrap justify-center gap-2 mb-2">
               <p className="text-[10px] font-black uppercase text-gray-500 w-full text-center mb-1">Selected Focus:</p>
               {selectedCategories.map(cat => (
-                <span key={cat} className="bg-black text-[#EDC520] px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter">
+                <span key={cat} className="bg-black text-[#ffcc00] px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter">
                   {CATEGORIES_LIST.find(c => c.id === cat)?.name}
                 </span>
               ))}

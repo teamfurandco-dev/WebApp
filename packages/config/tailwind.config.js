@@ -64,7 +64,7 @@ export default {
         },
         furco: {
           yellow: {
-            DEFAULT: '#F8C701',
+            DEFAULT: '#ffcc00',
             light: '#FFE28A',
             hover: '#FFCA2C',
             gold: '#DFA417',

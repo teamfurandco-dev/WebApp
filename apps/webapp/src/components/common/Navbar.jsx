@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { useTheme } from '@/context/ThemeContext';
@@ -15,7 +15,9 @@ import unlimitedLogo from '@/assets/unlimted_logo.svg';
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
   const { getCartCount } = useCart();
@@ -62,8 +64,8 @@ const Navbar = () => {
         className={cn(
           "sticky top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md border-b",
           isUnlimitedMode
-            ? "bg-white/95 border-[#EDC520]/20 text-gray-900"
-            : "bg-[#F8C701]/95 border-black/10 text-gray-900",
+            ? "bg-white/95 border-[#ffcc00]/20 text-gray-900"
+            : "bg-[#ffcc00]/95 border-black/10 text-gray-900",
           isScrolled ? "py-2 shadow-sm" : "py-4"
         )}
       >
@@ -75,7 +77,7 @@ const Navbar = () => {
               <img
                 src={isUnlimitedMode ? unlimitedLogo : logoSvg}
                 alt="Fur & Co"
-                className="h-8 md:h-10 w-auto transition-transform duration-300 group-hover:scale-105"
+                className="h-10 md:h-14 w-auto transition-transform duration-300 group-hover:scale-105"
               />
             </div>
           </Link>
@@ -86,7 +88,7 @@ const Navbar = () => {
               className="w-full relative group"
               onClick={() => setIsSearchOpen(true)}
             >
-              <div className="flex items-center w-full h-12 rounded-full border border-black/10 bg-white/90 px-4 hover:border-[#EDC520] transition-colors cursor-text">
+              <div className="flex items-center w-full h-12 rounded-full border border-black/10 bg-white/90 px-4 hover:border-[#ffcc00] transition-colors cursor-text">
                 <Search className="h-5 w-5 text-gray-400 mr-3" />
                 <span className="text-gray-400 text-sm font-medium truncate">Search for science-backed essentials...</span>
               </div>
@@ -112,8 +114,8 @@ const Navbar = () => {
                       isActive
                         ? (isUnlimitedMode ? "text-black" : "text-white")
                         : (isUnlimitedMode ? "text-white/70 hover:text-white" : "text-gray-800 hover:text-black"),
-                      link.name === 'Unlimited' && !isActive ? "text-[#D4AF37] font-bold underline decoration-black decoration-2 underline-offset-4" : "",
-                      link.name === 'Unlimited' && isActive ? "font-bold underline decoration-black decoration-2 underline-offset-4" : ""
+                      link.name === 'Unlimited' && !isActive ? "text-[#B8860B] font-bold" : "",
+                      link.name === 'Unlimited' && isActive ? "font-bold" : ""
                     )}
                   >
                     {isActive && (
@@ -121,7 +123,7 @@ const Navbar = () => {
                         layoutId="nav-capsule"
                         className={cn(
                           "absolute inset-0 rounded-full z-0",
-                          isUnlimitedMode ? "bg-[#D4AF37]" : "bg-black"
+                          isUnlimitedMode ? "bg-[#B8860B]" : "bg-black"
                         )}
                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                       />
@@ -211,26 +213,47 @@ const Navbar = () => {
               className="w-full max-w-2xl bg-background rounded-2xl shadow-2xl overflow-hidden border border-border"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-4 md:p-6 flex items-center gap-4 border-b border-border">
-                <Search className="w-5 h-5 md:w-6 md:h-6 text-furco-yellow" />
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (searchQuery.trim()) {
+                    navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+                    setIsSearchOpen(false);
+                    setSearchQuery('');
+                  }
+                }}
+                className="p-4 md:p-6 flex items-center gap-4 border-b border-border"
+              >
+                <Search className="w-5 h-5 md:w-6 md:h-6 text-[#ffcc00]" />
                 <input
                   type="text"
                   placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="flex-1 bg-transparent border-none text-lg md:text-xl text-foreground placeholder:text-muted-foreground focus:ring-0 focus:outline-none font-serif"
                   autoFocus
                 />
                 <button
+                  type="button"
                   onClick={() => setIsSearchOpen(false)}
                   className="p-2 hover:bg-muted rounded-full transition-colors"
                 >
                   <X className="w-5 h-5 text-muted-foreground" />
                 </button>
-              </div>
+              </form>
               <div className="p-6 bg-muted/30">
                 <p className="text-sm text-muted-foreground mb-3 uppercase tracking-wider font-medium">Popular Searches</p>
                 <div className="flex flex-wrap gap-2">
                   {['Dog Food', 'Cat Toys', 'Grooming Kit', 'Organic Treats'].map((tag) => (
-                    <button key={tag} className="px-4 py-2 rounded-full bg-card border border-border text-sm hover:border-furco-yellow hover:text-furco-yellow transition-colors text-foreground">
+                    <button
+                      key={tag}
+                      onClick={() => {
+                        navigate(`/products?search=${encodeURIComponent(tag)}`);
+                        setIsSearchOpen(false);
+                        setSearchQuery('');
+                      }}
+                      className="px-4 py-2 rounded-full bg-card border border-border text-sm hover:border-[#ffcc00] hover:text-[#ffcc00] transition-colors text-foreground"
+                    >
                       {tag}
                     </button>
                   ))}
@@ -271,13 +294,13 @@ const Navbar = () => {
                       {isActive && (
                         <motion.div
                           layoutId="mobile-nav-indicator"
-                          className="w-2 h-2 rounded-full bg-[#D4AF37]"
+                          className="w-2 h-2 rounded-full bg-[#B8860B]"
                           transition={{ type: "spring", stiffness: 300, damping: 30 }}
                         />
                       )}
                       <span className={cn(
                         "text-2xl font-bold tracking-tight",
-                        link.name === 'Unlimited' ? "text-[#D4AF37] font-black underline decoration-black decoration-2 underline-offset-4" : ""
+                        link.name === 'Unlimited' ? "text-[#B8860B] font-black" : ""
                       )}>
                         {link.name}
                       </span>
@@ -286,7 +309,7 @@ const Navbar = () => {
                       <motion.span
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="text-xs font-bold uppercase tracking-widest text-[#D4AF37]"
+                        className="text-xs font-bold uppercase tracking-widest text-[#B8860B]"
                       >
                         Active
                       </motion.span>

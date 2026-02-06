@@ -108,9 +108,9 @@ const About = () => {
 
                             <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif text-white leading-[1.1] tracking-tight drop-shadow-sm">
                                 Where Love <br />
-                                <span className="italic relative inline-block text-white">
+                                <span className="italic relative inline-block text-furco-gold">
                                     Meets Care
-                                    <svg className="absolute -bottom-2 left-0 w-full h-2 text-white/30" viewBox="0 0 100 10" preserveAspectRatio="none">
+                                    <svg className="absolute -bottom-2 left-0 w-full h-2 text-furco-gold/30" viewBox="0 0 100 10" preserveAspectRatio="none">
                                         <path d="M0 5 Q 25 0, 50 5 T 100 5" fill="none" stroke="currentColor" strokeWidth="2" />
                                     </svg>
                                 </span>
@@ -128,7 +128,7 @@ const About = () => {
                             <div className="flex items-center justify-center mt-8">
                                 <Button
                                     onClick={() => navigate('/products')}
-                                    className="h-14 px-12 bg-black text-white hover:bg-furco-gold hover:text-black rounded-full text-base font-medium transition-all duration-700 shadow-2xl group border border-white/10"
+                                    className="h-14 px-12 bg-black text-white hover:bg-[#ffcc00] hover:text-black rounded-full text-base font-medium transition-all duration-300 shadow-2xl group border border-white/10"
                                 >
                                     Explore Collection
                                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -363,6 +363,7 @@ const About = () => {
                         {/* Visual Side - Framed Experience */}
                         <div className="relative group order-2 lg:order-1">
                             <Reveal>
+
                                 <div className="relative aspect-square md:aspect-[4/3] rounded-[3rem] overflow-hidden shadow-2xl">
                                     <motion.img
                                         initial={{ scale: 1.1 }}
@@ -513,7 +514,7 @@ const About = () => {
                         <div className="relative z-10 pt-2">
                             <Button
                                 onClick={() => navigate('/products')}
-                                className="h-14 px-10 bg-white text-black hover:bg-furco-gold hover:text-black rounded-full text-base font-bold transition-all duration-500 shadow-xl shadow-white/10"
+                                className="h-14 px-10 bg-white text-black hover:bg-[#ffcc00] hover:text-black rounded-full text-base font-bold transition-all duration-300 shadow-xl shadow-white/10"
                             >
                                 Start Shopping
                             </Button>

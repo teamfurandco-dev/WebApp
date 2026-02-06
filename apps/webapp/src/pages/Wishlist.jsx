@@ -105,8 +105,8 @@ const EmptyWishlist = () => (
     animate={{ opacity: 1, y: 0 }}
     className="text-center py-16 bg-white rounded-2xl border border-black/5"
   >
-    <div className="w-20 h-20 mx-auto mb-6 bg-red-50 rounded-full flex items-center justify-center">
-      <Heart className="w-10 h-10 text-red-300" />
+    <div className="w-20 h-20 mx-auto mb-6 bg-red-50/80 rounded-full flex items-center justify-center text-red-400">
+      <Heart className="w-10 h-10" strokeWidth={2.5} />
     </div>
     <h2 className="text-2xl font-serif font-bold mb-3 text-black">Your wishlist is empty</h2>
     <p className="text-muted-foreground mb-6 max-w-md mx-auto">
@@ -222,8 +222,8 @@ const Wishlist = () => {
     return (
       <div className="container py-12 min-h-screen bg-[#FDFBF7]">
         <div className="text-center py-16 bg-white rounded-2xl border border-red-200">
-          <div className="w-16 h-16 mx-auto mb-4 bg-red-50 rounded-full flex items-center justify-center">
-            <Heart className="w-8 h-8 text-red-400" />
+          <div className="w-16 h-16 mx-auto mb-4 bg-red-50/80 rounded-full flex items-center justify-center text-red-400">
+            <Heart className="w-8 h-8" strokeWidth={2.5} />
           </div>
           <h2 className="text-xl font-semibold mb-2 text-red-600">Something went wrong</h2>
           <p className="text-muted-foreground mb-4">{error}</p>
@@ -246,8 +246,8 @@ const Wishlist = () => {
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center gap-4 mb-8"
       >
-        <div className="p-3 bg-red-100 rounded-full text-red-500">
-          <Heart className="w-6 h-6 fill-current" />
+        <div className="p-3 md:p-4 bg-red-50/80 rounded-full text-red-400">
+          <Heart className="w-6 h-6 md:w-8 md:h-8" strokeWidth={2.5} />
         </div>
         <div>
           <h1 className="text-4xl font-serif font-bold text-black">My Wishlist</h1>

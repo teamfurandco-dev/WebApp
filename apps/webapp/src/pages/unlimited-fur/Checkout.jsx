@@ -77,7 +77,7 @@ export default function Checkout() {
   };
 
   return (
-    <div className="min-h-screen bg-[#EDC520] text-gray-900 py-20 px-8 relative overflow-hidden font-sans selection:bg-black/10 selection:text-black">
+    <div className="min-h-screen bg-[#ffcc00] text-gray-900 py-20 px-8 relative overflow-hidden font-sans selection:bg-black/10 selection:text-black">
       <UnlimitedBackground />
       <div className="container mx-auto max-w-4xl relative z-10">
         <h1 className="text-4xl font-serif font-black mb-4 text-gray-900 text-center font-peace-sans">Checkout</h1>
@@ -88,7 +88,7 @@ export default function Checkout() {
           <div className="bg-white/40 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/60 shadow-xl">
             <h2 className="text-xl font-black mb-6 flex items-center gap-3 text-gray-900 font-peace-sans">
               <div className="p-2 bg-black rounded-lg">
-                <Check className="w-5 h-5 text-[#EDC520]" />
+                <Check className="w-5 h-5 text-[#ffcc00]" />
               </div>
               Order Summary
             </h2>
@@ -108,7 +108,7 @@ export default function Checkout() {
                 <span className="font-black text-black">₹{(total / 100).toFixed(2)}</span>
               </div>
               {mode === 'monthly' && (
-                <div className="bg-black text-[#EDC520] font-black rounded-xl p-4 text-xs uppercase tracking-wider text-center">
+                <div className="bg-black text-[#ffcc00] font-black rounded-xl p-4 text-xs uppercase tracking-wider text-center">
                   This amount will be charged monthly on day {billingCycleDay} of each month
                 </div>
               )}
@@ -119,7 +119,7 @@ export default function Checkout() {
           <div className="bg-white/40 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/60 shadow-xl">
             <h2 className="text-xl font-black mb-6 flex items-center gap-3 text-gray-900 font-peace-sans">
               <div className="p-2 bg-black rounded-lg">
-                <MapPin className="w-5 h-5 text-[#EDC520]" />
+                <MapPin className="w-5 h-5 text-[#ffcc00]" />
               </div>
               Delivery Address
             </h2>
@@ -153,7 +153,7 @@ export default function Checkout() {
             <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
               <h2 className="text-xl font-black mb-6 flex items-center gap-3 text-gray-900 font-peace-sans">
                 <div className="p-2 bg-black rounded-lg">
-                  <Calendar className="w-5 h-5 text-[#EDC520]" />
+                  <Calendar className="w-5 h-5 text-[#ffcc00]" />
                 </div>
                 Billing Cycle Day
               </h2>
@@ -173,7 +173,7 @@ export default function Checkout() {
           <div className="bg-white/40 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/60 shadow-xl">
             <h2 className="text-xl font-black mb-6 flex items-center gap-3 text-gray-900">
               <div className="p-2 bg-black rounded-lg">
-                <CreditCard className="w-5 h-5 text-[#EDC520]" />
+                <CreditCard className="w-5 h-5 text-[#ffcc00]" />
               </div>
               Payment Method
             </h2>

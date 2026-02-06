@@ -16,9 +16,9 @@ const Newsletter = () => {
                     <Input
                         type="email"
                         placeholder="Your email address"
-                        className="bg-white border-black/10 h-12 rounded-full px-6 focus:border-black transition-colors"
+                        className="bg-black text-white placeholder:text-white/50 border-white/10 h-12 rounded-full px-6 focus:border-white transition-colors"
                     />
-                    <Button type="submit" className="bg-black text-white hover:bg-furco-gold hover:text-black rounded-full px-8 h-12 transition-colors font-medium">
+                    <Button type="submit" className="bg-[#ffcc00] text-black hover:bg-black hover:text-[#ffcc00] rounded-full px-8 h-12 transition-colors font-medium">
                         Subscribe
                     </Button>
                 </form>

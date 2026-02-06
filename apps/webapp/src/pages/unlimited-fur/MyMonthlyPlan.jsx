@@ -62,7 +62,7 @@ export default function MyMonthlyPlan() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#EDC520] flex items-center justify-center relative overflow-hidden">
+      <div className="min-h-screen bg-[#ffcc00] flex items-center justify-center relative overflow-hidden">
         <UnlimitedBackground />
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black relative z-10" />
       </div>
@@ -71,7 +71,7 @@ export default function MyMonthlyPlan() {
 
   if (!plan) {
     return (
-      <div className="min-h-screen bg-[#EDC520] text-gray-900 py-20 px-8 relative overflow-hidden font-sans">
+      <div className="min-h-screen bg-[#ffcc00] text-gray-900 py-20 px-8 relative overflow-hidden font-sans">
         <UnlimitedBackground />
         <div className="container mx-auto max-w-2xl text-center relative z-10">
           <h1 className="text-4xl font-black mb-4 font-peace-sans">No Active Plan</h1>
@@ -94,7 +94,7 @@ export default function MyMonthlyPlan() {
   });
 
   return (
-    <div className="min-h-screen bg-[#EDC520] text-gray-900 py-20 px-8 relative overflow-hidden font-sans selection:bg-black/10 selection:text-black">
+    <div className="min-h-screen bg-[#ffcc00] text-gray-900 py-20 px-8 relative overflow-hidden font-sans selection:bg-black/10 selection:text-black">
       <UnlimitedBackground />
       <div className="container mx-auto max-w-4xl relative z-10">
         <motion.div
@@ -139,7 +139,7 @@ export default function MyMonthlyPlan() {
                 <div className="text-xs uppercase font-black text-gray-500 mb-1">Categories</div>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {plan.selectedCategories.map(cat => (
-                    <span key={cat} className="bg-black text-[#EDC520] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    <span key={cat} className="bg-black text-[#ffcc00] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
                       {cat}
                     </span>
                   ))}
@@ -151,7 +151,7 @@ export default function MyMonthlyPlan() {
           <div className="bg-white/40 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/60 shadow-xl">
             <h2 className="text-xl font-black mb-6 flex items-center gap-3 text-gray-900 font-peace-sans">
               <div className="p-2 bg-black rounded-lg">
-                <Package className="w-5 h-5 text-[#EDC520]" />
+                <Package className="w-5 h-5 text-[#ffcc00]" />
               </div>
               Selected Products ({plan.products?.length || 0})
             </h2>

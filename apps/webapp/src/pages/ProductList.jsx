@@ -16,6 +16,7 @@ const ProductList = () => {
   // Sync state with URL params
   const category = searchParams.get('category') || 'All';
   const sort = searchParams.get('sort') || 'featured';
+  const search = searchParams.get('search') || '';
   const currentPage = parseInt(searchParams.get('page') || '1');
 
   const [exploreData, setExploreData] = useState(null);
@@ -34,6 +35,7 @@ const ProductList = () => {
         const data = await api.getProductsExplore({
           category: category === 'All' ? null : category,
           sort,
+          search,
           page: currentPage,
           limit: 20
         });
@@ -46,7 +48,7 @@ const ProductList = () => {
     };
 
     loadData();
-  }, [category, sort, currentPage]);
+  }, [category, sort, currentPage, search]);
 
   const products = exploreData?.products || [];
   const categories = exploreData?.categories || [];
@@ -86,7 +88,7 @@ const ProductList = () => {
       {/* Paw Trail Scroll Indicator */}
       <div className="fixed right-4 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-8 opacity-20 pointer-events-none z-0">
         {[1, 2, 3, 4, 5].map((i) => (
-          <PawPrint key={i} className="w-6 h-6 text-furco-yellow rotate-12" />
+          <PawPrint key={i} className="w-6 h-6 text-[#ffcc00] rotate-12" />
         ))}
       </div>
 
@@ -108,7 +110,7 @@ const ProductList = () => {
             <div className="flex flex-col gap-6 mb-12">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <h1 className="text-3xl md:text-5xl font-serif font-bold text-black leading-[1.1]">
-                  {category === 'All' ? 'All Products' : category}
+                  {search ? `Results for "${search}"` : (category === 'All' ? 'All Products' : category)}
                 </h1>
 
                 <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -156,7 +158,7 @@ const ProductList = () => {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-furco-yellow text-black text-sm font-bold shadow-sm"
+                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#ffcc00] text-black text-sm font-bold shadow-sm"
                   >
                     {category}
                     <button onClick={() => handleCategoryChange('All')} className="hover:bg-black/10 rounded-full p-0.5 transition-colors">
@@ -165,7 +167,7 @@ const ProductList = () => {
                   </motion.div>
                   <Button
                     variant="link"
-                    className="text-muted-foreground hover:text-furco-gold h-auto p-0 text-sm"
+                    className="text-muted-foreground hover:text-[#ffcc00] h-auto p-0 text-sm"
                     onClick={() => handleCategoryChange('All')}
                   >
                     Clear all
@@ -181,10 +183,10 @@ const ProductList = () => {
                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                   className="relative w-24 h-24"
                 >
-                  <PawPrint className="w-8 h-8 text-furco-yellow absolute top-0 left-1/2 -translate-x-1/2" />
-                  <PawPrint className="w-8 h-8 text-furco-yellow absolute bottom-0 left-1/2 -translate-x-1/2 rotate-180" />
-                  <PawPrint className="w-8 h-8 text-furco-yellow absolute left-0 top-1/2 -translate-y-1/2 -rotate-90" />
-                  <PawPrint className="w-8 h-8 text-furco-yellow absolute right-0 top-1/2 -translate-y-1/2 rotate-90" />
+                  <PawPrint className="w-8 h-8 text-[#ffcc00] absolute top-0 left-1/2 -translate-x-1/2" />
+                  <PawPrint className="w-8 h-8 text-[#ffcc00] absolute bottom-0 left-1/2 -translate-x-1/2 rotate-180" />
+                  <PawPrint className="w-8 h-8 text-[#ffcc00] absolute left-0 top-1/2 -translate-y-1/2 -rotate-90" />
+                  <PawPrint className="w-8 h-8 text-[#ffcc00] absolute right-0 top-1/2 -translate-y-1/2 rotate-90" />
                 </motion.div>
                 <p className="mt-6 text-lg font-serif text-black/60 animate-pulse">Sniffing out products...</p>
               </div>
@@ -206,8 +208,8 @@ const ProductList = () => {
                         key={page}
                         onClick={() => handlePageChange(page)}
                         className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-all duration-300 ${currentPage === page
-                          ? 'bg-furco-yellow text-black shadow-md scale-110'
-                          : 'bg-white border border-black/10 text-black hover:border-furco-yellow hover:text-furco-yellow'
+                          ? 'bg-[#ffcc00] text-black shadow-md scale-110'
+                          : 'bg-white border border-black/10 text-black hover:border-[#ffcc00] hover:text-[#ffcc00]'
                           }`}
                       >
                         {page}
@@ -222,8 +224,8 @@ const ProductList = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 className="flex flex-col items-center justify-center py-20 px-6 bg-white rounded-[3rem] border border-black/5 shadow-xl text-center"
               >
-                <div className="w-24 h-24 bg-furco-yellow/10 rounded-full flex items-center justify-center mb-8">
-                  <PawPrint className="w-12 h-12 text-furco-yellow" />
+                <div className="w-24 h-24 bg-[#ffcc00]/10 rounded-full flex items-center justify-center mb-8">
+                  <PawPrint className="w-12 h-12 text-[#ffcc00]" />
                 </div>
                 <h3 className="text-3xl font-serif font-bold text-black mb-4">No treats here!</h3>
                 <p className="text-black/50 text-base md:text-lg mb-10 max-w-md">
@@ -232,7 +234,7 @@ const ProductList = () => {
                 <Button
                   onClick={() => handleCategoryChange('All')}
                   size="lg"
-                  className="bg-furco-yellow text-black hover:bg-black hover:text-white rounded-full px-12 h-12 font-bold shadow-lg transition-all duration-300"
+                  className="bg-[#ffcc00] text-black hover:bg-black hover:text-white rounded-full px-12 h-12 font-bold shadow-lg transition-all duration-300"
                 >
                   Clear Filters
                 </Button>

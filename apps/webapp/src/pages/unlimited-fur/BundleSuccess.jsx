@@ -14,7 +14,7 @@ export default function BundleSuccess() {
   }, [switchMode]);
 
   return (
-    <div className="min-h-screen bg-[#EDC520] flex items-center justify-center p-4 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#ffcc00] flex items-center justify-center p-4 relative overflow-hidden font-sans">
       <UnlimitedBackground />
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}

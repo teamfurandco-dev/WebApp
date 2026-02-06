@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import logoSvg from '@/assets/logo.svg';
 import { cn } from '@fur-co/utils';
-import { Facebook, Instagram, Twitter } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Mail } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -13,8 +13,8 @@ const Footer = () => {
     <footer className={cn(
       "border-t pt-20 pb-8 mt-auto relative overflow-hidden transition-colors duration-300",
       isUnlimitedMode
-        ? "bg-white text-gray-900 border-[#EDC520]/20"
-        : "bg-[#F8C701] text-gray-900 border-black/10"
+        ? "bg-white text-gray-900 border-[#ffcc00]/20"
+        : "bg-[#ffcc00] text-gray-900 border-black/10"
     )}>
 
       {/* Pet Theme Separator */}
@@ -28,17 +28,24 @@ const Footer = () => {
 
           {/* Brand Column */}
           <div className="md:col-span-1 space-y-6">
-            <img src={logoSvg} alt="Fur & Co" className="h-8 md:h-10 w-auto" />
+            <img src={logoSvg} alt="Fur & Co" className="h-12 md:h-16 w-auto" />
             <p className={cn("text-sm leading-relaxed max-w-xs", isUnlimitedMode ? "text-gray-900" : "text-gray-600")}>
               Providing science-backed care and premium essentials for the furry family members who deserve the world.
             </p>
             <div className="flex gap-4">
-              {[Facebook, Instagram, Twitter].map((Icon, i) => (
-                <a key={i} href="#" className={cn(
+              {[
+                { Icon: Facebook, href: '#' },
+                { Icon: Instagram, href: '#' },
+                { Icon: Linkedin, href: '#' },
+                { Icon: Mail, href: 'mailto:hello@furco.com' }
+              ].map(({ Icon, href }, i) => (
+                <a key={i} href={href} className={cn(
                   "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300",
-                  isUnlimitedMode ? "bg-gray-100 text-gray-600 hover:bg-[#EDC520] hover:text-gray-900" : "bg-black/5 text-gray-800 hover:bg-black hover:text-[#EDC520]"
+                  isUnlimitedMode
+                    ? "bg-[#ffcc00] text-black hover:bg-black hover:text-[#ffcc00]"
+                    : "bg-black text-[#ffcc00] hover:bg-white hover:text-black"
                 )}>
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-5 w-5" strokeWidth={2.5} />
                 </a>
               ))}
             </div>
@@ -46,7 +53,7 @@ const Footer = () => {
 
           {/* Links Column 1 */}
           <div>
-            <h4 className={cn("font-black mb-6 uppercase text-sm tracking-wider font-peace-sans", isUnlimitedMode ? "text-[#EDC520]" : "text-black")}>Shop</h4>
+            <h4 className={cn("font-black mb-6 uppercase text-sm tracking-wider font-peace-sans", isUnlimitedMode ? "text-[#ffcc00]" : "text-black")}>Shop</h4>
             <ul className={cn("space-y-4 text-sm", isUnlimitedMode ? "text-gray-900 font-medium" : "text-gray-600")}>
               {['Food & Treats', 'Toys & Accessories', 'Grooming', 'Health & Wellness'].map((item) => (
                 <li key={item}><Link to={`/products?category=${item.toLowerCase()}`} className="hover:text-black transition-colors flex items-center gap-2">{item}</Link></li>
@@ -56,7 +63,7 @@ const Footer = () => {
 
           {/* Links Column 2 */}
           <div>
-            <h4 className={cn("font-black mb-6 uppercase text-sm tracking-wider font-peace-sans", isUnlimitedMode ? "text-[#EDC520]" : "text-black")}>Company</h4>
+            <h4 className={cn("font-black mb-6 uppercase text-sm tracking-wider font-peace-sans", isUnlimitedMode ? "text-[#ffcc00]" : "text-black")}>Company</h4>
             <ul className={cn("space-y-4 text-sm", isUnlimitedMode ? "text-gray-900 font-medium" : "text-gray-600")}>
               {[
                 { name: 'About Us', path: '/about' },
@@ -75,20 +82,27 @@ const Footer = () => {
 
           {/* Newsletter Column */}
           <div>
-            <h4 className={cn("font-black mb-6 uppercase text-sm tracking-wider font-peace-sans", isUnlimitedMode ? "text-[#EDC520]" : "text-black")}>Stay Connected</h4>
+            <h4 className={cn("font-black mb-6 uppercase text-sm tracking-wider font-peace-sans", isUnlimitedMode ? "text-[#ffcc00]" : "text-black")}>Stay Connected</h4>
             <p className={cn("text-sm mb-4", isUnlimitedMode ? "text-gray-900 font-medium" : "text-gray-600")}>Join our newsletter for exclusive offers and pet care tips.</p>
             <div className={cn(
-              "flex rounded-full p-1 border focus-within:border-black/50 transition-colors",
-              isUnlimitedMode ? "bg-gray-50 border-gray-200" : "bg-white/40 border-white/40"
+              "flex rounded-full p-1 border transition-all duration-300",
+              isUnlimitedMode
+                ? "bg-[#ffcc00] border-black/10 shadow-sm"
+                : "bg-black border-white/10 focus-within:border-white/30"
             )}>
               <input
                 type="email"
                 placeholder="Enter email"
-                className="bg-transparent border-none text-gray-900 text-sm px-4 py-2 w-full focus:ring-0 placeholder:text-gray-500"
+                className={cn(
+                  "bg-transparent border-none text-sm px-4 py-2 w-full focus:ring-0 focus:outline-none outline-none",
+                  isUnlimitedMode ? "text-black placeholder:text-black/50" : "text-white placeholder:text-white/50"
+                )}
               />
               <button className={cn(
-                "px-4 py-2 rounded-full font-bold text-xs transition-colors",
-                isUnlimitedMode ? "bg-[#EDC520] text-gray-900 hover:bg-black hover:text-white" : "bg-black text-[#EDC520] hover:bg-white hover:text-black"
+                "px-8 py-2 rounded-full font-bold text-xs transition-all duration-300 shadow-sm",
+                isUnlimitedMode
+                  ? "bg-black text-[#ffcc00] hover:bg-white hover:text-black"
+                  : "bg-[#ffcc00] text-black hover:bg-white hover:text-black"
               )}>
                 Join
               </button>

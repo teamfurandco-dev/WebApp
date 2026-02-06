@@ -29,7 +29,7 @@ export const WalletDisplay = ({ wallet }) => {
     >
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center shadow-md">
-          <Wallet className="w-5 h-5 text-[#EDC520]" />
+          <Wallet className="w-5 h-5 text-[#ffcc00]" />
         </div>
         <div>
           <h3 className="text-sm font-black text-gray-900 leading-tight font-peace-sans uppercase tracking-tighter">Your Wallet</h3>

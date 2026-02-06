@@ -54,7 +54,7 @@ const StoryReuse = () => {
                                 <h4 className="text-xl md:text-2xl font-serif font-medium mb-2">Enrichment Play Rope</h4>
                                 <p className="text-black/60 mb-4 text-sm">Mental stimulation for indoor days. Keeps them busy, saves your furniture.</p>
                                 <div className="flex items-center gap-2 text-sm font-medium border-b border-black/10 group-hover:border-black transition-all items-start self-start inline-block">
-                                    Read More
+                                    Shop Now
                                 </div>
                             </div>
                         </Link>
@@ -69,7 +69,7 @@ const StoryReuse = () => {
                                 <h4 className="text-xl md:text-2xl font-serif font-medium mb-2">Orthopedic Rest</h4>
                                 <p className="text-black/60 mb-4 text-sm">Supportive memory foam that relieves joint pressure. Because they deserve the best sleep.</p>
                                 <div className="flex items-center gap-2 text-sm font-medium border-b border-black/10 group-hover:border-black transition-all items-start self-start inline-block">
-                                    Read More
+                                    Shop Now
                                 </div>
                             </div>
                         </Link>

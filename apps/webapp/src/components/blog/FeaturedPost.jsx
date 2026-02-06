@@ -51,7 +51,7 @@ const FeaturedPost = ({ post }) => {
                     </div>
 
                     <div className="mt-6 md:mt-8">
-                        <Button className="bg-black text-white hover:bg-furco-gold hover:text-black rounded-full px-8 transition-colors">
+                        <Button className="bg-black text-white hover:bg-[#ffcc00] hover:text-black rounded-full px-8 transition-colors">
                             Read Story <ArrowRight className="ml-2 w-4 h-4" />
                         </Button>
                     </div>

@@ -28,7 +28,7 @@ export default function Shopping() {
   };
 
   return (
-    <div className="min-h-screen bg-[#EDC520] text-gray-900 relative overflow-x-hidden font-sans selection:bg-black/10 selection:text-black">
+    <div className="min-h-screen bg-[#ffcc00] text-gray-900 relative overflow-x-hidden font-sans selection:bg-black/10 selection:text-black">
       <UnlimitedBackground />
 
       <div className="container mx-auto max-w-7xl px-4 md:px-6 py-6 lg:py-10 relative z-10">
@@ -43,7 +43,7 @@ export default function Shopping() {
               Unlimited Shop
             </h1>
             <p className="text-gray-800 font-bold text-sm">
-              Curate your pet's routine within <span className="bg-black text-[#EDC520] px-1.5 py-0.5 rounded ml-1 uppercase text-xs">₹{((wallet.monthlyBudget || 0) / 100).toFixed(0)}</span>
+              Curate your pet's routine within <span className="bg-black text-[#ffcc00] px-1.5 py-0.5 rounded ml-1 uppercase text-xs">₹{((wallet.monthlyBudget || 0) / 100).toFixed(0)}</span>
             </p>
           </motion.div>
 
@@ -77,7 +77,7 @@ export default function Shopping() {
                     key={category}
                     className={cn(
                       "px-6 py-2.5 rounded-xl transition-all text-xs font-black uppercase tracking-wider",
-                      idx === 0 ? "bg-black text-[#EDC520] shadow-md" : "text-gray-700 hover:bg-white/30"
+                      idx === 0 ? "bg-black text-[#ffcc00] shadow-md" : "text-gray-700 hover:bg-white/30"
                     )}
                   >
                     {category}
@@ -109,7 +109,7 @@ export default function Shopping() {
               <div className="relative z-10 flex flex-col gap-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-[#EDC520] text-[10px] font-black uppercase tracking-widest opacity-80">Total Value</p>
+                    <p className="text-[#ffcc00] text-[10px] font-black uppercase tracking-widest opacity-80">Total Value</p>
                     <h2 className="text-3xl font-black font-peace-sans text-white leading-none tracking-tighter">
                       ₹{(wallet.spent / 100).toFixed(0)}
                     </h2>
@@ -117,7 +117,7 @@ export default function Shopping() {
                   <div className="text-right">
                     <p className="text-gray-400 text-[10px] font-black uppercase">{selectedProducts.length} Items</p>
                     {mode === 'bundle' && selectedProducts.length >= 3 && (
-                      <span className="text-[#EDC520] text-[9px] font-black uppercase tracking-tighter">15% Discount Active</span>
+                      <span className="text-[#ffcc00] text-[9px] font-black uppercase tracking-tighter">15% Discount Active</span>
                     )}
                   </div>
                 </div>
@@ -125,12 +125,12 @@ export default function Shopping() {
                 <Button
                   onClick={handleCheckout}
                   disabled={selectedProducts.length === 0}
-                  className="w-full bg-[#EDC520] hover:bg-white text-gray-900 h-14 rounded-xl text-lg font-black shadow-lg transition-all active:scale-95 disabled:opacity-30 flex items-center justify-center gap-3"
+                  className="w-full bg-[#ffcc00] hover:bg-white text-gray-900 h-14 rounded-xl text-lg font-black shadow-lg transition-all active:scale-95 disabled:opacity-30 flex items-center justify-center gap-3"
                 >
                   Complete Selection <ArrowRight className="w-5 h-5" />
                 </Button>
               </div>
-              <div className="absolute top-0 right-0 w-24 h-24 bg-[#EDC520]/5 rounded-full blur-3xl"></div>
+              <div className="absolute top-0 right-0 w-24 h-24 bg-[#ffcc00]/5 rounded-full blur-3xl"></div>
             </motion.div>
 
             {/* Wallet Panel */}
@@ -155,12 +155,12 @@ export default function Shopping() {
             >
               <Button
                 onClick={handleCheckout}
-                className="w-full bg-black text-[#EDC520] h-16 rounded-2xl text-base font-black shadow-2xl flex justify-between px-6 border border-white/10 active:scale-95 transition-all"
+                className="w-full bg-black text-[#ffcc00] h-16 rounded-2xl text-base font-black shadow-2xl flex justify-between px-6 border border-white/10 active:scale-95 transition-all"
               >
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <ShoppingBag className="w-5 h-5" />
-                    <span className="absolute -top-2 -right-2 bg-[#EDC520] text-black text-[8px] w-4 h-4 rounded-full flex items-center justify-center border font-black">{selectedProducts.length}</span>
+                    <span className="absolute -top-2 -right-2 bg-[#ffcc00] text-black text-[8px] w-4 h-4 rounded-full flex items-center justify-center border font-black">{selectedProducts.length}</span>
                   </div>
                   <span className="font-peace-sans uppercase tracking-tight">Checkout</span>
                 </div>

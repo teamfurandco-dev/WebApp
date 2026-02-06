@@ -25,7 +25,7 @@ const ProductInset = ({ product }) => {
                     <p className="text-black/60 mb-6 leading-relaxed text-sm">
                         {product.description}
                     </p>
-                    <Link to={product.link} className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white rounded-full text-sm font-medium hover:bg-furco-gold hover:text-black transition-colors self-start">
+                    <Link to={product.link} className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white rounded-full text-sm font-medium hover:bg-[#ffcc00] hover:text-black transition-colors self-start">
                         Shop Now <ArrowRight className="w-4 h-4" />
                     </Link>
                 </div>
