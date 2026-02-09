@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -177,7 +177,17 @@
   }
 
   body {
-    @apply bg-background text-foreground transition-colors duration-500 ease-in-out;
+    @apply bg-background text-foreground transition-colors duration-500 ease-in-out font-sans;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Peace Sans', sans-serif;
   }
 
   html,
@@ -187,6 +197,7 @@
     min-height: 100vh;
   }
 }
+
 /* Hide scrollbar for navigation */
 .hide-scrollbar {
   -ms-overflow-style: none;
@@ -202,15 +213,15 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Poppins Font Classes for Logo and Headings */
+/* Peace Sans Font Classes */
 .font-peace-sans {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Peace Sans', sans-serif;
 }
 
 .logo-font {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Peace Sans', sans-serif;
 }
 
 .heading-font {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Peace Sans', sans-serif;
 }

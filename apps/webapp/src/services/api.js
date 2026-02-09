@@ -192,10 +192,13 @@ export const api = {
    * Add item to cart
    */
   addToCart: async (productId, variantId, quantity = 1) => {
+    if (!variantId) {
+      throw new Error('Product variant ID is required');
+    }
     try {
       return await apiRequest('/api/cart', {
         method: 'POST',
-        body: { productId, variantId, quantity }
+        body: { variantId, quantity }
       });
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -209,9 +212,9 @@ export const api = {
    */
   updateCartItem: async (itemId, quantity) => {
     try {
-      return await apiRequest('/api/cart', {
+      return await apiRequest(`/api/cart/${itemId}`, {
         method: 'PATCH',
-        body: { itemId, quantity }
+        body: { quantity }
       });
     } catch (error) {
       console.error('Error updating cart item:', error);
@@ -225,9 +228,8 @@ export const api = {
    */
   removeFromCart: async (itemId) => {
     try {
-      return await apiRequest('/api/cart', {
-        method: 'DELETE',
-        body: { itemId }
+      return await apiRequest(`/api/cart/${itemId}`, {
+        method: 'DELETE'
       });
     } catch (error) {
       console.error('Error removing from cart:', error);
@@ -249,6 +251,19 @@ export const api = {
   },
 
   // ===== WISHLIST API =====
+  /**
+   * GET /api/wishlist/full
+   * Fetch user's wishlist with full product details and variants
+   */
+  getWishlistFull: async () => {
+    try {
+      return await apiRequest('/api/wishlist/full');
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+      return [];
+    }
+  },
+
   /**
    * GET /api/wishlist
    * Fetch user's wishlist
@@ -457,6 +472,24 @@ export const api = {
   },
 
   // ===== USERS API =====
+  /**
+   * GET /api/profile/dashboard
+   * Get all profile dashboard data in one call
+   */
+  getProfileDashboard: async () => {
+    try {
+      return await apiRequest('/api/profile/dashboard');
+    } catch (error) {
+      console.error('Error fetching profile dashboard:', error);
+      return {
+        profile: null,
+        orders: [],
+        addresses: [],
+        stats: { totalOrders: 0, totalSpent: 0, reviewsWritten: 0, wishlistItems: 0 }
+      };
+    }
+  },
+
   /**
    * GET /api/users/me
    * Get current user profile

@@ -2,6 +2,8 @@ import { FastifyInstance } from 'fastify';
 import { MonthlyPlanService } from './monthly-plan.service.js';
 import { BundleService } from './bundle.service.js';
 import { ProductFilterService } from './product-filter.service.js';
+import { shopService } from './shop.service.js';
+import { draftService } from './draft.service.js';
 import { authenticate } from '../../shared/middleware/auth.js';
 import { success } from '../../shared/utils/response.js';
 import {
@@ -22,6 +24,54 @@ const bundleService = new BundleService();
 const productFilterService = new ProductFilterService();
 
 export default async function unlimitedFurRoutes(fastify: FastifyInstance) {
+  // New Optimized Routes
+  fastify.get('/shop/init', {
+    preHandler: authenticate,
+    schema: {
+      description: 'Initialize shop with all eligible products',
+      tags: ['Unlimited Fur', 'Currently in Use - Optimized'],
+      querystring: {
+        type: 'object',
+        required: ['budget', 'petType'],
+        properties: {
+          budget: { type: 'number' },
+          petType: { type: 'string', enum: ['cat', 'dog'] }
+        }
+      }
+    }
+  }, async (request: any) => {
+    const { budget, petType } = request.query;
+    const data = await shopService.getShopInit(Number(budget), petType);
+    return success(data);
+  });
+
+  fastify.post('/draft/create', {
+    preHandler: authenticate,
+    schema: {
+      description: 'Create draft with initial products',
+      tags: ['Unlimited Fur', 'Currently in Use - Optimized']
+    }
+  }, async (request: any) => {
+    const userId = request.user.id;
+    const { mode, budget, petType, products } = request.body;
+    const result = await draftService.createDraft(userId, mode, budget, petType, products || []);
+    return success(result);
+  });
+
+  fastify.patch('/draft/:id/products', {
+    preHandler: authenticate,
+    schema: {
+      description: 'Update draft products',
+      tags: ['Unlimited Fur', 'Currently in Use - Optimized']
+    }
+  }, async (request: any) => {
+    const userId = request.user.id;
+    const { id } = request.params;
+    const { action, productId, variantId, quantity } = request.body;
+    const result = await draftService.updateProducts(id, userId, action, productId, variantId, quantity || 1);
+    return success(result);
+  });
+
   // Monthly Plan Routes
   fastify.post('/monthly-plan/draft', { preHandler: authenticate }, async (request: any, reply) => {
     const userId = request.user.id;

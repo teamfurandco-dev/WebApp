@@ -53,7 +53,7 @@ const Footer = () => {
 
           {/* Links Column 1 */}
           <div>
-            <h4 className={cn("font-black mb-6 uppercase text-sm tracking-wider font-peace-sans", isUnlimitedMode ? "text-[#ffcc00]" : "text-black")}>Shop</h4>
+            <h4 className={cn("font-black mb-6 uppercase text-sm tracking-wider", isUnlimitedMode ? "text-[#ffcc00]" : "text-black")}>Shop</h4>
             <ul className={cn("space-y-4 text-sm", isUnlimitedMode ? "text-gray-900 font-medium" : "text-gray-600")}>
               {['Food & Treats', 'Toys & Accessories', 'Grooming', 'Health & Wellness'].map((item) => (
                 <li key={item}><Link to={`/products?category=${item.toLowerCase()}`} className="hover:text-black transition-colors flex items-center gap-2">{item}</Link></li>
@@ -63,7 +63,7 @@ const Footer = () => {
 
           {/* Links Column 2 */}
           <div>
-            <h4 className={cn("font-black mb-6 uppercase text-sm tracking-wider font-peace-sans", isUnlimitedMode ? "text-[#ffcc00]" : "text-black")}>Company</h4>
+            <h4 className={cn("font-black mb-6 uppercase text-sm tracking-wider", isUnlimitedMode ? "text-[#ffcc00]" : "text-black")}>Company</h4>
             <ul className={cn("space-y-4 text-sm", isUnlimitedMode ? "text-gray-900 font-medium" : "text-gray-600")}>
               {[
                 { name: 'About Us', path: '/about' },
@@ -82,7 +82,7 @@ const Footer = () => {
 
           {/* Newsletter Column */}
           <div>
-            <h4 className={cn("font-black mb-6 uppercase text-sm tracking-wider font-peace-sans", isUnlimitedMode ? "text-[#ffcc00]" : "text-black")}>Stay Connected</h4>
+            <h4 className={cn("font-black mb-6 uppercase text-sm tracking-wider", isUnlimitedMode ? "text-[#ffcc00]" : "text-black")}>Stay Connected</h4>
             <p className={cn("text-sm mb-4", isUnlimitedMode ? "text-gray-900 font-medium" : "text-gray-600")}>Join our newsletter for exclusive offers and pet care tips.</p>
             <div className={cn(
               "flex rounded-full p-1 border transition-all duration-300",

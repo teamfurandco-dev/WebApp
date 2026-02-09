@@ -22,7 +22,7 @@ const BlogCard = ({ post, className }) => {
                     <span>{post.readTime}</span>
                 </div>
 
-                <h3 className="text-lg md:text-xl lg:text-2xl font-serif font-medium text-black mb-2 md:mb-3 group-hover:text-furco-brown transition-colors">
+                <h3 className="text-lg md:text-xl lg:text-2xl font-medium text-black mb-2 md:mb-3 group-hover:text-furco-brown transition-colors">
                     {post.title}
                 </h3>
 

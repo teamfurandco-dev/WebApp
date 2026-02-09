@@ -9,6 +9,7 @@ import { errorHandler } from './shared/middleware/errorHandler.js';
 import { authenticate } from './shared/middleware/auth.js';
 import { success } from './shared/utils/response.js';
 import './shared/types/index.js'; // Ensure FastifyRequest types are extended
+import { startDraftCleanupJob } from './jobs/draft-cleanup.job.js';
 
 // Route imports
 import { homeRoutes } from './modules/home/routes.js';
@@ -24,6 +25,7 @@ import { categoryRoutes } from './modules/categories/routes.js';
 import { questionRoutes } from './modules/questions/routes.js';
 import { reviewRoutes } from './modules/reviews/routes.js';
 import { inventoryRoutes } from './modules/inventory/routes.js';
+import { profileRoutes } from './modules/profile/routes.js';
 
 /**
  * Initialize Fastify instance with production-ready defaults
@@ -180,6 +182,7 @@ const start = async () => {
     await fastify.register(questionRoutes, apiPrefix);
     await fastify.register(reviewRoutes, apiPrefix);
     await fastify.register(inventoryRoutes, apiPrefix);
+    await fastify.register(profileRoutes, apiPrefix);
 
     try {
       const { default: unlimitedFurRoutes } = await import('./modules/unlimited-fur/routes.js');
@@ -199,6 +202,10 @@ const start = async () => {
 
     await fastify.listen({ port: config.port, host: '0.0.0.0' });
     console.log(`🚀 Server running on http://localhost:${config.port}`);
+    
+    // Start draft cleanup job
+    startDraftCleanupJob();
+    fastify.log.info('✅ Draft cleanup job scheduled');
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

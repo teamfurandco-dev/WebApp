@@ -12,7 +12,7 @@ import logoSvg from '@/assets/logo.svg';
 
 const Signup = () => {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
   const { switchMode } = useTheme();
 
@@ -24,7 +24,8 @@ const Signup = () => {
     firstName: '',
     lastName: '',
     email: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   });
 
   const handleChange = (e) => {
@@ -33,6 +34,12 @@ const Signup = () => {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -43,7 +50,7 @@ const Signup = () => {
 
       if (error) throw error;
 
-      toast.success("Account created successfully! Please check your email to verify your account.");
+      toast.success("Account created! Please check your email to verify.");
       navigate('/login');
     } catch (error) {
       toast.error(error.message || "Signup failed");
@@ -52,10 +59,19 @@ const Signup = () => {
     }
   };
 
+  const handleGoogleSignup = async () => {
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) throw error;
+    } catch (error) {
+      toast.error(error.message || "Google signup failed");
+    }
+  };
+
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-[#FDFBF7] relative flex items-center justify-center pt-24 pb-32 md:py-12 px-4 overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+    <div className="min-h-screen bg-[#FDFBF7] relative flex items-center justify-center pt-24 pb-32 md:py-12 px-4 overflow-hidden">
+      {/* Background Subtle Pattern */}
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 30c2-2 6-2 8 0s2 6 0 8-6 2-8 0-2-6 0-8zm-10-10c2-2 6-2 8 0s2 6 0 8-6 2-8 0-2-6 0-8zm20 0c2-2 6-2 8 0s2 6 0 8-6 2-8 0-2-6 0-8z' fill='%231F1F1F' fill-rule='evenodd'/%3E%3C/svg%3E")`
         }}
@@ -66,86 +82,81 @@ const Signup = () => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-lg relative z-10"
       >
-        <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-black/5 p-8 md:p-12">
+        <div className="bg-white rounded-[2.5rem] shadow-xl shadow-black/5 overflow-hidden border border-black/10 p-8 md:p-14 relative">
+
           {/* Logo & Header */}
           <div className="text-center mb-10">
             <Link to="/" className="inline-block mb-6 hover:opacity-80 transition-opacity">
-              <img src={logoSvg} alt="Fur & Co" className="h-8 mx-auto" />
+              <img src={logoSvg} alt="Fur & Co" className="h-10 mx-auto" />
             </Link>
-            <h1 className="text-3xl md:text-4xl font-peace-sans font-bold text-black mb-3">Join the Club</h1>
-            <p className="text-black/50 text-sm font-medium tracking-wide">Begin your journey to premium pet care</p>
+            <h1 className="text-3xl font-peace-sans text-black mb-2">Join the Club</h1>
           </div>
 
           <div className="space-y-8">
-            {/* Social Logins - Adaptive Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              <Button
-                variant="outline"
-                className="h-12 md:h-14 rounded-2xl border-black/5 hover:border-furco-yellow hover:bg-furco-yellow/5 transition-all duration-300"
-              >
-                <Chrome className="w-5 h-5 text-furco-yellow" />
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => toast.info("Instagram signup is coming soon to our premium club.")}
-                className="h-12 md:h-14 rounded-2xl border-black/5 hover:border-black/10 transition-all duration-300"
-              >
-                <Instagram className="w-5 h-5 text-pink-600" />
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => toast.info("LinkedIn signup is coming soon to our premium club.")}
-                className="h-12 md:h-14 rounded-2xl border-black/5 hover:border-black/10 transition-all duration-300"
-              >
-                <Linkedin className="w-5 h-5 text-blue-700" />
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => toast.info("Facebook signup is coming soon to our premium club.")}
-                className="h-12 md:h-14 rounded-2xl border-black/5 hover:border-black/10 transition-all duration-300"
-              >
-                <Facebook className="w-5 h-5 text-blue-600" />
-              </Button>
-            </div>
+            {/* Google Signup Button - Standard Branded Style */}
+            <button
+              onClick={handleGoogleSignup}
+              className="w-full h-14 bg-white border border-gray-300 rounded-2xl flex items-center justify-center gap-3 px-4 hover:bg-gray-50 hover:shadow-md transition-all duration-300 group"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                />
+              </svg>
+              <span className="text-black/70 font-bold text-sm">Sign up with Google</span>
+            </button>
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-black/5" />
+                <span className="w-full border-t border-black/[0.06]" />
               </div>
-              <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-[0.3em]">
-                <span className="bg-white px-4 text-black/30">
+              <div className="relative flex justify-center text-[10px] uppercase font-black tracking-[0.3em]">
+                <span className="bg-white px-6 text-black/20">
                   Member Registration
                 </span>
               </div>
             </div>
 
-            <form onSubmit={handleSignup} className="space-y-6">
+            <form onSubmit={handleSignup} className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-xs font-bold uppercase tracking-widest text-black/40 ml-1">First name</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="firstName" className="text-[10px] font-black uppercase tracking-[0.2em] text-black/60 ml-1">First Name</Label>
                   <Input
                     id="firstName"
                     placeholder="John"
                     required
                     value={formData.firstName}
                     onChange={handleChange}
-                    className="h-14 bg-[#FDFBF7] border-black/5 rounded-2xl focus:ring-furco-yellow focus:border-furco-yellow text-black font-medium"
+                    className="h-14 bg-white border border-black/10 rounded-xl focus:ring-furco-yellow focus:border-furco-yellow text-black font-semibold placeholder:text-black/20"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-xs font-bold uppercase tracking-widest text-black/40 ml-1">Last name</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="lastName" className="text-[10px] font-black uppercase tracking-[0.2em] text-black/60 ml-1">Last Name</Label>
                   <Input
                     id="lastName"
                     placeholder="Doe"
                     required
                     value={formData.lastName}
                     onChange={handleChange}
-                    className="h-14 bg-[#FDFBF7] border-black/5 rounded-2xl focus:ring-furco-yellow focus:border-furco-yellow text-black font-medium"
+                    className="h-14 bg-white border border-black/10 rounded-xl focus:ring-furco-yellow focus:border-furco-yellow text-black font-semibold placeholder:text-black/20"
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-black/40 ml-1">Email</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-[0.2em] text-black/60 ml-1">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -153,37 +164,55 @@ const Signup = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="h-14 bg-[#FDFBF7] border-black/5 rounded-2xl focus:ring-furco-yellow focus:border-furco-yellow text-black font-medium"
+                  className="h-14 bg-white border border-black/10 rounded-xl focus:ring-furco-yellow focus:border-furco-yellow text-black font-semibold placeholder:text-black/20"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-black/40 ml-1">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="h-14 bg-[#FDFBF7] border-black/5 rounded-2xl focus:ring-furco-yellow focus:border-furco-yellow text-black font-medium"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-[0.2em] text-black/60 ml-1">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="h-14 bg-white border border-black/10 rounded-xl focus:ring-furco-yellow focus:border-furco-yellow text-black font-semibold placeholder:text-black/20"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="confirmPassword" className="text-[10px] font-black uppercase tracking-[0.2em] text-black/60 ml-1">Confirm</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    required
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="h-14 bg-white border border-black/10 rounded-xl focus:ring-furco-yellow focus:border-furco-yellow text-black font-semibold placeholder:text-black/20"
+                  />
+                </div>
               </div>
               <Button
                 type="submit"
-                className="w-full h-14 bg-black text-white hover:bg-furco-yellow hover:text-black rounded-2xl text-lg font-bold shadow-xl transition-all duration-300 flex items-center justify-center gap-3 group"
+                className="w-full h-14 bg-black text-white hover:bg-furco-yellow hover:text-black rounded-xl text-lg font-bold transition-all duration-300 flex items-center justify-center gap-4 group mt-4"
                 disabled={loading}
               >
-                {loading ? 'Creating Account...' : (
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Creating...</span>
+                  </div>
+                ) : (
                   <>
-                    Create Account <Sparkles className="w-5 h-5 transition-transform group-hover:scale-110" />
+                    Create Account <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />
                   </>
                 )}
               </Button>
             </form>
 
-            <div className="pt-8 text-center">
+            <div className="pt-6 text-center">
               <p className="text-sm font-medium text-black/40">
-                Already have an account?{' '}
-                <Link to="/login" className="text-furco-yellow font-bold hover:text-black transition-all">
+                Already a member?{' '}
+                <Link to="/login" className="text-furco-yellow font-bold hover:text-black transition-all underline underline-offset-4 decoration-2">
                   Sign in
                 </Link>
               </p>
@@ -192,8 +221,10 @@ const Signup = () => {
         </div>
 
         {/* Bottom Decorative */}
-        <div className="mt-8 flex justify-center opacity-10">
-          <PawPrint className="w-12 h-12 text-black" />
+        <div className="mt-12 flex justify-center gap-6 opacity-5">
+          <div className="w-1 h-1 rounded-full bg-black" />
+          <div className="w-1 h-1 rounded-full bg-black" />
+          <div className="w-1 h-1 rounded-full bg-black" />
         </div>
       </motion.div>
     </div>

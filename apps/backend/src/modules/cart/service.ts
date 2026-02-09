@@ -32,12 +32,12 @@ export class CartService {
     let subtotal = 0;
     let totalItems = 0;
     const stockWarnings = [];
-    
+
     const items = cartItems.map(item => {
-      const itemTotal = item.variant.priceCents * item.quantity;
+      const itemTotal = item.variant.price * item.quantity;
       subtotal += itemTotal;
       totalItems += item.quantity;
-      
+
       // Check for stock warnings
       if (item.variant.stock < item.quantity) {
         stockWarnings.push({
@@ -48,7 +48,7 @@ export class CartService {
           available: item.variant.stock
         });
       }
-      
+
       return this.transformCartItem(item);
     });
 
@@ -67,8 +67,8 @@ export class CartService {
         images: true,
         averageRating: true,
         variants: {
-          select: { priceCents: true },
-          orderBy: { priceCents: 'asc' },
+          select: { id: true, price: true },
+          orderBy: { price: 'asc' },
           take: 1
         }
       },
@@ -94,9 +94,10 @@ export class CartService {
         id: p.id,
         name: p.name,
         slug: p.slug,
-        images: p.images,
+        images: p.images.map((img: any) => getPublicUrl('product-images', img.filePath)),
         averageRating: p.averageRating,
-        minPrice: p.variants[0]?.priceCents || 0
+        price: p.variants[0]?.price || 0,
+        variantId: p.variants[0]?.id
       }))
     };
   }
@@ -125,7 +126,13 @@ export class CartService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return cartItems.map(item => this.transformCartItem(item));
+    const items = cartItems.map(item => this.transformCartItem(item));
+    const total = items.reduce((sum, item) => sum + (item.variant.price_cents * item.quantity), 0);
+
+    return {
+      items,
+      total
+    };
   }
 
   /**
@@ -159,6 +166,7 @@ export class CartService {
       },
     });
 
+    let cartItem;
     if (existing) {
       const newQuantity = existing.quantity + quantity;
 
@@ -166,7 +174,7 @@ export class CartService {
         throw new BadRequestError(`Only ${variant.stock} items available in stock`);
       }
 
-      return prisma.cartItem.update({
+      cartItem = await prisma.cartItem.update({
         where: { id: existing.id },
         data: { quantity: newQuantity },
         include: {
@@ -182,23 +190,25 @@ export class CartService {
           },
         },
       });
-    }
-
-    return prisma.cartItem.create({
-      data: { userId, variantId, quantity },
-      include: {
-        variant: {
-          include: {
-            product: {
-              include: {
-                images: { where: { isPrimary: true }, take: 1 },
-                category: true,
+    } else {
+      cartItem = await prisma.cartItem.create({
+        data: { userId, variantId, quantity },
+        include: {
+          variant: {
+            include: {
+              product: {
+                include: {
+                  images: { where: { isPrimary: true }, take: 1 },
+                  category: true,
+                },
               },
             },
           },
         },
-      },
-    });
+      });
+    }
+
+    return this.transformCartItem(cartItem);
   }
 
   /**
@@ -218,7 +228,8 @@ export class CartService {
 
     // Remove if quantity is 0
     if (quantity === 0) {
-      return this.removeFromCart(userId, itemId);
+      await this.removeFromCart(userId, itemId);
+      return null;
     }
 
     // Check stock
@@ -226,7 +237,7 @@ export class CartService {
       throw new BadRequestError(`Only ${item.variant.stock} items available in stock`);
     }
 
-    return prisma.cartItem.update({
+    const updated = await prisma.cartItem.update({
       where: { id: itemId },
       data: { quantity },
       include: {
@@ -242,6 +253,8 @@ export class CartService {
         },
       },
     });
+
+    return this.transformCartItem(updated);
   }
 
   /**
@@ -270,37 +283,47 @@ export class CartService {
    * Get cart summary
    */
   async getCartSummary(userId: string) {
-    const items = await this.getCart(userId);
+    const { items, total } = await this.getCart(userId);
 
     const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-    const subtotal = items.reduce((sum, item) => sum + (item.variant.price * item.quantity), 0);
 
     return {
       totalItems,
-      subtotal,
+      subtotal: total,
       itemsCount: items.length,
     };
   }
 
   /**
-   * Transform cart item to include image URLs
+   * Transform cart item to include image URLs and match frontend naming
    */
   private transformCartItem(item: any) {
+    if (!item) return null;
     const primaryImage = item.variant.product.images[0];
+
     return {
-      ...item,
+      id: item.id,
+      quantity: item.quantity,
+      variant_id: item.variantId,
+      created_at: item.createdAt,
+      // Flattened fields for some frontend components like Cart.jsx
+      name: item.variant.product.name,
+      selectedVariant: item.variant.name,
+      base_price_cents: item.variant.price,
+      price_cents: item.variant.price,
+      image: primaryImage ? getPublicUrl(primaryImage.bucketName, primaryImage.filePath) : null,
       variant: {
-        ...item.variant,
+        id: item.variant.id,
+        name: item.variant.name,
+        sku: item.variant.sku,
+        price_cents: item.variant.price,
+        stock_quantity: item.variant.stock,
         product: {
-          ...item.variant.product,
-          primaryImage: primaryImage ? {
-            ...primaryImage,
-            url: getPublicUrl(primaryImage.bucketName, primaryImage.filePath),
-          } : null,
-          images: item.variant.product.images.map((img: any) => ({
-            ...img,
-            url: getPublicUrl(img.bucketName, img.filePath),
-          })),
+          id: item.variant.product.id,
+          name: item.variant.product.name,
+          slug: item.variant.product.slug,
+          category: item.variant.product.category?.name,
+          image: primaryImage ? getPublicUrl(primaryImage.bucketName, primaryImage.filePath) : null,
         },
       },
     };

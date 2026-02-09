@@ -66,7 +66,7 @@ const Navbar = () => {
           isUnlimitedMode
             ? "bg-white/95 border-[#ffcc00]/20 text-gray-900"
             : "bg-[#ffcc00]/95 border-black/10 text-gray-900",
-          isScrolled ? "py-2 shadow-sm" : "py-4"
+          "py-3 shadow-sm"
         )}
       >
         <div className="container mx-auto px-4 md:px-8 max-w-full flex items-center justify-between gap-4">
@@ -77,7 +77,10 @@ const Navbar = () => {
               <img
                 src={isUnlimitedMode ? unlimitedLogo : logoSvg}
                 alt="Fur & Co"
-                className="h-10 md:h-14 w-auto transition-transform duration-300 group-hover:scale-105"
+                className={cn(
+                  "w-auto transition-transform duration-300 group-hover:scale-105",
+                  isUnlimitedMode ? "h-10" : "h-7"
+                )}
               />
             </div>
           </Link>
@@ -90,7 +93,7 @@ const Navbar = () => {
             >
               <div className="flex items-center w-full h-12 rounded-full border border-black/10 bg-white/90 px-4 hover:border-[#ffcc00] transition-colors cursor-text">
                 <Search className="h-5 w-5 text-gray-400 mr-3" />
-                <span className="text-gray-400 text-sm font-medium truncate">Search for science-backed essentials...</span>
+                <span className="text-gray-400 text-sm font-black truncate">Search for science-backed essentials...</span>
               </div>
             </div>
           </div>
@@ -230,7 +233,7 @@ const Navbar = () => {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 bg-transparent border-none text-lg md:text-xl text-foreground placeholder:text-muted-foreground focus:ring-0 focus:outline-none font-serif"
+                  className="flex-1 bg-transparent border-none text-lg md:text-xl text-foreground placeholder:text-muted-foreground focus:ring-0 focus:outline-none"
                   autoFocus
                 />
                 <button
@@ -321,11 +324,11 @@ const Navbar = () => {
               <div className="grid grid-cols-2 gap-4 mt-12 pt-8 border-t border-black/10">
                 <Link to={user ? "/account" : "/login"} onClick={() => setIsMobileMenuOpen(false)} className="flex flex-col items-center justify-center gap-3 p-6 rounded-3xl bg-black/5 hover:bg-black/10 transition-colors">
                   <User className="w-6 h-6 text-black" />
-                  <span className="text-sm font-bold text-black font-peace-sans">Account</span>
+                  <span className="text-sm font-bold text-black">Account</span>
                 </Link>
                 <Link to="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="flex flex-col items-center justify-center gap-3 p-6 rounded-3xl bg-black/5 hover:bg-black/10 transition-colors">
                   <Heart className="w-6 h-6 text-black" />
-                  <span className="text-sm font-bold text-black font-peace-sans">Wishlist</span>
+                  <span className="text-sm font-bold text-black">Wishlist</span>
                 </Link>
               </div>
             </nav>

@@ -17,9 +17,9 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['Lato', 'sans-serif'],
+        sans: ['Outfit', 'sans-serif'],
         serif: ['Playfair Display', 'serif'],
-        'peace-sans': ['Poppins', 'sans-serif'],
+        'peace-sans': ['Peace Sans', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',

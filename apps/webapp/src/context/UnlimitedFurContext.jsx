@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useMemo, useCallback } from 'react';
 import { api } from '@/services/api';
 
 const UnlimitedFurContext = createContext(null);
@@ -10,258 +10,150 @@ export const useUnlimitedFur = () => {
 };
 
 export const UnlimitedFurProvider = ({ children }) => {
-  const [mode, setMode] = useState(null); // 'monthly' | 'bundle'
-  const [draftId, setDraftId] = useState(null);
-  const [budget, setBudgetState] = useState(0);
-  const [petType, setPetTypeState] = useState('');
-  const [selectedCategories, setSelectedCategoriesState] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [budget, setBudget] = useState(0);
+  const [petType, setPetType] = useState('');
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const [wallet, setWallet] = useState({ monthlyBudget: 0, spent: 0, remaining: 0, canAddMore: true });
+  const [draftId, setDraftId] = useState(null);
+  const [mode, setMode] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [categories, setCategoriesList] = useState([]);
-  const [products, setProductsList] = useState([]);
 
-  // Fetch categories on mount
-  useEffect(() => {
-    fetchCategories();
+  const wallet = useMemo(() => {
+    const spent = selectedProducts.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+    return {
+      budget,
+      spent,
+      remaining: budget - spent,
+      canAddMore: spent < budget
+    };
+  }, [budget, selectedProducts]);
+
+  const filteredProducts = useMemo(() => {
+    return allProducts.map(product => {
+      const inCart = selectedProducts.some(p => p.productId === product.id);
+      const affordableVariants = product.variants.filter(v => 
+        v.price <= wallet.remaining && v.stock > 0
+      );
+
+      return {
+        ...product,
+        isAffordable: affordableVariants.length > 0 || inCart,
+        affordableVariants,
+        inCart
+      };
+    });
+  }, [allProducts, wallet.remaining, selectedProducts]);
+
+  const initializeShop = useCallback(async (budgetValue, petTypeValue, modeValue) => {
+    try {
+      setLoading(true);
+      setBudget(budgetValue);
+      setPetType(petTypeValue);
+      setMode(modeValue);
+
+      const data = await api.get(`/api/unlimited-fur/shop/init?budget=${budgetValue}&petType=${petTypeValue}`);
+      setAllProducts(data.products);
+      setCategories(data.categories);
+    } catch (error) {
+      console.error('Failed to initialize shop:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // Fetch eligible products when filters change
-  useEffect(() => {
-    if (draftId && petType && selectedCategories.length > 0) {
-      fetchEligibleProducts();
-    }
-  }, [draftId, petType, selectedCategories]);
+  const addProduct = useCallback(async (productId, variantId, quantity = 1) => {
+    const product = allProducts.find(p => p.id === productId);
+    const variant = product.variants.find(v => v.id === variantId);
 
-  const fetchCategories = async () => {
+    setSelectedProducts(prev => {
+      const existing = prev.find(p => p.productId === productId && p.variantId === variantId);
+      if (existing) {
+        return prev.map(p =>
+          p.productId === productId && p.variantId === variantId
+            ? { ...p, quantity: p.quantity + quantity }
+            : p
+        );
+      }
+      return [...prev, { 
+        productId, 
+        variantId, 
+        quantity, 
+        price: variant.price, 
+        name: product.name, 
+        variantName: variant.name,
+        image: product.images[0]?.url
+      }];
+    });
+
     try {
-      const data = await api.get('/api/categories');
-      setCategoriesList(data);
+      if (!draftId) {
+        const draft = await api.post('/api/unlimited-fur/draft/create', {
+          mode,
+          budget,
+          petType,
+          products: [{ productId, variantId, quantity, price: variant.price }]
+        });
+        setDraftId(draft.draftId);
+      } else {
+        await api.patch(`/api/unlimited-fur/draft/${draftId}/products`, {
+          action: 'add',
+          productId,
+          variantId,
+          quantity
+        });
+      }
     } catch (error) {
-      console.error('Failed to fetch categories:', error);
-    }
-  };
-
-  const fetchEligibleProducts = async () => {
-    try {
-      // Construct query string foreligible products
-      const params = new URLSearchParams();
-      if (petType) params.append('petType', petType);
-      selectedCategories.forEach(cat => params.append('categories[]', cat));
-      if (budget) params.append('budget', budget);
-
-      const data = await api.get(`/api/unlimited-fur/products?${params.toString()}`);
-      setProductsList(data);
-    } catch (error) {
-      console.error('Failed to fetch eligible products:', error);
-    }
-  };
-
-  const startMonthlyPlan = async () => {
-    try {
-      setLoading(true);
-      const response = await api.post('/api/unlimited-fur/monthly-plan/draft', {});
-      setDraftId(response.id);
-      setMode('monthly');
-      return response.id;
-    } catch (error) {
-      console.error('Failed to start monthly plan:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const startBundle = async () => {
-    try {
-      setLoading(true);
-      const response = await api.post('/api/unlimited-fur/bundle/draft', {});
-      setDraftId(response.id);
-      setMode('bundle');
-      return response.id;
-    } catch (error) {
-      console.error('Failed to start bundle:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const setBudget = async (newBudget) => {
-    if (!draftId) throw new Error('No draft ID');
-    try {
-      setLoading(true);
-      const endpoint = mode === 'monthly'
-        ? `/api/unlimited-fur/monthly-plan/${draftId}/budget`
-        : `/api/unlimited-fur/bundle/${draftId}/budget`;
-      await api.put(endpoint, { monthlyBudget: newBudget });
-      setBudgetState(newBudget);
-      await getWallet();
-    } catch (error) {
-      console.error('Failed to set budget:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const setPetType = async (newPetType) => {
-    if (!draftId) throw new Error('No draft ID');
-    try {
-      setLoading(true);
-      const endpoint = mode === 'monthly'
-        ? `/api/unlimited-fur/monthly-plan/${draftId}/pet-profile`
-        : `/api/unlimited-fur/bundle/${draftId}/pet-profile`;
-      await api.put(endpoint, { petType: newPetType });
-      setPetTypeState(newPetType);
-    } catch (error) {
-      console.error('Failed to set pet type:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const setCategories = async (categories) => {
-    if (!draftId) throw new Error('No draft ID');
-    try {
-      setLoading(true);
-      const endpoint = mode === 'monthly'
-        ? `/api/unlimited-fur/monthly-plan/${draftId}/categories`
-        : `/api/unlimited-fur/bundle/${draftId}/categories`;
-      await api.put(endpoint, { selectedCategories: categories });
-      setSelectedCategoriesState(categories);
-    } catch (error) {
-      console.error('Failed to set categories:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addProduct = async (productId, variantId, quantity = 1) => {
-    if (!draftId) throw new Error('No draft ID');
-    try {
-      setLoading(true);
-      const endpoint = mode === 'monthly'
-        ? `/api/unlimited-fur/monthly-plan/${draftId}/products`
-        : `/api/unlimited-fur/bundle/${draftId}/products`;
-      await api.post(endpoint, { productId, variantId, quantity });
-      await getWallet();
-      // Refresh selected products list
-      setSelectedProducts(prev => [...prev, { productId, variantId, quantity }]);
-    } catch (error) {
-      console.error('Failed to add product:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const removeProduct = async (productId) => {
-    if (!draftId) throw new Error('No draft ID');
-    try {
-      setLoading(true);
-      const endpoint = mode === 'monthly'
-        ? `/api/unlimited-fur/monthly-plan/${draftId}/products/${productId}`
-        : `/api/unlimited-fur/bundle/${draftId}/products/${productId}`;
-      await api.delete(endpoint);
-      await getWallet();
-      setSelectedProducts(prev => prev.filter(p => p.productId !== productId));
-    } catch (error) {
-      console.error('Failed to remove product:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getWallet = async () => {
-    if (!draftId) return;
-    try {
-      const endpoint = mode === 'monthly'
-        ? `/api/unlimited-fur/monthly-plan/${draftId}/wallet`
-        : `/api/unlimited-fur/bundle/${draftId}/wallet`;
-      const response = await api.get(endpoint);
-      setWallet(response);
-      return response;
-    } catch (error) {
-      console.error('Failed to get wallet:', error);
+      setSelectedProducts(prev => prev.filter(p => !(p.productId === productId && p.variantId === variantId)));
       throw error;
     }
-  };
+  }, [allProducts, budget, petType, mode, draftId]);
 
-  const activateMonthlyPlan = async (addressId, paymentMethod, billingCycleDay) => {
-    if (!draftId) throw new Error('No draft ID');
-    try {
-      setLoading(true);
-      await api.post(`/api/unlimited-fur/monthly-plan/${draftId}/activate`, {
-        addressId,
-        paymentMethod,
-        billingCycleDay
-      });
-      reset();
-    } catch (error) {
-      console.error('Failed to activate monthly plan:', error);
-      throw error;
-    } finally {
-      setLoading(false);
+  const removeProduct = useCallback(async (productId, variantId) => {
+    setSelectedProducts(prev => prev.filter(p => !(p.productId === productId && p.variantId === variantId)));
+
+    if (draftId) {
+      try {
+        await api.patch(`/api/unlimited-fur/draft/${draftId}/products`, {
+          action: 'remove',
+          productId,
+          variantId,
+          quantity: 0
+        });
+      } catch (error) {
+        console.error('Failed to sync removal:', error);
+      }
     }
-  };
+  }, [draftId]);
 
-  const checkoutBundle = async (addressId, paymentMethod) => {
-    if (!draftId) throw new Error('No draft ID');
-    try {
-      setLoading(true);
-      await api.post(`/api/unlimited-fur/bundle/${draftId}/checkout`, {
-        addressId,
-        paymentMethod
-      });
-      reset();
-    } catch (error) {
-      console.error('Failed to checkout bundle:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const reset = () => {
-    setMode(null);
-    setDraftId(null);
-    setBudgetState(0);
-    setPetTypeState('');
-    setSelectedCategoriesState([]);
+  const reset = useCallback(() => {
+    setAllProducts([]);
+    setCategories([]);
+    setBudget(0);
+    setPetType('');
     setSelectedProducts([]);
-    setWallet({ monthlyBudget: 0, spent: 0, remaining: 0, canAddMore: true });
-  };
-
-  const value = {
-    mode,
-    draftId,
-    budget,
-    petType,
-    selectedCategories,
-    selectedProducts,
-    wallet,
-    loading,
-    categories,
-    products,
-    startMonthlyPlan,
-    startBundle,
-    setBudget,
-    setPetType,
-    setCategories,
-    addProduct,
-    removeProduct,
-    getWallet,
-    activateMonthlyPlan,
-    checkoutBundle,
-    reset,
-  };
+    setDraftId(null);
+    setMode(null);
+  }, []);
 
   return (
-    <UnlimitedFurContext.Provider value={value}>
+    <UnlimitedFurContext.Provider value={{
+      allProducts,
+      filteredProducts,
+      categories,
+      wallet,
+      selectedProducts,
+      budget,
+      petType,
+      mode,
+      draftId,
+      loading,
+      initializeShop,
+      addProduct,
+      removeProduct,
+      reset
+    }}>
       {children}
     </UnlimitedFurContext.Provider>
   );

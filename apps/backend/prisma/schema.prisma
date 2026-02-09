@@ -249,6 +249,7 @@ model User {
   
   // Preferences
   preferences Json? // Store user preferences as JSON
+  petTypes    String[] @default([]) // ['cat', 'dog']
   
   // Relations
   blogs     Blog[]
@@ -671,4 +672,38 @@ enum InventoryMovementType {
   ADJUSTMENT
   DAMAGE
   EXPIRED
+}
+
+// ============================================
+// UNLIMITED FUR DRAFT SYSTEM
+// ============================================
+
+model UnlimitedFurDraft {
+  id        String   @id @default(uuid())
+  userId    String
+  mode      String   // 'monthly' | 'bundle'
+  budget    Int
+  petType   String
+  status    String   @default("draft")
+  expiresAt DateTime @default(dbgenerated("NOW() + INTERVAL '24 hours'"))
+  products  DraftProduct[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([userId, status])
+  @@index([expiresAt])
+  @@map("unlimited_fur_drafts")
+}
+
+model DraftProduct {
+  id          String @id @default(uuid())
+  draftId     String
+  draft       UnlimitedFurDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  productId   String
+  variantId   String
+  quantity    Int
+  lockedPrice Int
+  
+  @@unique([draftId, productId, variantId])
+  @@map("draft_products")
 }

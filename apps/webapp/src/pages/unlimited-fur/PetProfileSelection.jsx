@@ -32,7 +32,6 @@ export default function PetProfileSelection() {
   const [searchParams] = useSearchParams();
   const mode = searchParams.get('mode') || 'monthly';
   const { switchMode } = useTheme();
-  const { setPetType, loading } = useUnlimitedFur();
 
   const [selectedPet, setSelectedPet] = useState(null);
   const [error, setError] = useState('');
@@ -41,17 +40,13 @@ export default function PetProfileSelection() {
     switchMode('CORE');
   }, [switchMode]);
 
-  const handleContinue = async () => {
+  const handleContinue = () => {
     if (!selectedPet) {
       setError('Please select your pet type');
       return;
     }
-    try {
-      await setPetType(selectedPet);
-      navigate(`/unlimited-fur/${mode}/categories`);
-    } catch (err) {
-      setError('Failed to set pet type.');
-    }
+    const budget = searchParams.get('budget');
+    navigate(`/unlimited-fur/${mode}/shop?budget=${budget}&petType=${selectedPet}`);
   };
 
   return (
@@ -112,14 +107,12 @@ export default function PetProfileSelection() {
         <div className="w-full max-w-sm space-y-4">
           <Button
             onClick={handleContinue}
-            disabled={!selectedPet || loading}
+            disabled={!selectedPet}
             className="w-full h-16 bg-black text-white rounded-2xl text-xl font-black uppercase tracking-tighter shadow-2xl transition-all active:scale-95 disabled:opacity-30 hover:bg-gray-800"
           >
-            {loading ? 'Processing...' : (
-              <div className="flex items-center justify-center gap-3">
-                Continue to categories <ArrowRight className="w-6 h-6" />
-              </div>
-            )}
+            <div className="flex items-center justify-center gap-3">
+              Continue to Shop <ArrowRight className="w-6 h-6" />
+            </div>
           </Button>
 
           {error && <p className="text-red-500 text-center text-xs font-bold">{error}</p>}

@@ -120,7 +120,7 @@ const Unlimited = () => {
                           <Calendar className="w-10 h-10 text-gray-900" />
                         </div>
 
-                        <h3 className="text-2xl font-black leading-tight text-gray-900 mb-3 font-peace-sans">The Worry-Free<br />Routine</h3>
+                        <h3 className="text-2xl font-black leading-tight text-gray-900 mb-3">The Worry-Free<br />Routine</h3>
                         <p className="text-sm text-gray-600 mb-4 leading-relaxed">
                           Set your budget once. We deliver essentials monthly.
                         </p>
@@ -157,7 +157,7 @@ const Unlimited = () => {
                           <Gift className="w-10 h-10 text-[#ffcc00]" />
                         </div>
 
-                        <h3 className="text-2xl font-black leading-tight text-white mb-3 font-peace-sans">The Celebration<br />Box</h3>
+                        <h3 className="text-2xl font-black leading-tight text-white mb-3">The Celebration<br />Box</h3>
                         <p className="text-sm text-gray-400 mb-4 leading-relaxed">
                           Pick 3+ items for any occasion. No commitment.
                         </p>
@@ -228,7 +228,7 @@ const Unlimited = () => {
                   {step.icon}
                 </div>
 
-                <h3 className={cn("font-bold text-lg mb-2 leading-tight font-peace-sans", idx % 2 === 0 ? "text-gray-900" : "text-white")}>
+                <h3 className={cn("font-bold text-lg mb-2 leading-tight", idx % 2 === 0 ? "text-gray-900" : "text-white")}>
                   {step.title}
                 </h3>
                 <p className={cn("text-xs font-medium leading-relaxed px-2", idx % 2 === 0 ? "text-gray-500" : "text-gray-400")}>
@@ -274,7 +274,7 @@ const Unlimited = () => {
                 <div className={cn("mb-4 flex justify-center", idx % 2 === 0 ? "text-gray-900" : "text-[#ffcc00]")}>
                   {benefit.icon}
                 </div>
-                <h3 className="font-bold text-sm mb-1 leading-tight font-peace-sans">{benefit.title}</h3>
+                <h3 className="font-bold text-sm mb-1 leading-tight">{benefit.title}</h3>
                 <p className={cn("text-xs", idx % 2 === 0 ? "text-gray-500" : "text-[#ffcc00]/80")}>{benefit.desc}</p>
               </motion.div>
             ))}
@@ -307,7 +307,7 @@ const Unlimited = () => {
                   )}
                 >
                   <div className="flex justify-between items-center">
-                    <span className={cn("font-bold text-lg pr-4 font-peace-sans", openFaq === i ? "text-white" : "text-gray-900")}>
+                    <span className={cn("font-bold text-lg pr-4", openFaq === i ? "text-white" : "text-gray-900")}>
                       {faq.q}
                     </span>
                     {openFaq === i ? (
@@ -341,7 +341,7 @@ const Unlimited = () => {
                       <Cat className="w-10 h-10 text-[#ffcc00]" strokeWidth={2.5} />
                       <Dog className="w-10 h-10 text-white" strokeWidth={2.5} />
                     </div>
-                    <h3 className="font-black text-xl mb-4 text-[#ffcc00] font-peace-sans">Answer:</h3>
+                    <h3 className="font-black text-xl mb-4 text-[#ffcc00]">Answer:</h3>
                     <p className="text-xl text-gray-300 leading-relaxed font-medium">
                       {faqs[openFaq].a}
                     </p>
@@ -361,7 +361,7 @@ const Unlimited = () => {
                       <span className="text-6xl">👋</span>
                     </motion.div>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2 font-peace-sans">Have questions?</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Have questions?</h3>
                   <p className="text-gray-500 max-w-xs">
                     Click on any question on the left to view the details here.
                   </p>

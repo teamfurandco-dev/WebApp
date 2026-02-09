@@ -23,7 +23,7 @@ export const SelectedProductsList = () => {
     return (
       <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/40 text-center shadow-inner">
         <ShoppingBag className="w-8 h-8 text-gray-400 mx-auto mb-3" />
-        <h3 className="text-sm font-black text-gray-900 mb-1 font-peace-sans uppercase tracking-tight">Your Cart is Empty</h3>
+        <h3 className="text-sm font-black text-gray-900 mb-1 uppercase tracking-tight">Your Cart is Empty</h3>
         <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest leading-tight">Pick some furry treats!</p>
       </div>
     );
@@ -32,7 +32,7 @@ export const SelectedProductsList = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-xs font-black text-gray-900 font-peace-sans uppercase tracking-widest">Cart Summary</h3>
+        <h3 className="text-xs font-black text-gray-900 uppercase tracking-widest">Cart Summary</h3>
         <span className="text-gray-500 font-black text-[10px] uppercase tracking-tighter">{selectedProducts.length} Items</span>
       </div>
 
@@ -54,7 +54,7 @@ export const SelectedProductsList = () => {
             </div>
 
             <div className="flex-1 min-w-0">
-              <h4 className="font-black text-gray-900 truncate leading-tight font-peace-sans uppercase tracking-tighter text-[10px]">{item.name}</h4>
+              <h4 className="font-black text-gray-900 truncate leading-tight uppercase tracking-tighter text-[10px]">{item.name}</h4>
               <p className="text-[9px] text-gray-500 line-clamp-1 font-bold uppercase tracking-tight">{item.description}</p>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-black font-black text-xs">

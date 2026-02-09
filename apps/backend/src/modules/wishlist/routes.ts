@@ -8,6 +8,19 @@ import { success } from '../../shared/utils/response.js';
  * Wishlist routes
  */
 export async function wishlistRoutes(fastify: FastifyInstance) {
+  // Get wishlist with full product details
+  fastify.get('/wishlist/full', { 
+    preHandler: authenticate,
+    schema: {
+      description: 'Get wishlist with full product details and variants',
+      tags: ['Wishlist', 'Currently in Use - Optimized'],
+    }
+  }, async (request: any, reply) => {
+    const userId = request.user.id;
+    const wishlistFull = await wishlistService.getWishlistFull(userId);
+    return success(wishlistFull);
+  });
+
   // Get wishlist
   fastify.get('/wishlist', { preHandler: authenticate }, async (request: any, reply) => {
     const userId = request.user.id;

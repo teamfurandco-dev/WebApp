@@ -109,7 +109,7 @@ const ProductList = () => {
           <div className="flex-1">
             <div className="flex flex-col gap-6 mb-12">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                <h1 className="text-3xl md:text-5xl font-serif font-bold text-black leading-[1.1]">
+                <h1 className="text-2xl md:text-4xl font-peace-sans text-black leading-[1.1]">
                   {search ? `Results for "${search}"` : (category === 'All' ? 'All Products' : category)}
                 </h1>
 
@@ -188,7 +188,7 @@ const ProductList = () => {
                   <PawPrint className="w-8 h-8 text-[#ffcc00] absolute left-0 top-1/2 -translate-y-1/2 -rotate-90" />
                   <PawPrint className="w-8 h-8 text-[#ffcc00] absolute right-0 top-1/2 -translate-y-1/2 rotate-90" />
                 </motion.div>
-                <p className="mt-6 text-lg font-serif text-black/60 animate-pulse">Sniffing out products...</p>
+                <p className="mt-6 text-lg font-bold text-black/60 animate-pulse font-sans">Sniffing out products...</p>
               </div>
             ) : products.length > 0 ? (
               <>
@@ -227,7 +227,7 @@ const ProductList = () => {
                 <div className="w-24 h-24 bg-[#ffcc00]/10 rounded-full flex items-center justify-center mb-8">
                   <PawPrint className="w-12 h-12 text-[#ffcc00]" />
                 </div>
-                <h3 className="text-3xl font-serif font-bold text-black mb-4">No treats here!</h3>
+                <h3 className="text-3xl font-peace-sans text-black mb-4">No treats here!</h3>
                 <p className="text-black/50 text-base md:text-lg mb-10 max-w-md">
                   We couldn't find any products matching your selection. Try adjusting your filters or search terms.
                 </p>

@@ -23,7 +23,6 @@ import Niche from '@/pages/Niche';
 // Unlimited Fur pages
 import BudgetSelection from '@/pages/unlimited-fur/BudgetSelection';
 import PetProfileSelection from '@/pages/unlimited-fur/PetProfileSelection';
-import CategorySelection from '@/pages/unlimited-fur/CategorySelection';
 import Shopping from '@/pages/unlimited-fur/Shopping';
 import UnlimitedCheckout from '@/pages/unlimited-fur/Checkout';
 import MyMonthlyPlan from '@/pages/unlimited-fur/MyMonthlyPlan';
@@ -66,8 +65,7 @@ function App() {
                       <Routes>
                         <Route path="monthly/budget" element={<BudgetSelection />} />
                         <Route path="monthly/pet-profile" element={<PetProfileSelection />} />
-                        <Route path="monthly/categories" element={<CategorySelection />} />
-                        <Route path="monthly/shopping" element={<Shopping />} />
+                        <Route path="monthly/shop" element={<Shopping />} />
                         <Route path="monthly/checkout" element={<UnlimitedCheckout />} />
                         <Route path="monthly/my-plan" element={<MyMonthlyPlan />} />
                         <Route path="monthly/success" element={<MonthlySuccess />} />
@@ -75,8 +73,7 @@ function App() {
 
                         <Route path="bundle/budget" element={<BudgetSelection />} />
                         <Route path="bundle/pet-profile" element={<PetProfileSelection />} />
-                        <Route path="bundle/categories" element={<CategorySelection />} />
-                        <Route path="bundle/shopping" element={<Shopping />} />
+                        <Route path="bundle/shop" element={<Shopping />} />
                         <Route path="bundle/checkout" element={<UnlimitedCheckout />} />
                         <Route path="bundle/success" element={<BundleSuccess />} />
                       </Routes>

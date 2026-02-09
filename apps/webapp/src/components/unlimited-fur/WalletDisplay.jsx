@@ -32,7 +32,7 @@ export const WalletDisplay = ({ wallet }) => {
           <Wallet className="w-5 h-5 text-[#ffcc00]" />
         </div>
         <div>
-          <h3 className="text-sm font-black text-gray-900 leading-tight font-peace-sans uppercase tracking-tighter">Your Wallet</h3>
+          <h3 className="text-sm font-black text-gray-900 leading-tight uppercase tracking-tighter">Your Wallet</h3>
           <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Live Budget</p>
         </div>
       </div>

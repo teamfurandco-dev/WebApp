@@ -143,13 +143,12 @@ const Wishlist = () => {
       setError(null);
 
       try {
-        if (wishlist.length === 0) {
-          setProducts([]);
-          return;
-        }
-
-        const allProducts = await api.getProducts();
-        const wishlistProducts = allProducts.filter(p => wishlist.includes(p.id));
+        const wishlistData = await api.getWishlistFull();
+        const wishlistProducts = wishlistData.map(item => ({
+          ...item.product,
+          wishlistItemId: item.id,
+          selectedVariant: item.variant
+        }));
         setProducts(wishlistProducts);
       } catch (err) {
         console.error("Failed to fetch wishlist products:", err);
@@ -161,7 +160,7 @@ const Wishlist = () => {
     };
 
     fetchWishlistProducts();
-  }, [wishlist, wishlistLoading]);
+  }, [wishlistLoading]);
 
   const handleRemoveFromWishlist = async (productId) => {
     setRemovingItems(prev => new Set(prev).add(productId));

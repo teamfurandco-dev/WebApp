@@ -20,7 +20,6 @@ export default function BudgetSelection() {
   const [searchParams] = useSearchParams();
   const mode = searchParams.get('mode') || 'monthly';
   const { switchMode } = useTheme();
-  const { startMonthlyPlan, startBundle, setBudget, loading } = useUnlimitedFur();
 
   const [selectedBudget, setSelectedBudget] = useState(null);
   const [customBudget, setCustomBudget] = useState('');
@@ -31,20 +30,13 @@ export default function BudgetSelection() {
     switchMode('CORE');
   }, [switchMode]);
 
-  const handleContinue = async () => {
+  const handleContinue = () => {
     const budgetValue = showCustom ? parseInt(customBudget) * 100 : selectedBudget;
     if (!budgetValue || budgetValue < 50000) {
       setError('Minimum budget is ₹500');
       return;
     }
-    try {
-      if (mode === 'monthly') await startMonthlyPlan();
-      else await startBundle();
-      await setBudget(budgetValue);
-      navigate(`/unlimited-fur/${mode}/pet-profile`);
-    } catch (err) {
-      setError('Failed to set budget.');
-    }
+    navigate(`/unlimited-fur/${mode}/pet-profile?budget=${budgetValue}`);
   };
 
   return (
@@ -114,14 +106,12 @@ export default function BudgetSelection() {
 
           <Button
             onClick={handleContinue}
-            disabled={(!selectedBudget && !customBudget) || loading}
+            disabled={!selectedBudget && !customBudget}
             className="w-full h-16 bg-black text-white rounded-2xl text-xl font-black uppercase tracking-tighter shadow-2xl transition-all active:scale-95 disabled:opacity-30 hover:bg-gray-800"
           >
-            {loading ? 'Processing...' : (
-              <div className="flex items-center justify-center gap-3">
-                Continue to Pet Profile <ArrowRight className="w-6 h-6" />
-              </div>
-            )}
+            <div className="flex items-center justify-center gap-3">
+              Continue to Pet Profile <ArrowRight className="w-6 h-6" />
+            </div>
           </Button>
 
           {error && <p className="text-red-600 text-center text-xs font-bold bg-red-50 py-2 rounded-lg">{error}</p>}
