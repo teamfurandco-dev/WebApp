@@ -167,25 +167,52 @@ export class BundleService {
    * Checkout the bundle and create an order
    */
   async checkout(bundleId: string, userId: string, addressId: string, paymentMethod: string) {
-    const bundle = await prisma.bundleDraft.findFirst({
+    // 1. Try to find an existing Bundle draft
+    let bundle = await prisma.bundleDraft.findFirst({
       where: { id: bundleId, userId },
       include: { products: true }
     });
 
-    if (!bundle) throw new NotFoundError('Bundle');
-    if (bundle.products.length === 0) throw new BadRequestError('No products selected');
+    // 2. Fallback to UnlimitedFurDraft (Optimized flow)
+    if (!bundle) {
+      const draft = await prisma.unlimitedFurDraft.findFirst({
+        where: { id: bundleId, userId, mode: 'bundle' },
+        include: { products: true }
+      });
 
-    const address = await prisma.address.findUnique({ where: { id: addressId } });
+      if (!draft) throw new NotFoundError('Bundle');
+
+      // Convert UnlimitedFurDraft to BundleDraft format for logic compatibility
+      // We don't necessarily need to create a record in bundleDraft if we handle the order creation here
+      // But let's build the 'bundle' object manually from draft
+      bundle = {
+        id: draft.id,
+        userId: draft.userId,
+        bundleBudget: draft.budget,
+        petType: draft.petType,
+        selectedCategories: [],
+        products: draft.products.map(p => ({
+          productId: p.productId,
+          variantId: p.variantId,
+          quantity: p.quantity,
+          price: p.lockedPrice
+        }))
+      } as any;
+    }
+
+    if (bundle!.products.length === 0) throw new BadRequestError('No products selected');
+
+    const address = await prisma.address.findFirst({ where: { id: addressId, userId } });
     if (!address) throw new NotFoundError('Address');
 
-    const subtotal = bundle.products.reduce((sum, p) => sum + (p.price * p.quantity), 0);
-    const discount = this.calculateDiscount(bundle.products);
+    const subtotal = bundle!.products.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+    const discount = this.calculateDiscount(bundle!.products);
     const total = subtotal - discount;
 
     const orderNumber = await this.generateOrderNumber();
 
     const productDetails = await Promise.all(
-      bundle.products.map(async p => {
+      bundle!.products.map(async p => {
         const variant = await prisma.productVariant.findUnique({
           where: { id: p.variantId },
           include: { product: true },
@@ -222,9 +249,9 @@ export class BundleService {
       await tx.oneTimeBundleOrder.create({
         data: {
           orderId: order.id,
-          bundleBudget: bundle.bundleBudget,
-          petType: bundle.petType || 'unknown',
-          selectedCategories: bundle.selectedCategories,
+          bundleBudget: bundle!.bundleBudget,
+          petType: bundle!.petType || 'unknown',
+          selectedCategories: bundle!.selectedCategories,
           discountApplied: discount,
         },
       });
@@ -237,8 +264,12 @@ export class BundleService {
         });
       }
 
-      // Clear the draft
-      await tx.bundleDraft.delete({ where: { id: bundleId } });
+      // Clear the draft (handle both models)
+      await tx.bundleDraft.deleteMany({ where: { id: bundleId } });
+      await tx.unlimitedFurDraft.updateMany({
+        where: { id: bundleId },
+        data: { status: 'completed' }
+      });
 
       return { order, discount };
     });

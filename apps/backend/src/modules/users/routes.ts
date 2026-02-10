@@ -30,6 +30,36 @@ export async function userRoutes(fastify: FastifyInstance) {
     return success(stats);
   });
 
+  // Phone Verification Request
+  fastify.post('/users/me/phone/verification-request', { preHandler: authenticate }, async (request: any, reply) => {
+    const userId = request.user.id;
+    const { phone } = request.body as { phone: string };
+
+    if (!phone) {
+      return reply.code(400).send({ success: false, error: 'Phone number is required' });
+    }
+
+    const result = await userService.requestPhoneVerification(userId, phone);
+    return success(result);
+  });
+
+  // Verify Phone OTP
+  fastify.post('/users/me/phone/verify', { preHandler: authenticate }, async (request: any, reply) => {
+    const userId = request.user.id;
+    const { phone, otp } = request.body as { phone: string; otp: string };
+
+    if (!phone || !otp) {
+      return reply.code(400).send({ success: false, error: 'Phone and OTP are required' });
+    }
+
+    try {
+      const result = await userService.verifyPhone(userId, phone, otp);
+      return success(result);
+    } catch (error: any) {
+      return reply.code(400).send({ success: false, error: error.message });
+    }
+  });
+
   // Admin routes
   fastify.get('/users', { preHandler: authenticateAdmin }, async (request, reply) => {
     const users = await userService.getAllUsers();

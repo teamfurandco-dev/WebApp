@@ -17,13 +17,14 @@ const UnlimitedPill = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#B8860B]/5 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
       </div>
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes shimmer {
           100% {
             transform: translateX(100%);
           }
         }
-      `}</style>
+      ` }} />
     </div>
   );
 };

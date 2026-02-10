@@ -6,7 +6,7 @@ import { useUnlimitedFur } from '@/context/UnlimitedFurContext';
 import { cn } from '@fur-co/utils';
 
 export const ProductGrid = () => {
-  const { wallet, addProduct, products, loading } = useUnlimitedFur();
+  const { wallet, addProduct, filteredProducts, loading } = useUnlimitedFur();
   const [error, setError] = useState('');
   const [addingProduct, setAddingProduct] = useState(null);
 
@@ -36,7 +36,7 @@ export const ProductGrid = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-black text-gray-900 font-peace-sans uppercase tracking-tight">Available Products</h2>
-        <p className="text-gray-600 font-bold text-xs uppercase tracking-widest">{products.length} found</p>
+        <p className="text-gray-600 font-bold text-xs uppercase tracking-widest">{filteredProducts.length} found</p>
       </div>
 
       {error && (
@@ -47,7 +47,7 @@ export const ProductGrid = () => {
       )}
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {products.map((product, index) => {
+        {filteredProducts.map((product, index) => {
           const price = product.variants?.[0]?.price || 0;
           const image = product.images?.[0]?.url || product.image;
           const affordable = isAffordable(price);
@@ -113,7 +113,7 @@ export const ProductGrid = () => {
         })}
       </div>
 
-      {products.length === 0 && !loading && (
+      {filteredProducts.length === 0 && !loading && (
         <div className="text-center py-24 bg-white/20 backdrop-blur-sm rounded-[3rem] border-2 border-dashed border-white/40">
           <div className="w-20 h-20 bg-white/40 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
             <AlertCircle className="w-10 h-10 text-gray-400" />

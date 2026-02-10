@@ -8,10 +8,10 @@ export const SelectedProductsList = () => {
   const { selectedProducts, removeProduct } = useUnlimitedFur();
   const [removing, setRemoving] = useState(null);
 
-  const handleRemove = async (productId) => {
+  const handleRemove = async (productId, variantId) => {
     try {
-      setRemoving(productId);
-      await removeProduct(productId);
+      setRemoving(`${productId}-${variantId}`);
+      await removeProduct(productId, variantId);
     } catch (err) {
       alert('Failed to remove product');
     } finally {
@@ -39,7 +39,7 @@ export const SelectedProductsList = () => {
       <AnimatePresence>
         {selectedProducts.map((item) => (
           <motion.div
-            key={item.productId}
+            key={`${item.productId}-${item.variantId}`}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
@@ -58,20 +58,20 @@ export const SelectedProductsList = () => {
               <p className="text-[9px] text-gray-500 line-clamp-1 font-bold uppercase tracking-tight">{item.description}</p>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-black font-black text-xs">
-                  ₹{(item.totalPrice / 100).toFixed(0)}
+                  ₹{((item.price * item.quantity) / 100).toFixed(0)}
                 </span>
                 <span className="text-gray-400 text-[9px] font-bold">x{item.quantity}</span>
               </div>
             </div>
 
             <Button
-              onClick={() => handleRemove(item.productId)}
-              disabled={removing === item.productId}
+              onClick={() => handleRemove(item.productId, item.variantId)}
+              disabled={removing === `${item.productId}-${item.variantId}`}
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-red-500/50 hover:text-red-500 hover:bg-red-50"
             >
-              {removing === item.productId ? (
+              {removing === `${item.productId}-${item.variantId}` ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-400" />
               ) : (
                 <X className="w-5 h-5" />

@@ -109,7 +109,7 @@ const start = async () => {
       },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Cache-Control', 'Pragma'],
       preflightContinue: false,
       optionsSuccessStatus: 204
     });
@@ -202,7 +202,7 @@ const start = async () => {
 
     await fastify.listen({ port: config.port, host: '0.0.0.0' });
     console.log(`🚀 Server running on http://localhost:${config.port}`);
-    
+
     // Start draft cleanup job
     startDraftCleanupJob();
     fastify.log.info('✅ Draft cleanup job scheduled');

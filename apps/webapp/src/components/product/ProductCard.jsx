@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ShoppingCart, Heart, Bone } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,12 @@ const ProductCard = ({ product }) => {
   const { isInWishlist, toggleWishlist } = useWishlist();
   const isWishlisted = isInWishlist(product.id);
   const [isAdding, setIsAdding] = useState(false);
+  const [searchParams] = useSearchParams();
+  const unlimitedSource = searchParams.get('source');
+
+  const productUrl = unlimitedSource === 'unlimited'
+    ? `/product/${product.id}?${searchParams.toString()}`
+    : `/product/${product.id}`;
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
@@ -74,7 +80,7 @@ const ProductCard = ({ product }) => {
         </button>
 
         {/* Image Container with "Second Look" Effect */}
-        <Link to={`/product/${product.id}`} className="relative aspect-square overflow-hidden bg-[#FDFBF7] block">
+        <Link to={productUrl} className="relative aspect-square overflow-hidden bg-[#FDFBF7] block">
           <img
             src={product.images?.[0] || product.image}
             alt={product.name}
@@ -94,7 +100,7 @@ const ProductCard = ({ product }) => {
         <CardContent className="flex-1 p-6 flex flex-col space-y-1">
           <span className="text-[10px] text-black/40 font-semibold uppercase tracking-widest">{product.category || 'Pet Care'}</span>
 
-          <Link to={`/product/${product.id}`} className="mb-2 block">
+          <Link to={productUrl} className="mb-2 block">
             <h3 className="font-medium text-lg leading-tight text-black group-hover:text-furco-gold transition-colors line-clamp-2">
               {product.name}
             </h3>
@@ -112,17 +118,19 @@ const ProductCard = ({ product }) => {
           </div>
 
           {/* Add to Cart - Minimal Icon */}
-          <button
-            disabled={isAdding}
-            onClick={handleAddToCart}
-            className="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-furco-yellow text-black disabled:opacity-50"
-          >
-            {isAdding ? (
-              <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-            ) : (
-              <ShoppingCart className="w-4 h-4" />
-            )}
-          </button>
+          {unlimitedSource !== 'unlimited' && (
+            <button
+              disabled={isAdding}
+              onClick={handleAddToCart}
+              className="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-furco-yellow text-black disabled:opacity-50"
+            >
+              {isAdding ? (
+                <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+              ) : (
+                <ShoppingCart className="w-4 h-4" />
+              )}
+            </button>
+          )}
         </CardContent>
       </Card>
     </motion.div>

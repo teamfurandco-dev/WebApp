@@ -3,9 +3,9 @@ import { Wallet, TrendingUp, TrendingDown } from 'lucide-react';
 import { cn } from '@fur-co/utils';
 
 export const WalletDisplay = ({ wallet }) => {
-  const { monthlyBudget, spent, remaining, canAddMore } = wallet;
+  const { budget, spent, remaining, canAddMore } = wallet;
 
-  const percentageUsed = monthlyBudget > 0 ? (spent / monthlyBudget) * 100 : 0;
+  const percentageUsed = budget > 0 ? (spent / budget) * 100 : 0;
   const percentageRemaining = 100 - percentageUsed;
 
   // Determine color state
@@ -41,7 +41,7 @@ export const WalletDisplay = ({ wallet }) => {
         {/* Monthly Budget */}
         <div>
           <div className="text-[10px] uppercase tracking-widest text-gray-400 font-black mb-0.5">Budget Cap</div>
-          <div className="text-2xl font-black text-black leading-none">{formatPrice(monthlyBudget)}</div>
+          <div className="text-2xl font-black text-black leading-none">{formatPrice(budget)}</div>
         </div>
 
         {/* Progress Bar */}

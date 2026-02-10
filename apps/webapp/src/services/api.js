@@ -19,7 +19,6 @@ const apiRequest = async (endpoint, options = {}) => {
 
   const config = {
     headers: {
-      'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     },
@@ -27,6 +26,7 @@ const apiRequest = async (endpoint, options = {}) => {
   };
 
   if (options.body && typeof options.body === 'object') {
+    config.headers['Content-Type'] = 'application/json';
     config.body = JSON.stringify(options.body);
   }
 
@@ -35,6 +35,11 @@ const apiRequest = async (endpoint, options = {}) => {
   if (!response.ok) {
     const error = await response.text();
     throw new Error(`API Error: ${response.status} - ${error}`);
+  }
+
+  // Handle 204 No Content or empty responses
+  if (response.status === 204 || response.headers.get('content-length') === '0') {
+    return null;
   }
 
   const result = await response.json();
@@ -183,7 +188,7 @@ export const api = {
       return await apiRequest('/api/cart');
     } catch (error) {
       console.error('Error fetching cart:', error);
-      return { items: [], total: 0 };
+      throw error;
     }
   },
 
@@ -273,7 +278,7 @@ export const api = {
       return await apiRequest('/api/wishlist');
     } catch (error) {
       console.error('Error fetching wishlist:', error);
-      return [];
+      throw error;
     }
   },
 
@@ -333,7 +338,7 @@ export const api = {
       return await apiRequest('/api/addresses');
     } catch (error) {
       console.error('Error fetching addresses:', error);
-      return [];
+      throw error;
     }
   },
 
@@ -359,9 +364,9 @@ export const api = {
    */
   updateAddress: async (addressId, addressData) => {
     try {
-      return await apiRequest('/api/addresses', {
+      return await apiRequest(`/api/addresses/${addressId}`, {
         method: 'PATCH',
-        body: { addressId, ...addressData }
+        body: addressData
       });
     } catch (error) {
       console.error('Error updating address:', error);
@@ -375,9 +380,8 @@ export const api = {
    */
   deleteAddress: async (addressId) => {
     try {
-      return await apiRequest('/api/addresses', {
-        method: 'DELETE',
-        body: { addressId }
+      return await apiRequest(`/api/addresses/${addressId}`, {
+        method: 'DELETE'
       });
     } catch (error) {
       console.error('Error deleting address:', error);
@@ -423,7 +427,7 @@ export const api = {
       return await apiRequest('/api/orders');
     } catch (error) {
       console.error('Error fetching orders:', error);
-      return [];
+      throw error;
     }
   },
 
@@ -481,12 +485,7 @@ export const api = {
       return await apiRequest('/api/profile/dashboard');
     } catch (error) {
       console.error('Error fetching profile dashboard:', error);
-      return {
-        profile: null,
-        orders: [],
-        addresses: [],
-        stats: { totalOrders: 0, totalSpent: 0, reviewsWritten: 0, wishlistItems: 0 }
-      };
+      throw error;
     }
   },
 
@@ -529,6 +528,38 @@ export const api = {
     } catch (error) {
       console.error('Error fetching user stats:', error);
       return { totalOrders: 0, totalSpent: 0, wishlistCount: 0 };
+    }
+  },
+
+  /**
+   * POST /api/users/me/phone/verification-request
+   * Request phone verification OTP
+   */
+  requestPhoneVerification: async (phone) => {
+    try {
+      return await apiRequest('/api/users/me/phone/verification-request', {
+        method: 'POST',
+        body: { phone }
+      });
+    } catch (error) {
+      console.error('Error requesting phone verification:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * POST /api/users/me/phone/verify
+   * Verify phone with OTP
+   */
+  verifyPhone: async (phone, otp) => {
+    try {
+      return await apiRequest('/api/users/me/phone/verify', {
+        method: 'POST',
+        body: { phone, otp }
+      });
+    } catch (error) {
+      console.error('Error verifying phone:', error);
+      throw error;
     }
   },
 
@@ -845,89 +876,6 @@ export const api = {
     };
   },
 
-  /**
-   * GET /api/orders (user-specific)
-   * Fetch user's order history
-   * 
-   * @param {string} userId - User UUID
-   * @returns {Array} Array of orders with embedded items
-   */
-  getOrders: async (userId) => {
-    if (!userId) return [];
-
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching orders:', error);
-      return [];
-    }
-
-    return (data || []).map(order => ({
-      ...order,
-      items: order.items_data || [], // JSONB field with order items
-      events: generateOrderEvents(order)
-    }));
-  },
-
-  /**
-   * GET /api/orders/:id
-   * Fetch single order details
-   */
-  getOrderById: async (orderId) => {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('id', orderId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching order:', error);
-      return null;
-    }
-
-    return {
-      ...data,
-      items: data.items_data || [],
-      events: generateOrderEvents(data)
-    };
-  },
-
-  // Additional endpoints for user management, referrals, etc.
-  getUserProfile: async (userId) => {
-    if (!userId) return null;
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching profile:', error);
-      return null;
-    }
-    return data;
-  },
-
-  getAddresses: async (userId) => {
-    if (!userId) return [];
-
-    const { data, error } = await supabase
-      .from('addresses')
-      .select('*')
-      .eq('user_id', userId)
-      .order('is_default', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching addresses:', error);
-      return [];
-    }
-    return data;
-  },
 
   getFeaturedProducts: async () => {
     try {
@@ -1030,6 +978,95 @@ export const api = {
     } catch (error) {
       console.error('Error fetching blog categories:', error);
       return [];
+    }
+  },
+
+  // ===== UNLIMITED FUR API =====
+  unlimited: {
+    /**
+     * Initialize shop with budget and pet type
+     * @param {number} budget - Budget in cents
+     * @param {string} petType - 'cat' or 'dog'
+     */
+    initShop: async (budget, petType) => {
+      try {
+        return await apiRequest(`/api/unlimited-fur/shop/init?budget=${budget}&petType=${petType}`);
+      } catch (error) {
+        console.error('Error initializing shop:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Create a new draft plan/bundle
+     */
+    createDraft: async (data) => {
+      try {
+        return await apiRequest('/api/unlimited-fur/draft/create', {
+          method: 'POST',
+          body: data
+        });
+      } catch (error) {
+        console.error('Error creating draft:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Get draft details
+     */
+    getDraft: async (draftId) => {
+      try {
+        return await apiRequest(`/api/unlimited-fur/draft/${draftId}`);
+      } catch (error) {
+        console.error('Error fetching draft:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Update products in a draft
+     */
+    updateDraftProducts: async (draftId, data) => {
+      try {
+        return await apiRequest(`/api/unlimited-fur/draft/${draftId}/products`, {
+          method: 'PATCH',
+          body: data
+        });
+      } catch (error) {
+        console.error('Error updating draft products:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Activate a monthly plan
+     */
+    activateMonthlyPlan: async (draftId, data) => {
+      try {
+        return await apiRequest(`/api/unlimited-fur/monthly-plan/${draftId}/activate`, {
+          method: 'POST',
+          body: data
+        });
+      } catch (error) {
+        console.error('Error activating monthly plan:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Checkout a one-time bundle
+     */
+    checkoutBundle: async (draftId, data) => {
+      try {
+        return await apiRequest(`/api/unlimited-fur/bundle/${draftId}/checkout`, {
+          method: 'POST',
+          body: data
+        });
+      } catch (error) {
+        console.error('Error checking out bundle:', error);
+        throw error;
+      }
     }
   }
 };

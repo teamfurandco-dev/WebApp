@@ -1,5 +1,6 @@
 import { prisma } from '../../shared/lib/prisma.js';
 import { BadRequestError, NotFoundError } from '../../shared/errors/index.js';
+import { getPublicUrl } from '../../shared/lib/supabase.js';
 
 export class DraftService {
   async createDraft(userId: string, mode: string, budget: number, petType: string, products: any[]) {
@@ -50,14 +51,26 @@ export class DraftService {
       });
 
       if (existing) {
-        await prisma.draftProduct.update({
-          where: { id: existing.id },
-          data: { quantity: existing.quantity + quantity }
-        });
+        const newQuantity = existing.quantity + quantity;
+
+        // If quantity reaches 0 or below, remove the item
+        if (newQuantity <= 0) {
+          await prisma.draftProduct.delete({
+            where: { id: existing.id }
+          });
+        } else {
+          await prisma.draftProduct.update({
+            where: { id: existing.id },
+            data: { quantity: newQuantity }
+          });
+        }
       } else {
-        await prisma.draftProduct.create({
-          data: { draftId, productId, variantId, quantity, lockedPrice: variant.price }
-        });
+        // Only create if quantity is positive
+        if (quantity > 0) {
+          await prisma.draftProduct.create({
+            data: { draftId, productId, variantId, quantity, lockedPrice: variant.price }
+          });
+        }
       }
     } else if (action === 'remove') {
       await prisma.draftProduct.deleteMany({
@@ -114,6 +127,58 @@ export class DraftService {
         image: primaryImage ? getPublicUrl(primaryImage.bucketName, primaryImage.filePath) : null,
       };
     });
+  }
+
+  async getDraft(draftId: string, userId: string) {
+    const draft = await prisma.unlimitedFurDraft.findFirst({
+      where: { id: draftId, userId },
+      include: {
+        products: {
+          include: {
+            variant: {
+              include: {
+                product: {
+                  include: {
+                    images: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!draft) throw new NotFoundError('Draft');
+
+    const wallet = await this.calculateWallet(draft.id);
+
+    // Format products for frontend
+    const products = draft.products.map(p => {
+      const primaryImage = p.variant.product.images[0];
+      return {
+        id: p.id,
+        productId: p.productId,
+        variantId: p.variantId,
+        quantity: p.quantity,
+        price: p.lockedPrice,
+        name: p.variant.product.name,
+        variantName: p.variant.name,
+        image: primaryImage ? getPublicUrl(primaryImage.bucketName, primaryImage.filePath) : null,
+      };
+    });
+
+    return {
+      draft: {
+        id: draft.id,
+        status: draft.status,
+        mode: draft.mode,
+        budget: draft.budget,
+        petType: draft.petType,
+      },
+      products,
+      wallet
+    };
   }
 }
 

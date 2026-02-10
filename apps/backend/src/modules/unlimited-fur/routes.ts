@@ -72,6 +72,19 @@ export default async function unlimitedFurRoutes(fastify: FastifyInstance) {
     return success(result);
   });
 
+  fastify.get('/draft/:id', {
+    preHandler: authenticate,
+    schema: {
+      description: 'Get draft details',
+      tags: ['Unlimited Fur', 'Currently in Use - Optimized']
+    }
+  }, async (request: any) => {
+    const userId = request.user.id;
+    const { id } = request.params;
+    const result = await draftService.getDraft(id, userId);
+    return success(result);
+  });
+
   // Monthly Plan Routes
   fastify.post('/monthly-plan/draft', { preHandler: authenticate }, async (request: any, reply) => {
     const userId = request.user.id;

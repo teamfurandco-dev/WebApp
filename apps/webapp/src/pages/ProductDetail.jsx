@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +24,7 @@ import AccessorySpecs from '@/components/product/AccessorySpecs';
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -43,9 +44,16 @@ const ProductDetail = () => {
   const isWishlisted = product ? isInWishlist(product.id) : false;
   const { switchMode } = useTheme();
 
+  const [searchParams] = useSearchParams();
+  const unlimitedSource = searchParams.get('source');
+  const unlimitedMode = searchParams.get('mode');
+  const unlimitedBudget = searchParams.get('budget');
+  const unlimitedPetType = searchParams.get('petType');
+  const unlimitedDraftId = searchParams.get('draftId');
+
   useEffect(() => {
-    switchMode('GATEWAY');
-  }, [switchMode]);
+    switchMode(unlimitedSource === 'unlimited' ? 'CORE' : 'GATEWAY');
+  }, [switchMode, unlimitedSource]);
 
   // Determine category type for dynamic specs rendering
   const categoryType = product ? getCategoryType(product.category) : 'Accessories';
@@ -155,6 +163,47 @@ const ProductDetail = () => {
     try {
       const variantInfo = selectedVariant ? ` (${selectedVariant.name || Object.values(selectedVariant.attributes || {}).join(' - ')})` : '';
 
+      if (unlimitedSource === 'unlimited') {
+        let draftId = unlimitedDraftId;
+
+        if (!draftId) {
+          // Create new draft if none exists
+          const draft = await api.unlimited.createDraft({
+            mode: unlimitedMode,
+            budget: Number(unlimitedBudget),
+            petType: unlimitedPetType,
+            products: [{
+              productId: product.id,
+              variantId: selectedVariant.id,
+              quantity,
+              price: selectedVariant.price_cents // Verify price field name
+            }]
+          });
+          draftId = draft.draftId;
+        } else {
+          // Update existing draft
+          await api.unlimited.updateDraftProducts(draftId, {
+            action: 'add',
+            productId: product.id,
+            variantId: selectedVariant.id,
+            quantity
+          });
+        }
+
+        toast.success(`Added to your box!`);
+
+        // Navigate back with draftId to preserve state
+        const params = new URLSearchParams({
+          budget: unlimitedBudget,
+          petType: unlimitedPetType,
+          mode: unlimitedMode || 'monthly',
+          draftId
+        });
+
+        navigate(`/unlimited-fur/${unlimitedMode || 'monthly'}/shop?${params.toString()}`);
+        return;
+      }
+
       await api.addToCart(product.id, selectedVariant.id, quantity);
 
       toast.success(`Added ${quantity} ${product.name}${variantInfo} to cart`, {
@@ -165,7 +214,7 @@ const ProductDetail = () => {
       });
     } catch (error) {
       console.error('Add to cart failed:', error);
-      toast.error(error.message || 'Failed to add item to cart. Please try again.');
+      toast.error(error.message || 'Failed to add item. Please try again.');
     } finally {
       setIsAddingToCart(false);
     }
@@ -332,7 +381,7 @@ const ProductDetail = () => {
                       <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
                       Adding...
                     </div>
-                  ) : currentStock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                  ) : currentStock === 0 ? 'Out of Stock' : (unlimitedSource === 'unlimited' ? 'Add to Box' : 'Add to Cart')}
                 </Button>
 
                 <Button

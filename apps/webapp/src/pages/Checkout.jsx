@@ -1,211 +1,196 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '@/context/ThemeContext';
-import { ArrowLeft, CreditCard, Truck, CheckCircle } from 'lucide-react';
-import { logActivity } from '@/lib/supabase';
+import { ArrowLeft, ShoppingBag, ShieldCheck, Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
+import { cn } from '@fur-co/utils';
+import AddressSection from '@/components/checkout/AddressSection';
+import PaymentSelector from '@/components/checkout/PaymentSelector';
+import { api } from '@/services/api';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [step, setStep] = useState(1); // 1: Address, 2: Payment, 3: Review
+  const { cart, loading: cartLoading } = useCart();
   const [loading, setLoading] = useState(false);
-  const { switchMode } = useTheme();
+  const { switchMode, currentMode } = useTheme();
+
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('upi');
 
   useEffect(() => {
     switchMode('GATEWAY');
-  }, [switchMode]);
+    if (!cartLoading && (!cart.items || cart.items.length === 0)) {
+      navigate('/shop');
+    }
+  }, [switchMode, cart, cartLoading, navigate]);
 
   const handlePlaceOrder = async () => {
-    setLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    if (user) {
-      await logActivity(user.id, 'place_order', 'order', 'ord_mock_123', { total_amount_cents: 189700 });
+    if (!selectedAddressId) {
+      toast.error("Please select a delivery address");
+      return;
     }
 
-    setLoading(false);
-    toast.success("Order placed successfully!");
-    navigate('/account/orders'); // Redirect to orders
+    try {
+      setLoading(true);
+
+      const orderData = {
+        items: cart.items.map(item => ({
+          variantId: item.variantId,
+          quantity: item.quantity
+        })),
+        shippingAddressId: selectedAddressId,
+        paymentMethod: paymentMethod
+      };
+
+      await api.createOrder(orderData);
+
+      toast.success("Order placed successfully!");
+      navigate('/account/orders');
+    } catch (err) {
+      console.error('Order placement failed:', err);
+      toast.error(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const isUnlimitedMode = currentMode === 'CORE';
+
   return (
-    <div className="container px-4 md:px-6 py-12 max-w-4xl">
-      <div className="mb-8">
-        <Link to="/cart" className="flex items-center text-sm text-muted-foreground hover:text-primary mb-4">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Cart
+    <div className={cn(
+      "min-h-screen pb-20 relative overflow-x-hidden font-sans selection:bg-black/10 selection:text-black",
+      isUnlimitedMode ? "bg-[#ffcc00]" : "bg-white"
+    )}>
+
+      {/* Premium Header */}
+      <div className="container mx-auto max-w-7xl px-4 md:px-6 relative z-10 pt-10 mb-8">
+        <Link
+          to="/shop"
+          className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-black hover:opacity-60 transition-all mb-4"
+        >
+          <ArrowLeft className="w-3 h-3" /> Back to Shop
         </Link>
-        <h1 className="text-3xl font-bold">Checkout</h1>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-black/10 pb-6">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-black text-gray-900 font-peace-sans leading-none tracking-tighter mb-2 uppercase">
+              Checkout
+            </h1>
+            <p className="text-gray-500 font-bold text-sm uppercase tracking-widest opacity-60">
+              Finalize your pet's premium haul
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex -space-x-3">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-black flex items-center justify-center">
+                  <ShieldCheck className="w-4 h-4 text-[#ffcc00]" />
+                </div>
+              ))}
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest opacity-60 text-gray-400">Secure 256-bit SSL</span>
+          </div>
+        </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-6">
-          {/* Step 1: Shipping Address */}
-          <Card className={step === 1 ? 'border-primary ring-1 ring-primary' : ''}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm ${step >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>1</div>
-                Shipping Address
-              </CardTitle>
-            </CardHeader>
-            {step === 1 && (
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" placeholder="John" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" placeholder="Doe" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="address">Address</Label>
-                  <Input id="address" placeholder="123 Main St" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Input id="city" placeholder="Mumbai" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="zip">ZIP Code</Label>
-                    <Input id="zip" placeholder="400001" />
-                  </div>
-                </div>
-                <Button className="w-full mt-4" onClick={() => setStep(2)}>Continue to Payment</Button>
-              </CardContent>
-            )}
-            {step > 1 && (
-              <CardContent>
-                <p className="text-muted-foreground">123 Main St, Mumbai, 400001</p>
-                <Button variant="link" className="p-0 h-auto" onClick={() => setStep(1)}>Edit</Button>
-              </CardContent>
-            )}
-          </Card>
+      <div className="container mx-auto max-w-7xl px-4 md:px-6 relative z-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
-          {/* Step 2: Payment */}
-          <Card className={step === 2 ? 'border-primary ring-1 ring-primary' : ''}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm ${step >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>2</div>
-                Payment Method
-              </CardTitle>
-            </CardHeader>
-            {step === 2 && (
-              <CardContent className="space-y-4">
-                <RadioGroup defaultValue="card">
-                  <div className="flex items-center space-x-2 border p-4 rounded-md">
-                    <RadioGroupItem value="card" id="card" />
-                    <Label htmlFor="card" className="flex items-center gap-2 cursor-pointer flex-1">
-                      <CreditCard className="h-5 w-5" />
-                      Credit/Debit Card
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2 border p-4 rounded-md">
-                    <RadioGroupItem value="cod" id="cod" />
-                    <Label htmlFor="cod" className="flex items-center gap-2 cursor-pointer flex-1">
-                      <Truck className="h-5 w-5" />
-                      Cash on Delivery
-                    </Label>
-                  </div>
-                </RadioGroup>
+          {/* Main Checkout Flow */}
+          <div className="lg:col-span-8 space-y-10">
 
-                <div className="space-y-2 pt-4">
-                  <Label>Card Details (Mock)</Label>
-                  <Input placeholder="0000 0000 0000 0000" />
-                  <div className="grid grid-cols-2 gap-4">
-                    <Input placeholder="MM/YY" />
-                    <Input placeholder="CVC" />
+            {/* 1. Delivery Address */}
+            <section>
+              <AddressSection
+                selectedAddressId={selectedAddressId}
+                onSelect={setSelectedAddressId}
+              />
+            </section>
+
+            {/* 2. Payment Selection */}
+            <section>
+              <PaymentSelector
+                selectedMethod={paymentMethod}
+                onSelect={setPaymentMethod}
+              />
+            </section>
+          </div>
+
+          {/* Sidebar - Order Summary */}
+          <div className="lg:col-span-4 lg:sticky lg:top-10 h-fit">
+            <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-2xl relative overflow-hidden">
+              <h2 className="text-xl font-black mb-8 flex items-center gap-3 text-gray-900 font-peace-sans uppercase tracking-tighter flex-shrink-0">
+                <div className="p-2 bg-black rounded-lg">
+                  <ShoppingBag className="w-5 h-5 text-[#ffcc00]" />
+                </div>
+                Order Summary
+              </h2>
+
+              {/* Items Mini List */}
+              <div className="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                {cart.items?.map(item => (
+                  <div key={item.id} className="flex items-center gap-4 group">
+                    <div className="w-14 h-14 rounded-xl bg-gray-50 flex-shrink-0 overflow-hidden border border-gray-100">
+                      <img
+                        src={item.variant?.product?.images?.[0]?.url || '/placeholder-product.png'}
+                        alt={item.variant?.product?.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-black text-[10px] text-gray-900 uppercase tracking-tight line-clamp-1">{item.variant?.product?.name}</p>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{item.quantity} × {item.variant?.name}</p>
+                    </div>
+                    <div className="font-black text-sm text-gray-900">₹{(item.variant?.price * item.quantity / 100).toFixed(0)}</div>
                   </div>
-                </div>
-
-                <div className="flex gap-4 mt-4">
-                  <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
-                  <Button className="flex-1" onClick={() => setStep(3)}>Review Order</Button>
-                </div>
-              </CardContent>
-            )}
-            {step > 2 && (
-              <CardContent>
-                <p className="text-muted-foreground">Credit/Debit Card ending in 0000</p>
-                <Button variant="link" className="p-0 h-auto" onClick={() => setStep(2)}>Edit</Button>
-              </CardContent>
-            )}
-          </Card>
-
-          {/* Step 3: Review */}
-          <Card className={step === 3 ? 'border-primary ring-1 ring-primary' : ''}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm ${step >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>3</div>
-                Review & Place Order
-              </CardTitle>
-            </CardHeader>
-            {step === 3 && (
-              <CardContent>
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between font-medium">
-                    <span>Premium Chicken & Rice Dog Food x 1</span>
-                    <span>₹1299</span>
-                  </div>
-                  <div className="flex justify-between font-medium">
-                    <span>Durable Rope Toy x 2</span>
-                    <span>₹598</span>
-                  </div>
-                </div>
-                <Separator className="my-4" />
-                <div className="flex justify-between font-bold text-lg">
-                  <span>Order Total</span>
-                  <span>₹1897</span>
-                </div>
-
-                <div className="flex gap-4 mt-6">
-                  <Button variant="outline" onClick={() => setStep(2)}>Back</Button>
-                  <Button className="flex-1 bg-green-600 hover:bg-green-700 text-white" onClick={handlePlaceOrder} disabled={loading}>
-                    {loading ? 'Processing...' : 'Place Order'}
-                  </Button>
-                </div>
-              </CardContent>
-            )}
-          </Card>
-        </div>
-
-        {/* Order Summary Sidebar */}
-        <div className="md:col-span-1">
-          <Card className="sticky top-24 bg-muted/50">
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span>₹1897</span>
+                ))}
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Shipping</span>
-                <span className="text-green-600">Free</span>
+
+              {/* Cost Breakdown */}
+              <div className="space-y-4 border-t border-gray-100 pt-6 mb-8">
+                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-gray-400">
+                  <span>Subtotal</span>
+                  <span className="text-gray-900">₹{(cart.total / 100).toFixed(0)}</span>
+                </div>
+
+                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-gray-400">
+                  <span>Shipping</span>
+                  <span className="text-green-600">Free</span>
+                </div>
+
+                <div className="pt-4 border-t border-gray-100 flex justify-between items-end">
+                  <div>
+                    <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400">Grand Total</span>
+                    <span className="text-4xl font-black text-gray-900 font-peace-sans leading-none tracking-tighter">₹{(cart.total / 100).toFixed(0)}</span>
+                  </div>
+                </div>
               </div>
-              <Separator />
-              <div className="flex justify-between font-bold">
-                <span>Total</span>
-                <span>₹1897</span>
-              </div>
-            </CardContent>
-            <CardFooter className="text-xs text-muted-foreground">
-              By placing an order, you agree to our Terms of Service and Privacy Policy.
-            </CardFooter>
-          </Card>
+
+              {/* Place Order Button */}
+              <Button
+                onClick={handlePlaceOrder}
+                disabled={loading || !selectedAddressId || cartLoading}
+                className="w-full bg-black text-[#ffcc00] hover:bg-gray-800 h-16 rounded-3xl text-lg font-black shadow-xl active:scale-95 transition-all disabled:opacity-50 uppercase tracking-widest group"
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" /> Processing
+                  </div>
+                ) : (
+                  <>
+                    Place Order <ArrowLeft className="ml-2 w-5 h-5 rotate-180 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </Button>
+
+              <p className="mt-8 text-center text-[10px] font-black uppercase tracking-widest text-gray-400 leading-relaxed">
+                By placing this order, you agree to Fur & Co's <Link to="/terms" className="text-black underline">Terms of Service</Link>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -130,20 +130,55 @@ export class MonthlyPlanService {
    * Activate the monthly plan (Transactional)
    */
   async activatePlan(planId: string, userId: string, addressId: string, paymentMethod: string, billingCycleDay: number) {
-    const plan = await prisma.monthlyPlan.findFirst({
+    // 1. Try to find an existing MonthlyPlan draft
+    let plan = await prisma.monthlyPlan.findFirst({
       where: { id: planId, userId, planStatus: 'draft' },
       include: { products: { include: { product: true, variant: true } } },
     });
 
-    if (!plan) throw new NotFoundError('Plan');
-    if (plan.products.length === 0) throw new BadRequestError('Plan must have products to activate');
+    // 2. Fallback to UnlimitedFurDraft (Optimized flow)
+    if (!plan) {
+      const draft = await prisma.unlimitedFurDraft.findFirst({
+        where: { id: planId, userId, mode: 'monthly' },
+        include: { products: { include: { variant: { include: { product: true } } } } }
+      });
 
-    const address = await prisma.address.findUnique({ where: { id: addressId, userId } });
+      if (!draft) throw new NotFoundError('Plan');
+
+      // Convert UnlimitedFurDraft to a MonthlyPlan
+      plan = await prisma.monthlyPlan.create({
+        data: {
+          userId,
+          monthlyBudget: draft.budget,
+          petType: draft.petType,
+          selectedCategories: [], // Optional: can be derived if needed
+          planStatus: 'draft',
+          products: {
+            create: draft.products.map(p => ({
+              productId: p.productId,
+              variantId: p.variantId,
+              quantity: p.quantity,
+              lockedPrice: p.lockedPrice
+            }))
+          }
+        },
+        include: { products: { include: { product: true, variant: true } } }
+      });
+
+      // Cleanup the temporary draft
+      await prisma.unlimitedFurDraft.update({
+        where: { id: planId },
+        data: { status: 'completed' }
+      });
+    }
+
+    if (plan.products.length === 0) throw new BadRequestError('Plan must have products to activate');
+    const address = await prisma.address.findFirst({ where: { id: addressId, userId } });
     if (!address) throw new NotFoundError('Shipping address');
 
-    const wallet = await this.calculateWallet(planId, userId);
+    const subtotal = plan.products.reduce((sum, p) => sum + (p.lockedPrice * p.quantity), 0);
+    const remaining = plan.monthlyBudget - subtotal;
     const nextBillingDate = this.calculateNextBillingDate(billingCycleDay);
-
     const orderNumber = await this.generateOrderNumber();
 
     return await prisma.$transaction(async (tx) => {
@@ -152,12 +187,12 @@ export class MonthlyPlanService {
         data: {
           userId,
           orderNumber,
-          subtotal: wallet.spent,
-          total: wallet.spent,
+          subtotal,
+          total: subtotal,
           paymentMethod,
           shippingAddress: address as any,
           items: {
-            create: plan.products.map(p => ({
+            create: plan!.products.map(p => ({
               productId: p.productId,
               variantId: p.variantId,
               productName: p.product.name,
@@ -174,20 +209,20 @@ export class MonthlyPlanService {
       // 2. Create the plan order tracking record
       await tx.monthlyPlanOrder.create({
         data: {
-          planId,
+          planId: plan!.id,
           orderId: order.id,
           cycleNumber: 1,
           cycleMonth: new Date(),
-          budgetUsed: wallet.spent,
-          budgetRemaining: wallet.remaining,
-          productsSnapshot: plan.products as any,
+          budgetUsed: subtotal,
+          budgetRemaining: remaining,
+          productsSnapshot: plan!.products as any,
           status: 'confirmed',
         },
       });
 
       // 3. Update the plan status
       const updatedPlan = await tx.monthlyPlan.update({
-        where: { id: planId },
+        where: { id: plan!.id },
         data: {
           planStatus: 'active',
           billingCycleDay,
@@ -197,7 +232,7 @@ export class MonthlyPlanService {
       });
 
       // 4. Reduce stock for the first cycle
-      for (const p of plan.products) {
+      for (const p of plan!.products) {
         await tx.productVariant.update({
           where: { id: p.variantId },
           data: { stock: { decrement: p.quantity } }

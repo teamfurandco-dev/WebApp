@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import {
   User, Package, MapPin, CreditCard, Settings,
-  LogOut, Plus, ChevronRight, Truck, ShoppingBag, Heart, X
+  LogOut, Plus, ChevronRight, Truck, ShoppingBag, Heart, X, RefreshCw, ShieldCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -20,7 +20,7 @@ import dogImage from '@/assets/dog.jpeg';
 const SidebarLink = ({ to, icon: Icon, label, active }) => (
   <Link to={to} className="block group">
     <div className={cn(
-      "flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 relative overflow-hidden",
+      "flex items-center gap-4 px-6 py-4 rounded-xl transition-all duration-300 relative overflow-hidden",
       active
         ? "bg-furco-yellow text-black font-bold shadow-lg shadow-furco-yellow/10"
         : "text-black/60 hover:bg-black/5 hover:text-black"
@@ -65,13 +65,70 @@ const PetAvatar = ({ type, name, active, onDelete }) => (
   </div>
 );
 
+const OtpModal = ({ isOpen, onClose, onVerify, phone }) => {
+  const [otp, setOtp] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    await onVerify(otp);
+    setLoading(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="bg-white rounded-2xl p-10 w-full max-w-md relative z-10 shadow-2xl animate-in fade-in zoom-in duration-300">
+        <button
+          onClick={onClose}
+          className="absolute top-8 right-8 p-2 rounded-full hover:bg-black/5 transition-colors"
+        >
+          <X className="w-6 h-6 text-black/40" />
+        </button>
+
+        <h2 className="text-3xl font-peace-sans text-black mb-2">Verify Phone</h2>
+        <p className="text-black/40 font-medium mb-8">
+          Enter the code sent to <span className="text-black font-bold">{phone}</span>
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <input
+            type="text"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            placeholder="123456"
+            maxLength={6}
+            className="w-full h-16 bg-black/5 rounded-xl px-4 text-center text-3xl font-peace-sans tracking-[0.5em] text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
+            autoFocus
+          />
+
+          <p className="text-xs text-center text-black/40">
+            Didn't receive code? <button type="button" className="text-black font-bold hover:underline">Resend</button>
+          </p>
+
+          <Button
+            type="submit"
+            disabled={loading || otp.length < 4}
+            className="w-full h-14 bg-black text-white rounded-xl text-lg font-peace-sans uppercase tracking-[0.1em] shadow-xl hover:bg-gray-800 transition-all disabled:opacity-50"
+          >
+            {loading ? 'Verifying...' : 'Verify Now'}
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const AddPetModal = ({ isOpen, onClose, onAdd }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="bg-white rounded-[3rem] p-10 w-full max-w-lg relative z-10 shadow-2xl animate-in fade-in zoom-in duration-300">
+      <div className="bg-white rounded-2xl p-10 w-full max-w-lg relative z-10 shadow-2xl animate-in fade-in zoom-in duration-300">
         <button
           onClick={onClose}
           className="absolute top-8 right-8 p-2 rounded-full hover:bg-black/5 transition-colors"
@@ -85,7 +142,7 @@ const AddPetModal = ({ isOpen, onClose, onAdd }) => {
         <div className="grid grid-cols-2 gap-6">
           <button
             onClick={() => { onAdd('dog'); onClose(); }}
-            className="group flex flex-col items-center gap-4 p-8 rounded-[2rem] border-2 border-black/[0.03] hover:border-furco-yellow hover:bg-furco-yellow/5 transition-all"
+            className="group flex flex-col items-center gap-4 p-8 rounded-2xl border-2 border-black/[0.03] hover:border-furco-yellow hover:bg-furco-yellow/5 transition-all"
           >
             <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-xl group-hover:scale-110 transition-transform">
               <img src={dogImage} alt="Dog" className="w-full h-full object-cover" />
@@ -95,7 +152,7 @@ const AddPetModal = ({ isOpen, onClose, onAdd }) => {
 
           <button
             onClick={() => { onAdd('cat'); onClose(); }}
-            className="group flex flex-col items-center gap-4 p-8 rounded-[2rem] border-2 border-black/[0.03] hover:border-furco-yellow hover:bg-furco-yellow/5 transition-all"
+            className="group flex flex-col items-center gap-4 p-8 rounded-2xl border-2 border-black/[0.03] hover:border-furco-yellow hover:bg-furco-yellow/5 transition-all"
           >
             <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-xl group-hover:scale-110 transition-transform">
               <img src={catImage} alt="Cat" className="w-full h-full object-cover" />
@@ -112,7 +169,7 @@ const ProfileSidebar = ({ user, petTypes, onLogout, onAddPet, onDeletePet }) => 
   const location = useLocation();
 
   return (
-    <aside className="w-full md:w-[320px] bg-white rounded-[2.5rem] shadow-2xl shadow-black/[0.03] overflow-hidden flex flex-col p-8 sticky top-10 h-[calc(100vh-80px)]">
+    <aside className="w-full md:w-[320px] bg-white rounded-2xl shadow-2xl shadow-black/[0.03] overflow-hidden flex flex-col p-8 sticky top-10 h-[calc(100vh-80px)]">
       {/* User Info */}
       <div className="flex items-center gap-4 mb-10">
         <Avatar className="h-14 w-14 border-2 border-furco-yellow/20">
@@ -184,14 +241,14 @@ const Orders = ({ orders, loading }) => {
           </div>
         </div>
         <Link to="/products">
-          <Button className="bg-furco-yellow hover:bg-furco-yellow-hover text-black font-peace-sans rounded-2xl h-12 px-8 flex items-center gap-3 active:scale-95 transition-all">
+          <Button className="bg-furco-yellow hover:bg-furco-yellow-hover text-black font-peace-sans rounded-xl h-12 px-8 flex items-center gap-3 active:scale-95 transition-all">
             <ShoppingBag className="w-5 h-5" />
             Continue Shopping
           </Button>
         </Link>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] shadow-xl shadow-black/[0.02] overflow-hidden border border-black/[0.03]">
+      <div className="bg-white rounded-2xl shadow-xl shadow-black/[0.02] overflow-hidden border border-black/[0.03]">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
@@ -256,7 +313,7 @@ const Orders = ({ orders, loading }) => {
                   </td>
                   <td className="px-10 py-8 text-right">
                     <Link to={`/account/orders/${order.id}`}>
-                      <Button className="bg-furco-yellow hover:bg-furco-yellow-hover text-black font-peace-sans rounded-2xl h-11 px-6 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 active:scale-95">
+                      <Button className="bg-furco-yellow hover:bg-furco-yellow-hover text-black font-peace-sans rounded-xl h-11 px-6 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 active:scale-95">
                         <Package className="w-4 h-4" />
                         View Details
                       </Button>
@@ -272,17 +329,26 @@ const Orders = ({ orders, loading }) => {
   );
 };
 
-const Addresses = ({ addresses, onRefresh }) => {
+const Addresses = ({ addresses, setAddresses, onRefresh, loading }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (loading && addresses.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 text-center">
+        <div className="w-12 h-12 border-4 border-furco-yellow border-t-transparent rounded-full animate-spin mb-6" />
+        <p className="text-black/40 font-bold uppercase tracking-widest text-[10px]">Fetching your addresses...</p>
+      </div>
+    );
+  }
 
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this address?')) return;
     try {
       await api.deleteAddress(id);
       toast.success('Address deleted successfully');
-      onRefresh();
+      setAddresses(prev => prev.filter(a => a.id !== id));
     } catch (err) {
       toast.error('Failed to delete address');
     }
@@ -292,10 +358,30 @@ const Addresses = ({ addresses, onRefresh }) => {
     try {
       await api.setDefaultAddress(id);
       toast.success('Default address updated');
-      onRefresh();
+      setAddresses(prev => prev.map(addr => ({
+        ...addr,
+        isDefault: addr.id === id
+      })));
     } catch (err) {
       toast.error('Failed to set default address');
     }
+  };
+
+  const handleSuccess = (address) => {
+    setAddresses(prev => {
+      // If the new/updated address is default, unset other defaults
+      const updatedList = address.isDefault
+        ? prev.map(a => ({ ...a, isDefault: false }))
+        : [...prev];
+
+      if (editingAddress) {
+        return updatedList.map(a => a.id === address.id ? address : a);
+      } else {
+        return [address, ...updatedList];
+      }
+    });
+    setShowForm(false);
+    setEditingAddress(null);
   };
 
   return (
@@ -304,10 +390,17 @@ const Addresses = ({ addresses, onRefresh }) => {
         <div className="flex items-center gap-6">
           <h1 className="text-4xl font-peace-sans text-black">Addresses</h1>
           <MapPin className="w-10 h-10 text-black/60" />
+          <button
+            onClick={onRefresh}
+            className="p-2 hover:bg-black/5 rounded-full transition-colors group"
+            title="Refresh addresses"
+          >
+            <RefreshCw className={cn("w-5 h-5 text-black/20 group-hover:text-black/40", loading && "animate-spin")} />
+          </button>
         </div>
         <Button
           onClick={() => { setEditingAddress(null); setShowForm(true); }}
-          className="bg-furco-yellow hover:bg-furco-yellow-hover text-black font-peace-sans rounded-2xl h-12 px-8 flex items-center gap-3 active:scale-95 transition-all"
+          className="bg-furco-yellow hover:bg-furco-yellow-hover text-black font-peace-sans rounded-xl h-12 px-8 flex items-center gap-3 active:scale-95 transition-all"
         >
           <Plus className="w-5 h-5" />
           Add New Address
@@ -315,35 +408,43 @@ const Addresses = ({ addresses, onRefresh }) => {
       </div>
 
       {showForm ? (
-        <div className="bg-white rounded-[2.5rem] p-10 shadow-xl border border-black/[0.03]">
+        <div className="bg-white rounded-2xl p-10 shadow-xl border border-black/[0.03]">
           <AddressForm
             initialData={editingAddress}
             onCancel={() => setShowForm(false)}
-            onSuccess={() => { setShowForm(false); onRefresh(); }}
+            onSuccess={handleSuccess}
           />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {addresses.length === 0 ? (
-            <div className="col-span-full bg-white rounded-[2.5rem] p-24 text-center border border-black/[0.03]">
+            <div className="col-span-full bg-white rounded-2xl p-24 text-center border border-black/[0.03]">
               <MapPin className="w-16 h-16 text-black/10 mx-auto mb-6" />
               <h3 className="text-xl font-peace-sans text-black mb-2">No addresses yet</h3>
               <p className="text-black/40 font-medium max-w-xs mx-auto mb-8">
                 Add your shipping address for a faster checkout experience.
               </p>
-              <Button
-                onClick={() => setShowForm(true)}
-                className="bg-black text-white px-10 rounded-2xl h-14 font-peace-sans"
-              >
-                Get Started
-              </Button>
+              <div className="flex flex-col items-center gap-4">
+                <Button
+                  onClick={() => setShowForm(true)}
+                  className="bg-black text-white px-10 rounded-xl h-14 font-peace-sans"
+                >
+                  Get Started
+                </Button>
+                <button
+                  onClick={onRefresh}
+                  className="text-[10px] font-black uppercase tracking-widest text-black/30 hover:text-black transition-colors"
+                >
+                  Sync from server
+                </button>
+              </div>
             </div>
           ) : (
             addresses.map((addr) => (
               <div
                 key={addr.id}
                 className={cn(
-                  "bg-white rounded-[2.5rem] p-8 border-2 transition-all group relative overflow-hidden",
+                  "bg-white rounded-2xl p-8 border-2 transition-all group relative overflow-hidden",
                   addr.isDefault ? "border-furco-yellow shadow-xl shadow-furco-yellow/5" : "border-black/[0.03] hover:border-furco-yellow/30"
                 )}
               >
@@ -407,7 +508,7 @@ const PaymentMethods = () => {
         <CreditCard className="w-10 h-10 text-black/60" />
       </div>
 
-      <div className="bg-white rounded-[2.5rem] p-24 text-center border border-black/[0.03] shadow-xl shadow-black/[0.01]">
+      <div className="bg-white rounded-2xl p-24 text-center border border-black/[0.03] shadow-xl shadow-black/[0.01]">
         <div className="w-24 h-24 bg-furco-yellow/10 rounded-full flex items-center justify-center mx-auto mb-8 relative">
           <CreditCard className="w-10 h-10 text-furco-yellow" />
           <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center">
@@ -443,13 +544,14 @@ const AddressForm = ({ initialData, onCancel, onSuccess }) => {
     setIsSubmitting(true);
     try {
       if (initialData) {
-        await api.updateAddress(initialData.id, formData);
+        const updated = await api.updateAddress(initialData.id, formData);
         toast.success('Address updated successfully');
+        onSuccess(updated);
       } else {
-        await api.addAddress(formData);
+        const saved = await api.addAddress(formData);
         toast.success('Address added successfully');
+        onSuccess(saved);
       }
-      onSuccess();
     } catch (err) {
       toast.error(err.message || 'Failed to save address');
     } finally {
@@ -484,7 +586,7 @@ const AddressForm = ({ initialData, onCancel, onSuccess }) => {
             name="fullName"
             value={formData.fullName}
             onChange={handleChange}
-            className="w-full h-14 bg-black/5 rounded-2xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
+            className="w-full h-14 bg-black/5 rounded-xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
             placeholder="John Doe"
           />
         </div>
@@ -495,7 +597,7 @@ const AddressForm = ({ initialData, onCancel, onSuccess }) => {
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            className="w-full h-14 bg-black/5 rounded-2xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
+            className="w-full h-14 bg-black/5 rounded-xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
             placeholder="+91 9876543210"
           />
         </div>
@@ -506,7 +608,7 @@ const AddressForm = ({ initialData, onCancel, onSuccess }) => {
             name="addressLine1"
             value={formData.addressLine1}
             onChange={handleChange}
-            className="w-full h-14 bg-black/5 rounded-2xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
+            className="w-full h-14 bg-black/5 rounded-xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
             placeholder="Street, Building, Flat"
           />
         </div>
@@ -516,7 +618,7 @@ const AddressForm = ({ initialData, onCancel, onSuccess }) => {
             name="addressLine2"
             value={formData.addressLine2}
             onChange={handleChange}
-            className="w-full h-14 bg-black/5 rounded-2xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
+            className="w-full h-14 bg-black/5 rounded-xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
             placeholder="Landmark, Area"
           />
         </div>
@@ -527,7 +629,7 @@ const AddressForm = ({ initialData, onCancel, onSuccess }) => {
             name="city"
             value={formData.city}
             onChange={handleChange}
-            className="w-full h-14 bg-black/5 rounded-2xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
+            className="w-full h-14 bg-black/5 rounded-xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
             placeholder="Mumbai"
           />
         </div>
@@ -538,7 +640,7 @@ const AddressForm = ({ initialData, onCancel, onSuccess }) => {
             name="state"
             value={formData.state}
             onChange={handleChange}
-            className="w-full h-14 bg-black/5 rounded-2xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
+            className="w-full h-14 bg-black/5 rounded-xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
             placeholder="Maharashtra"
           />
         </div>
@@ -549,7 +651,7 @@ const AddressForm = ({ initialData, onCancel, onSuccess }) => {
             name="postalCode"
             value={formData.postalCode}
             onChange={handleChange}
-            className="w-full h-14 bg-black/5 rounded-2xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
+            className="w-full h-14 bg-black/5 rounded-xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
             placeholder="400001"
           />
         </div>
@@ -559,7 +661,7 @@ const AddressForm = ({ initialData, onCancel, onSuccess }) => {
             name="label"
             value={formData.label}
             onChange={handleChange}
-            className="w-full h-14 bg-black/5 rounded-2xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none appearance-none"
+            className="w-full h-14 bg-black/5 rounded-xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none appearance-none"
           >
             <option value="Home">Home</option>
             <option value="Office">Office</option>
@@ -583,7 +685,7 @@ const AddressForm = ({ initialData, onCancel, onSuccess }) => {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full h-16 bg-black text-white rounded-2xl text-lg font-peace-sans uppercase tracking-[0.1em] shadow-xl hover:bg-gray-800 transition-all disabled:opacity-50"
+        className="w-full h-16 bg-black text-white rounded-xl text-lg font-peace-sans uppercase tracking-[0.1em] shadow-xl hover:bg-gray-800 transition-all disabled:opacity-50"
       >
         {isSubmitting ? 'Saving...' : initialData ? 'Update Address' : 'Save Address'}
       </Button>
@@ -597,6 +699,39 @@ const AccountSettings = ({ user }) => {
     phone: user?.phone || ''
   });
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [isPhoneVerified, setIsPhoneVerified] = useState(user?.preferences?.phoneVerified || false);
+
+  const handleRequestVerification = async () => {
+    if (!formData.phone) {
+      toast.error('Please enter a phone number first');
+      return;
+    }
+
+    try {
+      setIsUpdating(true);
+      await api.requestPhoneVerification(formData.phone);
+      toast.success(`Verification code sent to ${formData.phone}`);
+      setShowOtpModal(true);
+    } catch (error) {
+      toast.error(error.message || 'Failed to send verification code');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleVerifyOtp = async (otp) => {
+    try {
+      const res = await api.verifyPhone(formData.phone, otp);
+      if (res) {
+        toast.success('Phone number verified successfully!');
+        setIsPhoneVerified(true);
+        setShowOtpModal(false);
+      }
+    } catch (error) {
+      toast.error(error.message || 'Invalid verification code');
+    }
+  };
 
   // Check if provider is email (for password reset visibility)
   const isEmailProvider = user?.app_metadata?.provider === 'email' || !user?.app_metadata?.provider;
@@ -617,33 +752,55 @@ const AccountSettings = ({ user }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-[2.5rem] p-10 shadow-xl border border-black/[0.03]">
+          <div className="bg-white rounded-2xl p-10 shadow-xl border border-black/[0.03]">
             <h2 className="text-xl font-peace-sans text-black mb-10 flex items-center gap-3">
               <User className="w-6 h-6 text-furco-yellow" />
               Personal Information
             </h2>
 
             <form onSubmit={handleUpdateProfile} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30 px-2">Full Name</label>
                   <input
                     name="fullName"
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="w-full h-14 bg-black/5 rounded-2xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
+                    className="w-full h-14 bg-black/5 rounded-xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
                     placeholder="Your Name"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30 px-2">Phone Number</label>
-                  <input
-                    name="phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full h-14 bg-black/5 rounded-2xl px-6 font-bold text-black border-2 border-transparent focus:border-furco-yellow focus:bg-white transition-all outline-none"
-                    placeholder="+91 00000 00000"
-                  />
+                  <div className="relative">
+                    <input
+                      name="phone"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className={cn(
+                        "w-full h-14 bg-black/5 rounded-xl px-6 font-bold text-black border-2 border-transparent focus:bg-white transition-all outline-none",
+                        isPhoneVerified ? "focus:border-green-500/50 pr-32" : "focus:border-furco-yellow pr-24"
+                      )}
+                      placeholder="+91 00000 00000"
+                    />
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                      {isPhoneVerified ? (
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 rounded-lg border border-green-500/20">
+                          <ShieldCheck className="w-3 h-3 text-green-600" />
+                          <span className="text-[10px] font-black uppercase tracking-wider text-green-700">Verified</span>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleRequestVerification}
+                          disabled={!formData.phone || isUpdating}
+                          className="px-4 py-2 bg-black text-white rounded-lg text-[10px] font-peace-sans uppercase tracking-widest hover:bg-furco-yellow hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Verify
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -654,7 +811,7 @@ const AccountSettings = ({ user }) => {
                     disabled
                     name="email"
                     value={formData.email}
-                    className="w-full h-14 bg-black/[0.02] rounded-2xl px-6 font-bold text-black/40 border-2 border-transparent cursor-not-allowed outline-none"
+                    className="w-full h-14 bg-black/[0.02] rounded-xl px-6 font-bold text-black/40 border-2 border-transparent cursor-not-allowed outline-none"
                   />
                   <div className="absolute right-6 top-1/2 -translate-y-1/2">
                     <span className="text-[9px] font-black uppercase bg-black/5 text-black/40 px-3 py-1 rounded-full">Primary</span>
@@ -666,7 +823,7 @@ const AccountSettings = ({ user }) => {
               <Button
                 type="submit"
                 disabled={isUpdating}
-                className="w-full h-16 bg-black text-white rounded-2xl text-lg font-peace-sans uppercase tracking-[0.1em] shadow-xl hover:bg-gray-800 transition-all disabled:opacity-50 mt-4"
+                className="w-full h-16 bg-black text-white rounded-xl text-lg font-peace-sans uppercase tracking-[0.1em] shadow-xl hover:bg-gray-800 transition-all disabled:opacity-50 mt-4"
               >
                 {isUpdating ? 'Saving Changes...' : 'Save Profile Settings'}
               </Button>
@@ -675,26 +832,8 @@ const AccountSettings = ({ user }) => {
         </div>
 
         <div className="space-y-6">
-          <div className="bg-white rounded-[2.5rem] p-8 border border-black/[0.03] shadow-lg shadow-black/[0.01]">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/20 mb-6">Account Status</p>
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center">
-                <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
-              </div>
-              <div>
-                <h4 className="font-peace-sans text-sm text-black">Active Member</h4>
-                <p className="text-[10px] font-bold text-black/30 uppercase tracking-widest">Premium Plan</p>
-              </div>
-            </div>
-            <div className="pt-4 border-t border-black/[0.03]">
-              <p className="text-[11px] text-black/40 font-medium leading-relaxed">
-                Your account is currently synced and secured.
-              </p>
-            </div>
-          </div>
-
           {isEmailProvider && (
-            <div className="bg-black text-white rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
+            <div className="bg-black text-white rounded-2xl p-8 shadow-xl relative overflow-hidden group">
               <div className="absolute right-[-20px] top-[-20px] opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700">
                 <Settings className="w-40 h-40 rotate-12" />
               </div>
@@ -711,7 +850,7 @@ const AccountSettings = ({ user }) => {
             </div>
           )}
 
-          <div className="bg-furco-yellow/10 rounded-[2.5rem] p-8 border border-furco-yellow/20">
+          <div className="bg-furco-yellow/10 rounded-2xl p-8 border border-furco-yellow/20">
             <h4 className="font-peace-sans text-sm text-black mb-2">Need Help?</h4>
             <p className="text-xs text-black/60 font-medium mb-6">Contact our premium support for any account queries.</p>
             <Button variant="link" className="p-0 h-auto text-black font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
@@ -720,6 +859,13 @@ const AccountSettings = ({ user }) => {
           </div>
         </div>
       </div>
+
+      <OtpModal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        onVerify={handleVerifyOtp}
+        phone={formData.phone}
+      />
     </div>
   );
 };
@@ -737,13 +883,26 @@ const Profile = () => {
   }, [switchMode]);
 
   const fetchProfileData = async () => {
-    if (!authUser) return;
+    if (!authUser) {
+      console.log('[Profile] No authUser, skipping fetch');
+      return;
+    }
+
     try {
       setLoading(true);
+      console.log('[Profile] Fetching dashboard for:', authUser.id);
       const res = await api.getProfileDashboard();
-      setData(res);
+
+      if (res) {
+        console.log('[Profile] Sync successful. Addresses:', res.addresses?.length);
+        setData(res);
+      }
     } catch (error) {
-      console.error('Error fetching profile data:', error);
+      console.error('[Profile] Sync error:', error);
+      // Only toast on serious network errors, not minor data mismatches
+      if (error.message?.includes('NetworkError') || error.message?.includes('500')) {
+        toast.error('Sync failed. Please check your connection.');
+      }
     } finally {
       setLoading(false);
     }
@@ -774,7 +933,7 @@ const Profile = () => {
       }));
 
       // In a real app, we'd call the backend here
-      // await api.put('/api/profile', { petTypes: newPets });
+      // await api.put('/api/profile', {petTypes: newPets });
 
       toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} added to your family!`);
     } catch (err) {
@@ -793,7 +952,7 @@ const Profile = () => {
       }));
 
       // Backend call placeholder
-      // await api.put('/api/profile', { petTypes: newPets });
+      // await api.put('/api/profile', {petTypes: newPets });
 
       toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} removed.`);
     } catch (err) {
@@ -829,7 +988,17 @@ const Profile = () => {
             <Route index element={<Orders orders={data.orders} loading={loading} />} />
             <Route path="orders" element={<Orders orders={data.orders} loading={loading} />} />
             <Route path="orders/:id" element={<OrderDetail />} />
-            <Route path="addresses" element={<Addresses addresses={data.addresses} onRefresh={fetchProfileData} />} />
+            <Route path="addresses" element={
+              <Addresses
+                addresses={data.addresses}
+                loading={loading}
+                setAddresses={(updater) => setData(prev => ({
+                  ...prev,
+                  addresses: typeof updater === 'function' ? updater(prev.addresses) : updater
+                }))}
+                onRefresh={fetchProfileData}
+              />
+            } />
             <Route path="payments" element={<PaymentMethods />} />
             <Route path="settings" element={<AccountSettings user={data.profile || authUser} />} />
             <Route path="*" element={
