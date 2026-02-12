@@ -4,7 +4,7 @@ import { BundleService } from './bundle.service.js';
 import { ProductFilterService } from './product-filter.service.js';
 import { shopService } from './shop.service.js';
 import { draftService } from './draft.service.js';
-import { authenticate } from '../../shared/middleware/auth.js';
+import { authenticate, authenticateAdmin } from '../../shared/middleware/auth.js';
 import { success } from '../../shared/utils/response.js';
 import {
   createDraftSchema,
@@ -167,10 +167,39 @@ export default async function unlimitedFurRoutes(fastify: FastifyInstance) {
     return success(plan);
   });
 
+  fastify.put('/monthly-plan/:id/resume', { preHandler: authenticate }, async (request: any, reply) => {
+    const userId = request.user.id;
+    const { id } = request.params as { id: string };
+    const plan = await monthlyPlanService.resumePlan(id, userId);
+    return success(plan);
+  });
+
   fastify.put('/monthly-plan/:id/cancel', { preHandler: authenticate }, async (request: any, reply) => {
     const userId = request.user.id;
     const { id } = request.params as { id: string };
     const plan = await monthlyPlanService.cancelPlan(id, userId);
+    return success(plan);
+  });
+
+  fastify.put('/monthly-plan/:id/skip', { preHandler: authenticate }, async (request: any, reply) => {
+    const userId = request.user.id;
+    const { id } = request.params as { id: string };
+    const plan = await monthlyPlanService.skipMonth(id, userId);
+    return success(plan);
+  });
+
+  fastify.post('/monthly-plan/:id/draft', { preHandler: authenticate }, async (request: any, reply) => {
+    const userId = request.user.id;
+    const { id } = request.params as { id: string };
+    const draft = await monthlyPlanService.createDraftFromPlan(id, userId);
+    return success(draft);
+  });
+
+  fastify.put('/monthly-plan/:id/update-from-draft', { preHandler: authenticate }, async (request: any, reply) => {
+    const userId = request.user.id;
+    const { id } = request.params as { id: string };
+    const { draftId } = request.body as { draftId: string };
+    const plan = await monthlyPlanService.updatePlanFromDraft(id, draftId, userId);
     return success(plan);
   });
 
@@ -240,5 +269,17 @@ export default async function unlimitedFurRoutes(fastify: FastifyInstance) {
     const { petType, categories, budget } = getEligibleProductsSchema.parse(request.query);
     const products = await productFilterService.getEligibleProducts(petType, categories, budget);
     return success(products);
+  });
+
+  // Admin Routes
+  fastify.get('/admin/subscriptions', { preHandler: authenticateAdmin }, async (request, reply) => {
+    const subscriptions = await monthlyPlanService.adminGetAllSubscriptions();
+    return success(subscriptions);
+  });
+
+  fastify.get('/admin/subscriptions/:id', { preHandler: authenticateAdmin }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const subscription = await monthlyPlanService.adminGetSubscriptionById(id);
+    return success(subscription);
   });
 }

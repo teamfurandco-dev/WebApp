@@ -137,8 +137,7 @@ const Wishlist = () => {
 
   useEffect(() => {
     const fetchWishlistProducts = async () => {
-      if (wishlistLoading) return;
-
+      // Don't wait for wishlistLoading if we can fetch everything in one go
       setLoading(true);
       setError(null);
 
@@ -150,6 +149,8 @@ const Wishlist = () => {
           selectedVariant: item.variant
         }));
         setProducts(wishlistProducts);
+
+        // Optionally sync context if it was empty, though context fetch is usually sufficient
       } catch (err) {
         console.error("Failed to fetch wishlist products:", err);
         setError("Failed to load wishlist items. Please try again.");
@@ -160,12 +161,13 @@ const Wishlist = () => {
     };
 
     fetchWishlistProducts();
-  }, [wishlistLoading]);
+  }, []); // Only fetch once on mount
 
   const handleRemoveFromWishlist = async (productId) => {
     setRemovingItems(prev => new Set(prev).add(productId));
 
     try {
+      // Use the context's removeFromWishlist which we just fixed to handle itemId internally
       await removeFromWishlist(productId);
       setProducts(prev => prev.filter(p => p.id !== productId));
     } catch (err) {

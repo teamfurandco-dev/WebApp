@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import Blogs from './pages/Blogs';
 import Orders from './pages/Orders';
+import Subscriptions from './pages/Subscriptions';
 import Users from './pages/Users';
 
 function AppContent() {
@@ -41,6 +42,7 @@ function AppContent() {
         <Route path="/products" element={<Products />} />
         <Route path="/blogs" element={<Blogs />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/subscriptions" element={<Subscriptions />} />
         <Route path="/users" element={<Users />} />
       </Routes>
     </AdminLayout>

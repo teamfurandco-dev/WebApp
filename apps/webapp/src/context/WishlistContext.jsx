@@ -27,20 +27,24 @@ export const WishlistProvider = ({ children }) => {
     try {
       setLoading(true);
       const wishlistData = await api.getWishlist();
-      setWishlist(wishlistData.map(item => item.productId || item.product_id));
+      setWishlist(wishlistData.map(item => ({
+        id: item.id,
+        productId: item.product_id,
+        variantId: item.variant_id
+      })));
     } catch (error) {
       console.error('Error fetching wishlist:', error);
-      toast.error('Failed to load wishlist');
+      // Don't show toast here as it might triggered on page load unexpectedly
     } finally {
       setLoading(false);
     }
   };
 
   const isInWishlist = (productId) => {
-    return wishlist.includes(productId);
+    return wishlist.some(item => item.productId === productId);
   };
 
-  const toggleWishlist = async (productId) => {
+  const toggleWishlist = async (productId, variantId = null) => {
     if (!user) {
       toast.error('Please login to use wishlist');
       return;
@@ -48,14 +52,20 @@ export const WishlistProvider = ({ children }) => {
 
     try {
       setLoading(true);
-      
-      if (isInWishlist(productId)) {
-        await api.removeFromWishlist(productId);
-        setWishlist(prev => prev.filter(id => id !== productId));
+
+      const existingItem = wishlist.find(item => item.productId === productId);
+
+      if (existingItem) {
+        await api.removeFromWishlist(existingItem.id);
+        setWishlist(prev => prev.filter(item => item.id !== existingItem.id));
         toast.success('Removed from wishlist');
       } else {
-        await api.addToWishlist(productId);
-        setWishlist(prev => [...prev, productId]);
+        const newItem = await api.addToWishlist(productId, variantId);
+        setWishlist(prev => [...prev, {
+          id: newItem.id,
+          productId: newItem.product_id,
+          variantId: newItem.variant_id
+        }]);
         toast.success('Added to wishlist');
       }
     } catch (error) {
@@ -66,7 +76,7 @@ export const WishlistProvider = ({ children }) => {
     }
   };
 
-  const addToWishlist = async (productId) => {
+  const addToWishlist = async (productId, variantId = null) => {
     if (!user) {
       toast.error('Please login to use wishlist');
       return;
@@ -79,8 +89,12 @@ export const WishlistProvider = ({ children }) => {
 
     try {
       setLoading(true);
-      await api.addToWishlist(productId);
-      setWishlist(prev => [...prev, productId]);
+      const newItem = await api.addToWishlist(productId, variantId);
+      setWishlist(prev => [...prev, {
+        id: newItem.id,
+        productId: newItem.product_id,
+        variantId: newItem.variant_id
+      }]);
       toast.success('Added to wishlist');
     } catch (error) {
       console.error('Error adding to wishlist:', error);
@@ -93,10 +107,13 @@ export const WishlistProvider = ({ children }) => {
   const removeFromWishlist = async (productId) => {
     if (!user) return;
 
+    const existingItem = wishlist.find(item => item.productId === productId);
+    if (!existingItem) return;
+
     try {
       setLoading(true);
-      await api.removeFromWishlist(productId);
-      setWishlist(prev => prev.filter(id => id !== productId));
+      await api.removeFromWishlist(existingItem.id);
+      setWishlist(prev => prev.filter(item => item.id !== existingItem.id));
       toast.success('Removed from wishlist');
     } catch (error) {
       console.error('Error removing from wishlist:', error);
@@ -107,10 +124,11 @@ export const WishlistProvider = ({ children }) => {
   };
 
   return (
-    <WishlistContext.Provider value={{ 
-      wishlist, 
-      isInWishlist, 
-      toggleWishlist, 
+    <WishlistContext.Provider value={{
+      wishlist: wishlist.map(item => item.productId), // Keep exposure of product IDs for legacy components if any
+      items: wishlist, // Expose full items for newer logic
+      isInWishlist,
+      toggleWishlist,
       addToWishlist,
       removeFromWishlist,
       loading,

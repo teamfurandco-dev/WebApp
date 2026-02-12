@@ -69,14 +69,18 @@ const ProductCard = ({ product }) => {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            toggleWishlist(product.id);
+            const variantId = product.variants?.[0]?.id;
+            toggleWishlist(product.id, variantId);
           }}
           className={cn(
-            "absolute top-4 right-4 z-20 p-2 rounded-full bg-white/80 backdrop-blur-sm transition-colors duration-300 transform translate-y-2 group-hover:translate-y-0",
-            isWishlisted ? "text-red-500 opacity-100" : "opacity-0 group-hover:opacity-100 hover:bg-furco-yellow text-black"
+            "absolute top-4 right-4 z-20 p-2.5 rounded-full bg-white/90 backdrop-blur-md transition-all duration-300 shadow-sm",
+            isWishlisted
+              ? "text-red-500 opacity-100 scale-110 shadow-md"
+              : "opacity-0 md:group-hover:opacity-100 md:translate-y-2 group-hover:translate-y-0 hover:bg-furco-yellow text-black"
           )}
+          style={{ mixBlendMode: 'normal' }}
         >
-          <Heart className={cn("w-5 h-5", isWishlisted && "fill-current")} />
+          <Heart className={cn("w-5 h-5 transition-transform duration-300", isWishlisted && "fill-current scale-110")} />
         </button>
 
         {/* Image Container with "Second Look" Effect */}

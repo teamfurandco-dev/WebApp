@@ -83,7 +83,7 @@ const Unlimited = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                <h1 className="text-3xl md:text-6xl font-black tracking-tighter leading-[1] text-gray-900 mb-4 font-peace-sans drop-shadow-sm">
+                <h1 className="text-[28px] md:text-6xl font-black tracking-tighter leading-[1.1] md:leading-[1] text-gray-900 mb-4 font-peace-sans drop-shadow-sm">
                   Love Tailored.<br />
                   On Your Terms.
                 </h1>
@@ -392,7 +392,7 @@ const Unlimited = () => {
               <div className="max-w-[240px] md:max-w-xl text-right flex flex-col items-end">
 
                 <h2 className="text-3xl md:text-6xl font-black text-white mb-2 md:mb-6 leading-[1.1] md:leading-[0.9] font-peace-sans drop-shadow-xl text-right">
-                  Ready to Give Them<br className="hidden md:block" /> The Best?
+                  Ready to Give Them<br /> The Best?
                 </h2>
                 <p className="text-base md:text-xl text-white/90 mb-6 md:mb-10 leading-relaxed font-medium drop-shadow-md text-right">
                   Join 10,000+ happy pet parents and experience the joy of worry-free care today.

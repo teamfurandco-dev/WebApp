@@ -39,7 +39,7 @@ export default function MonthlySuccess() {
         </p>
 
         <div className="space-y-4">
-          <Link to="/unlimited-fur/monthly/my-plan">
+          <Link to="/account/subscriptions">
             <Button className="w-full bg-black hover:bg-gray-800 text-white h-14 rounded-2xl font-bold text-lg shadow-xl transition-all active:scale-95">
               Manage My Plan
               <ArrowRight className="w-5 h-5 ml-2" />

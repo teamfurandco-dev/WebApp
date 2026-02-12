@@ -386,7 +386,7 @@ const ProductDetail = () => {
 
                 <Button
                   variant="outline"
-                  onClick={() => toggleWishlist(product.id)}
+                  onClick={() => toggleWishlist(product.id, selectedVariant?.id)}
                   className={cn(
                     "h-12 w-12 rounded-xl border border-black/[0.08] transition-all bg-white shadow-sm hover:scale-105",
                     isWishlisted ? "text-red-500 fill-current" : "text-black/60"

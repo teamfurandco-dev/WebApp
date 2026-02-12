@@ -286,11 +286,11 @@ export const api = {
    * POST /api/wishlist
    * Add item to wishlist
    */
-  addToWishlist: async (productId) => {
+  addToWishlist: async (productId, variantId = null) => {
     try {
       return await apiRequest('/api/wishlist', {
         method: 'POST',
-        body: { productId }
+        body: { productId, variantId }
       });
     } catch (error) {
       console.error('Error adding to wishlist:', error);
@@ -299,14 +299,13 @@ export const api = {
   },
 
   /**
-   * DELETE /api/wishlist
+   * DELETE /api/wishlist/:itemId
    * Remove item from wishlist
    */
-  removeFromWishlist: async (productId) => {
+  removeFromWishlist: async (itemId) => {
     try {
-      return await apiRequest('/api/wishlist', {
-        method: 'DELETE',
-        body: { productId }
+      return await apiRequest(`/api/wishlist/${itemId}`, {
+        method: 'DELETE'
       });
     } catch (error) {
       console.error('Error removing from wishlist:', error);
@@ -1065,6 +1064,97 @@ export const api = {
         });
       } catch (error) {
         console.error('Error checking out bundle:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Get user's active monthly plan
+     */
+    getActivePlan: async () => {
+      try {
+        return await apiRequest('/api/unlimited-fur/monthly-plan/active');
+      } catch (error) {
+        console.error('Error fetching active plan:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Pause a monthly plan
+     */
+    pausePlan: async (planId) => {
+      try {
+        return await apiRequest(`/api/unlimited-fur/monthly-plan/${planId}/pause`, {
+          method: 'PUT'
+        });
+      } catch (error) {
+        console.error('Error pausing plan:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Resume a monthly plan
+     */
+    resumePlan: async (planId) => {
+      try {
+        return await apiRequest(`/api/unlimited-fur/monthly-plan/${planId}/resume`, {
+          method: 'PUT'
+        });
+      } catch (error) {
+        console.error('Error resuming plan:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Cancel a monthly plan
+     */
+    cancelPlan: async (planId) => {
+      try {
+        return await apiRequest(`/api/unlimited-fur/monthly-plan/${planId}/cancel`, {
+          method: 'PUT'
+        });
+      } catch (error) {
+        console.error('Error cancelling plan:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Skip a billing cycle
+     */
+    skipPlan: async (planId) => {
+      try {
+        return await apiRequest(`/api/unlimited-fur/monthly-plan/${planId}/skip`, {
+          method: 'PUT'
+        });
+      } catch (error) {
+        console.error('Error skipping plan:', error);
+        throw error;
+      }
+    },
+
+    createDraftFromPlan: async (planId) => {
+      try {
+        return await apiRequest(`/api/unlimited-fur/monthly-plan/${planId}/draft`, {
+          method: 'POST'
+        });
+      } catch (error) {
+        console.error('Error creating draft from plan:', error);
+        throw error;
+      }
+    },
+
+    updatePlanFromDraft: async (planId, draftId) => {
+      try {
+        return await apiRequest(`/api/unlimited-fur/monthly-plan/${planId}/update-from-draft`, {
+          method: 'PUT',
+          body: JSON.stringify({ draftId })
+        });
+      } catch (error) {
+        console.error('Error updating plan from draft:', error);
         throw error;
       }
     }

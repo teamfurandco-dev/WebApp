@@ -177,7 +177,7 @@
   }
 
   body {
-    @apply bg-background text-foreground transition-colors duration-500 ease-in-out font-sans;
+    @apply bg-background text-foreground transition-colors duration-500 ease-in-out font-sans overflow-x-hidden;
     font-family: 'Outfit', sans-serif;
   }
 

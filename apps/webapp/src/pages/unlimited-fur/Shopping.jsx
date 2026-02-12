@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, X, AlertCircle, ShoppingBag, Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUnlimitedFur } from '@/context/UnlimitedFurContext';
+import { api } from '@/services/api';
+import { toast } from 'sonner';
 import { useTheme } from '@/context/ThemeContext';
 import { WalletDisplay } from '@/components/unlimited-fur/WalletDisplay';
 import UnlimitedBackground from '@/components/unlimited-fur/UnlimitedBackground';
@@ -21,6 +23,7 @@ export default function Shopping() {
   const mode = searchParams.get('mode') || 'monthly';
   const budget = parseInt(searchParams.get('budget'));
   const petType = searchParams.get('petType');
+  const planId = searchParams.get('planId');
 
   const draftParam = searchParams.get('draftId');
 
@@ -41,6 +44,7 @@ export default function Shopping() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [addingId, setAddingId] = useState(null);
   const [removingId, setRemovingId] = useState(null);
+  const [updateLoading, setUpdateLoading] = useState(false);
 
   useEffect(() => {
     switchMode('CORE');
@@ -91,8 +95,22 @@ export default function Shopping() {
     }
   };
 
-  const handleCheckout = () => {
-    navigate(`/unlimited-fur/${mode}/checkout`);
+  const handleCheckout = async () => {
+    if (mode === 'edit' && planId && draftId) {
+      try {
+        setUpdateLoading(true);
+        await api.unlimited.updatePlanFromDraft(planId, draftId);
+        toast.success('Plan updated successfully!');
+        navigate('/account/subscriptions');
+      } catch (error) {
+        console.error(error);
+        toast.error('Failed to update plan');
+      } finally {
+        setUpdateLoading(false);
+      }
+    } else {
+      navigate(`/unlimited-fur/${mode}/checkout`);
+    }
   };
 
   if (loading && filteredProducts.length === 0) {
@@ -402,10 +420,14 @@ export default function Shopping() {
                 </div>
                 <Button
                   onClick={handleCheckout}
-                  disabled={selectedProducts.length === 0}
+                  disabled={selectedProducts.length === 0 || updateLoading}
                   className="w-full bg-black text-[#ffcc00] hover:bg-gray-800 font-black py-5 rounded-2xl text-base shadow-xl active:scale-95 transition-all disabled:opacity-50 uppercase tracking-widest"
                 >
-                  Checkout <ArrowRight className="ml-2 w-4 h-4" />
+                  {mode === 'edit' ? (
+                    updateLoading ? 'Updating...' : 'Update Plan'
+                  ) : (
+                    <>Checkout <ArrowRight className="ml-2 w-4 h-4" /></>
+                  )}
                 </Button>
               </div>
             </div>
@@ -426,7 +448,13 @@ export default function Shopping() {
               >
                 <div className="flex flex-col items-start leading-none text-left">
                   <span className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">{selectedProducts.length} Items Selected</span>
-                  <span className="text-lg font-black font-peace-sans uppercase tracking-tighter">Checkout Plan</span>
+                  <span className="text-lg font-black font-peace-sans uppercase tracking-tighter">
+                    {mode === 'edit' ? (
+                      updateLoading ? 'Updating...' : 'Update Plan'
+                    ) : (
+                      'Checkout Plan'
+                    )}
+                  </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-xl font-black">₹{(wallet.spent / 100).toFixed(0)}</span>

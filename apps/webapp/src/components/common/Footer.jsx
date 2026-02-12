@@ -37,7 +37,7 @@ const Footer = () => {
                 { Icon: Facebook, href: '#' },
                 { Icon: Instagram, href: '#' },
                 { Icon: Linkedin, href: '#' },
-                { Icon: Mail, href: 'mailto:hello@furco.com' }
+                { Icon: Mail, href: 'mailto:hellopaws@furandco.in' }
               ].map(({ Icon, href }, i) => (
                 <a key={i} href={href} className={cn(
                   "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300",

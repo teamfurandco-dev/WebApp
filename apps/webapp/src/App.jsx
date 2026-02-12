@@ -19,13 +19,13 @@ import Blog from '@/pages/Blog';
 import BlogPost from '@/pages/BlogPost';
 import Unlimited from '@/pages/Unlimited';
 import Niche from '@/pages/Niche';
+import Contact from '@/pages/Contact';
 
 // Unlimited Fur pages
 import BudgetSelection from '@/pages/unlimited-fur/BudgetSelection';
 import PetProfileSelection from '@/pages/unlimited-fur/PetProfileSelection';
 import Shopping from '@/pages/unlimited-fur/Shopping';
 import UnlimitedCheckout from '@/pages/unlimited-fur/Checkout';
-import MyMonthlyPlan from '@/pages/unlimited-fur/MyMonthlyPlan';
 import MonthlySuccess from '@/pages/unlimited-fur/MonthlySuccess';
 import BundleSuccess from '@/pages/unlimited-fur/BundleSuccess';
 
@@ -58,6 +58,7 @@ function App() {
                   <Route path="blog/:slug" element={<BlogPost />} />
                   <Route path="unlimited" element={<Unlimited />} />
                   <Route path="niche" element={<Niche />} />
+                  <Route path="contact" element={<Contact />} />
 
                   {/* Unlimited Fur Routes */}
                   <Route path="unlimited-fur/*" element={
@@ -67,7 +68,6 @@ function App() {
                         <Route path="monthly/pet-profile" element={<PetProfileSelection />} />
                         <Route path="monthly/shop" element={<Shopping />} />
                         <Route path="monthly/checkout" element={<UnlimitedCheckout />} />
-                        <Route path="monthly/my-plan" element={<MyMonthlyPlan />} />
                         <Route path="monthly/success" element={<MonthlySuccess />} />
 
 

@@ -13,7 +13,7 @@ const FilterSidebar = ({ categories, selectedCategory, onCategoryChange, priceRa
       !isMobile && "p-6 rounded-[2rem] border border-black/5 sticky top-32 shadow-sm"
     )}>
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-serif font-bold text-black">Filters</h3>
+        <h3 className="text-xl font-peace-sans font-bold text-black">Filters</h3>
         <Button
           variant="ghost"
           size="sm"

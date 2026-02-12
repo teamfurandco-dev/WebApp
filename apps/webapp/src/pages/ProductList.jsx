@@ -117,7 +117,7 @@ const ProductList = () => {
                   {/* Mobile Filter Trigger */}
                   <Sheet>
                     <SheetTrigger asChild>
-                      <Button variant="outline" size="sm" className="md:hidden flex-1 sm:flex-none h-11 gap-2 rounded-full border-black/20 font-bold bg-white shadow-sm">
+                      <Button variant="outline" size="sm" className="md:hidden flex-1 sm:flex-none h-11 gap-2 rounded-full border-black/20 font-peace-sans font-bold bg-white shadow-sm">
                         <Filter className="h-4 w-4" /> Filters
                       </Button>
                     </SheetTrigger>

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { api } from '@/services/api';
 import OrderDetail from '@/pages/OrderDetail';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { cn } from '@fur-co/utils';
 
@@ -192,7 +193,7 @@ const ProfileSidebar = ({ user, petTypes, onLogout, onAddPet, onDeletePet }) => 
       <nav className="space-y-2 flex-1 overflow-y-auto hide-scrollbar">
         <SidebarLink to="/account/orders" icon={Package} label="Orders" active={location.pathname === '/account/orders' || location.pathname === '/account'} />
         <SidebarLink to="/account/addresses" icon={MapPin} label="Addresses" active={location.pathname === '/account/addresses'} />
-        <SidebarLink to="/account/payments" icon={CreditCard} label="Payment Methods" active={location.pathname === '/account/payments'} />
+        <SidebarLink to="/account/subscriptions" icon={RefreshCw} label="Subscriptions" active={location.pathname === '/account/subscriptions'} />
         <SidebarLink to="/account/settings" icon={Settings} label="Account Settings" active={location.pathname === '/account/settings'} />
 
         <div className="pt-8 pb-4">
@@ -313,7 +314,7 @@ const Orders = ({ orders, loading }) => {
                   </td>
                   <td className="px-10 py-8 text-right">
                     <Link to={`/account/orders/${order.id}`}>
-                      <Button className="bg-furco-yellow hover:bg-furco-yellow-hover text-black font-peace-sans rounded-xl h-11 px-6 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 active:scale-95">
+                      <Button className="bg-furco-yellow hover:bg-furco-yellow-hover text-black font-peace-sans rounded-xl h-11 px-6 flex items-center gap-3 transition-all duration-300 active:scale-95">
                         <Package className="w-4 h-4" />
                         View Details
                       </Button>
@@ -500,27 +501,211 @@ const Addresses = ({ addresses, setAddresses, onRefresh, loading }) => {
   );
 };
 
-const PaymentMethods = () => {
+const Subscriptions = () => {
+  const navigate = useNavigate();
+  const [plan, setPlan] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const fetchPlan = async () => {
+    try {
+      setLoading(true);
+      const data = await api.unlimited.getActivePlan();
+      setPlan(data);
+    } catch (err) {
+      console.error('Error fetching plan:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlan();
+  }, []);
+
+  const handleAction = async (action, planId) => {
+    try {
+      setActionLoading(true);
+      if (action === 'edit') {
+        const draft = await api.unlimited.createDraftFromPlan(planId);
+        navigate(`/unlimited-fur/monthly/shopping?mode=edit&draftId=${draft.id}&planId=${planId}`);
+        return;
+      } else if (action === 'skip') {
+        const confirmSkip = confirm('Skip this billing cycle? Your next order will be pushed by one month.');
+        if (!confirmSkip) return;
+        await api.unlimited.skipPlan(planId);
+        toast.success('Billing cycle skipped successfully!');
+      } else if (action === 'pause') {
+        await api.unlimited.pausePlan(planId);
+        toast.success('Subscription paused.');
+      } else if (action === 'resume') {
+        await api.unlimited.resumePlan(planId);
+        toast.success('Subscription resumed.');
+      } else if (action === 'cancel') {
+        if (!confirm('Are you sure you want to cancel your subscription?')) return;
+        await api.unlimited.cancelPlan(planId);
+        toast.success('Subscription cancelled.');
+      }
+      await fetchPlan();
+    } catch (err) {
+      toast.error(err.message || `Failed to ${action} subscription`);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 text-center">
+        <div className="w-12 h-12 border-4 border-furco-yellow border-t-transparent rounded-full animate-spin mb-6" />
+        <p className="text-black/40 font-bold uppercase tracking-widest text-[10px]">Loading your subscriptions...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex items-center gap-6 mb-8">
-        <h1 className="text-4xl font-peace-sans text-black">Payment Methods</h1>
-        <CreditCard className="w-10 h-10 text-black/60" />
+        <h1 className="text-4xl font-peace-sans text-black">Subscriptions</h1>
+        <RefreshCw className={cn("w-10 h-10 text-black/60", actionLoading && "animate-spin")} />
       </div>
 
-      <div className="bg-white rounded-2xl p-24 text-center border border-black/[0.03] shadow-xl shadow-black/[0.01]">
-        <div className="w-24 h-24 bg-furco-yellow/10 rounded-full flex items-center justify-center mx-auto mb-8 relative">
-          <CreditCard className="w-10 h-10 text-furco-yellow" />
-          <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center">
-            <Settings className="w-5 h-5 text-black animate-spin-slow" />
+      {!plan ? (
+        <div className="bg-white rounded-2xl p-24 text-center border border-black/[0.03] shadow-xl shadow-black/[0.01]">
+          <div className="w-24 h-24 bg-furco-yellow/10 rounded-full flex items-center justify-center mx-auto mb-8 relative">
+            <RefreshCw className="w-10 h-10 text-furco-yellow" />
+          </div>
+          <h3 className="text-2xl font-peace-sans text-black mb-4">No Active Subscriptions</h3>
+          <p className="text-black/40 font-medium max-w-sm mx-auto leading-relaxed mb-8">
+            You haven't joined the Unlimited Fur family yet. Join today for tailored premium pet care!
+          </p>
+          <Link to="/unlimited">
+            <Button className="bg-black text-white px-10 rounded-xl h-14 font-peace-sans">Explore Unlimited</Button>
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-8">
+          {/* Main Plan Card */}
+          <div className="bg-white rounded-[32px] border border-black/[0.03] shadow-2xl shadow-black/[0.02] overflow-hidden">
+            <div className="p-10">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-10">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Badge className={cn(
+                      "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.1em]",
+                      plan.planStatus === 'active' ? "bg-green-100 text-green-700" : "bg-furco-yellow/20 text-black/60"
+                    )}>
+                      {plan.planStatus}
+                    </Badge>
+                    <span className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Unlimited Monthly</span>
+                  </div>
+                  <h2 className="text-3xl font-peace-sans text-black">Your Pet Care Pack</h2>
+                  <div className="flex items-center gap-6 pt-2">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Next Billing</p>
+                      <p className="font-bold text-black">{new Date(plan.nextBillingDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                    </div>
+                    <div className="w-px h-10 bg-black/5" />
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Monthly Budget</p>
+                      <p className="font-bold text-black">₹{(plan.monthlyBudget / 100).toLocaleString()}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => handleAction('edit', plan.id)}
+                    disabled={actionLoading || plan.planStatus !== 'active'}
+                    className="h-12 px-6 rounded-xl font-peace-sans text-[12px] border-2 hover:bg-black hover:text-white transition-all"
+                  >
+                    Edit Pack
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleAction('skip', plan.id)}
+                    disabled={actionLoading}
+                    className="h-12 px-6 rounded-xl font-peace-sans text-[12px] border-2 hover:bg-black hover:text-white transition-all"
+                  >
+                    Skip a Month
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleAction(plan.planStatus === 'paused' ? 'resume' : 'pause', plan.id)}
+                    disabled={actionLoading}
+                    className="h-12 px-6 rounded-xl font-peace-sans text-[12px] border-2 hover:bg-black hover:text-white transition-all"
+                  >
+                    {plan.planStatus === 'paused' ? 'Resume' : 'Pause'}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleAction('cancel', plan.id)}
+                    disabled={actionLoading}
+                    className="h-12 px-6 rounded-xl font-peace-sans text-[12px] text-destructive hover:bg-destructive/5"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+
+              {/* Products List */}
+              <div className="space-y-6">
+                <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.2em]">Pack Selection ({plan.products.length} Items)</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {plan.products.map((p) => (
+                    <div key={p.id} className="flex items-center gap-4 bg-black/[0.02] p-4 rounded-2xl border border-black/[0.03]">
+                      <div className="w-16 h-16 rounded-xl bg-white p-2 shadow-sm">
+                        {/* We don't have product images in the products join easily here, using a generic check */}
+                        <div className="w-full h-full bg-furco-cream/30 rounded-lg flex items-center justify-center">
+                          <ShoppingBag className="w-6 h-6 text-black/20" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-black text-sm line-clamp-1">{p.product.name}</h4>
+                        <p className="text-[10px] font-medium text-black/40">{p.variant.name}</p>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="text-[10px] font-black text-black/80">Qty: {p.quantity}</span>
+                          <span className="text-[10px] font-black text-black">₹{(p.lockedPrice / 100).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-black/5 p-6 flex items-center justify-center gap-4">
+              <ShieldCheck className="w-5 h-5 text-black/40" />
+              <p className="text-[10px] font-bold text-black/40 uppercase tracking-widest">Premium Care Protection Enabled</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-furco-cream/20 p-8 rounded-[32px] space-y-3">
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md">
+                <Truck className="w-5 h-5 text-furco-yellow" />
+              </div>
+              <h4 className="font-peace-sans text-sm">Free Express Delivery</h4>
+              <p className="text-xs text-black/40 font-medium">As an Unlimited member, all your pack renewals ship free.</p>
+            </div>
+            <div className="bg-furco-cream/20 p-8 rounded-[32px] space-y-3">
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md">
+                <RefreshCw className="w-5 h-5 text-furco-yellow" />
+              </div>
+              <h4 className="font-peace-sans text-sm">Flexibility Guaranteed</h4>
+              <p className="text-xs text-black/40 font-medium">Pause or skip any time. Your pack, your rules.</p>
+            </div>
+            <div className="bg-furco-cream/20 p-8 rounded-[32px] space-y-3">
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md">
+                <Heart className="w-5 h-5 text-furco-yellow" />
+              </div>
+              <h4 className="font-peace-sans text-sm">Priority Support</h4>
+              <p className="text-xs text-black/40 font-medium">Access our dedicated vet help line 24/7.</p>
+            </div>
           </div>
         </div>
-        <h3 className="text-2xl font-peace-sans text-black mb-4">Coming Soon</h3>
-        <p className="text-black/40 font-medium max-w-sm mx-auto leading-relaxed">
-          We're working on a secure way to save your payment methods for faster, seamless transactions.
-          For now, enjoy our standard checkout!
-        </p>
-      </div>
+      )}
     </div>
   );
 };
@@ -852,7 +1037,7 @@ const AccountSettings = ({ user }) => {
 
           <div className="bg-furco-yellow/10 rounded-2xl p-8 border border-furco-yellow/20">
             <h4 className="font-peace-sans text-sm text-black mb-2">Need Help?</h4>
-            <p className="text-xs text-black/60 font-medium mb-6">Contact our premium support for any account queries.</p>
+            <p className="text-xs text-black/60 font-medium mb-6">Our team is here to support you and your companion through every step of your journey together.</p>
             <Button variant="link" className="p-0 h-auto text-black font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
               Customer Support <ChevronRight className="w-3 h-3" />
             </Button>
@@ -999,7 +1184,7 @@ const Profile = () => {
                 onRefresh={fetchProfileData}
               />
             } />
-            <Route path="payments" element={<PaymentMethods />} />
+            <Route path="subscriptions" element={<Subscriptions />} />
             <Route path="settings" element={<AccountSettings user={data.profile || authUser} />} />
             <Route path="*" element={
               <div className="flex flex-col items-center justify-center py-32 text-center">

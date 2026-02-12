@@ -102,7 +102,7 @@ export class WishlistService {
                 userId_productId_variantId: {
                     userId,
                     productId,
-                    variantId: variantId as any,
+                    variantId: variantId ?? null,
                 },
             },
         });
@@ -150,7 +150,7 @@ export class WishlistService {
                 userId_productId_variantId: {
                     userId,
                     productId,
-                    variantId: variantId as any,
+                    variantId: variantId ?? null,
                 },
             },
         });

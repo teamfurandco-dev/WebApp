@@ -3,15 +3,18 @@ import { Home, Search, ShoppingCart, User } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@fur-co/utils';
 import { useAuth } from '@/context/AuthContext';
+import { useCart } from '@/context/CartContext';
+import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 
 const MobileBottomNav = () => {
     const { user } = useAuth();
+    const { getCartCount } = useCart();
     const location = useLocation();
 
     const navItems = [
         { icon: Home, label: 'Home', path: '/' },
-        { icon: Search, label: 'Search', path: '/products' }, // Using products as search landing or separate search page? Request said "Search"
+        { icon: Search, label: 'Search', path: '/products' },
         { icon: ShoppingCart, label: 'Cart', path: '/cart' },
         { icon: User, label: 'Profile', path: user ? '/account' : '/login' },
     ];
@@ -28,6 +31,8 @@ const MobileBottomNav = () => {
             <div className="flex justify-around items-center h-16 relative">
                 {navItems.map((item) => {
                     const isActive = location.pathname === item.path;
+                    const isCart = item.label === 'Cart';
+
                     return (
                         <NavLink
                             key={item.label}
@@ -44,7 +49,17 @@ const MobileBottomNav = () => {
                                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                 />
                             )}
-                            <item.icon className="w-5 h-5" strokeWidth={isActive ? 2 : 1.5} />
+                            <div className="relative">
+                                <item.icon className="w-5 h-5" strokeWidth={isActive ? 2 : 1.5} />
+                                {isCart && getCartCount() > 0 && (
+                                    <Badge className={cn(
+                                        "absolute -top-1.5 -right-2 h-4 w-4 p-0 flex items-center justify-center text-[8px] font-black border-2 border-white shadow-sm",
+                                        isActive ? "bg-[#ffcc00] text-black" : "bg-black text-[#ffcc00]"
+                                    )}>
+                                        {getCartCount()}
+                                    </Badge>
+                                )}
+                            </div>
                             <span className="text-[10px] font-bold tracking-tight">{item.label}</span>
                         </NavLink>
                     );

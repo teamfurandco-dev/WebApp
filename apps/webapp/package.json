@@ -12,6 +12,7 @@
         "predeploy": "npm run build"
     },
     "dependencies": {
+        "@emailjs/browser": "^4.4.1",
         "@fur-co/types": "workspace:*",
         "@fur-co/ui": "workspace:*",
         "@fur-co/utils": "workspace:*",

@@ -475,8 +475,8 @@ model MonthlyPlanOrder {
   planId   String
   plan     MonthlyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
   
-  orderId  String @unique
-  order    Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId  String? @unique
+  order    Order?  @relation(fields: [orderId], references: [id], onDelete: Cascade)
   
   // Cycle Info
   cycleNumber Int // 1, 2, 3...

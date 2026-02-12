@@ -66,34 +66,34 @@ const Navbar = () => {
           isUnlimitedMode
             ? "bg-white/95 border-[#ffcc00]/20 text-gray-900"
             : "bg-[#ffcc00]/95 border-black/10 text-gray-900",
-          "py-3 shadow-sm"
+          "py-2 md:py-3 shadow-sm"
         )}
       >
-        <div className="container mx-auto px-4 md:px-8 max-w-full flex items-center justify-between gap-4">
+        <div className="container mx-auto px-4 md:px-6 max-w-[1440px] flex items-center justify-between gap-2 md:gap-4">
 
           {/* 1. Left Section: Logo */}
           <Link to="/" className="relative z-50 group flex-shrink-0">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center">
               <img
                 src={isUnlimitedMode ? unlimitedLogo : logoSvg}
                 alt="Fur & Co"
                 className={cn(
                   "w-auto transition-transform duration-300 group-hover:scale-105",
-                  isUnlimitedMode ? "h-10" : "h-7"
+                  isUnlimitedMode ? "h-8 md:h-12" : "h-6 md:h-9"
                 )}
               />
             </div>
           </Link>
 
           {/* 2. Center Section: Search Bar (Desktop Only) */}
-          <div className="hidden md:flex flex-1 max-w-md lg:max-w-xl xl:max-w-2xl mx-auto px-4 lg:px-8">
+          <div className="hidden md:flex flex-1 max-w-md lg:max-w-xl mx-auto px-4">
             <div
               className="w-full relative group"
               onClick={() => setIsSearchOpen(true)}
             >
-              <div className="flex items-center w-full h-12 rounded-full border border-black/10 bg-white/90 px-4 hover:border-[#ffcc00] transition-colors cursor-text">
-                <Search className="h-5 w-5 text-gray-400 mr-3" />
-                <span className="text-gray-400 text-sm font-black truncate">Search for science-backed essentials...</span>
+              <div className="flex items-center w-full h-11 rounded-full border border-black/10 bg-white/90 px-4 hover:border-[#ffcc00] transition-colors cursor-text">
+                <Search className="h-4 w-4 text-gray-400 mr-3" />
+                <span className="text-gray-400 text-sm font-black truncate">Search for essentials...</span>
               </div>
             </div>
           </div>
@@ -155,19 +155,24 @@ const Navbar = () => {
               {/* Wishlist */}
               <Link to="/wishlist" className={cn(
                 "hidden md:block p-2 transition-colors",
-                isUnlimitedMode ? "text-gray-900 hover:text-gray-700" : "text-foreground hover:text-white"
+                isUnlimitedMode ? "text-gray-900 hover:text-white" : "text-gray-900 hover:text-white"
               )}>
                 <Heart className="w-6 h-6" strokeWidth={2.5} />
               </Link>
 
               {/* Cart */}
               <Link to="/cart" className={cn(
-                "hidden md:flex p-2 relative transition-colors items-center justify-center",
-                isUnlimitedMode ? "text-gray-900 hover:text-gray-700" : "text-foreground hover:text-white"
+                "flex p-2 relative transition-colors items-center justify-center group",
+                isUnlimitedMode ? "text-gray-900 hover:text-white" : "text-gray-900 hover:text-white"
               )}>
                 <ShoppingCart className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
                 {getCartCount() > 0 && (
-                  <Badge className={`absolute -top-1 -right-1 h-4 w-4 md:h-5 md:w-5 p-0 flex items-center justify-center text-[10px] font-bold border-none shadow-sm ${isUnlimitedMode ? 'bg-white text-black' : 'bg-white text-black'}`}>
+                  <Badge className={cn(
+                    "absolute -top-0.5 -right-0.5 h-4 w-4 md:h-5 md:w-5 p-0 flex items-center justify-center text-[10px] font-black shadow-md border-2 transition-colors",
+                    isUnlimitedMode
+                      ? "bg-[#ffcc00] text-black border-white group-hover:bg-white"
+                      : "bg-black text-[#ffcc00] border-[#ffcc00] group-hover:text-white group-hover:border-white"
+                  )}>
                     {getCartCount()}
                   </Badge>
                 )}
@@ -176,7 +181,7 @@ const Navbar = () => {
               {/* Profile (Desktop) */}
               <Link to={user ? "/account" : "/login"} className={cn(
                 "hidden md:block p-2 transition-colors",
-                isUnlimitedMode ? "text-gray-900 hover:text-gray-700" : "text-foreground hover:text-white"
+                isUnlimitedMode ? "text-gray-900 hover:text-white" : "text-gray-900 hover:text-white"
               )}>
                 <User className="w-6 h-6" strokeWidth={2.5} />
               </Link>

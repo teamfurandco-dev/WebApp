@@ -34,13 +34,13 @@ const CartItem = forwardRef(({ item, onUpdateQuantity, onRemove }, ref) => {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="group bg-white rounded-[2.5rem] p-6 shadow-2xl shadow-black/[0.02] border border-black/5 flex flex-col sm:flex-row gap-6 items-center sm:items-stretch relative overflow-hidden"
+      className="group bg-white rounded-2xl p-6 shadow-2xl shadow-black/[0.02] border border-black/5 flex flex-col sm:flex-row gap-6 items-center sm:items-stretch relative overflow-hidden"
     >
       {/* Background Glow on Hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-furco-yellow/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
       {/* Product Image */}
-      <div className="w-full sm:w-44 h-44 bg-furco-cream rounded-3xl overflow-hidden shrink-0 relative shadow-inner">
+      <div className="w-full sm:w-44 h-44 bg-furco-cream rounded-2xl overflow-hidden shrink-0 relative shadow-inner">
         <img
           src={getItemImage(item)}
           alt={name}
@@ -305,7 +305,7 @@ const Cart = () => {
                     <motion.div
                       key={product.id}
                       whileHover={{ y: -5 }}
-                      className="bg-white rounded-[2rem] p-4 shadow-xl shadow-black/[0.02] border border-black/5 flex items-center gap-4 group"
+                      className="bg-white rounded-2xl p-4 shadow-xl shadow-black/[0.02] border border-black/5 flex items-center gap-4 group"
                     >
                       <div className="w-24 h-24 bg-furco-cream rounded-2xl overflow-hidden shrink-0">
                         <img
@@ -343,7 +343,7 @@ const Cart = () => {
           {/* Sidebar: Order Summary */}
           <div className="w-full lg:w-[420px]">
             <div className="sticky top-32 space-y-6">
-              <div className="bg-white rounded-[3rem] p-10 shadow-2xl shadow-black/[0.03] border border-black/[0.02] relative overflow-hidden">
+              <div className="bg-white rounded-2xl p-10 shadow-2xl shadow-black/[0.03] border border-black/[0.02] relative overflow-hidden">
                 {/* Visual Flair */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-furco-yellow/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 
@@ -403,7 +403,7 @@ const Cart = () => {
                   <div className="pt-6">
                     <Button
                       onClick={() => navigate('/checkout')}
-                      className="w-full h-20 bg-furco-yellow text-black hover:bg-black hover:text-white rounded-[2rem] font-bold text-xl uppercase tracking-[0.1em] shadow-xl shadow-furco-yellow/20 hover:shadow-black/20 transition-all flex items-center justify-center gap-4 group"
+                      className="w-full h-20 bg-furco-yellow text-black hover:bg-black hover:text-white rounded-xl font-bold text-xl uppercase tracking-[0.1em] shadow-xl shadow-furco-yellow/20 hover:shadow-black/20 transition-all flex items-center justify-center gap-4 group"
                     >
                       <Lock className="w-5 h-5" />
                       Secure Checkout
@@ -418,7 +418,7 @@ const Cart = () => {
               </div>
 
               {/* Trust Badges */}
-              <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-black/[0.02] border border-black/5 divide-y divide-black/5">
+              <div className="bg-white rounded-2xl p-8 shadow-xl shadow-black/[0.02] border border-black/5 divide-y divide-black/5">
                 <div className="flex items-center gap-5 pb-6">
                   <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
                     <Truck className="w-6 h-6 text-blue-500" />
