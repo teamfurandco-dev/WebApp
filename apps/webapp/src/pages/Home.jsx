@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useTheme } from '@/context/ThemeContext';
-import { api } from '@/services/api';
+import { useHomeData } from '@/hooks/useQueries';
 
 // Components
 import HomeHero from '@/components/home/HomeHero';
@@ -15,38 +15,16 @@ import LifestyleCTA from '@/components/home/LifestyleCTA';
 
 const Home = () => {
   const { switchMode } = useTheme();
-  const [homeData, setHomeData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { data: homeData, isLoading, error } = useHomeData();
 
-  // Enforce Gateway theme on mount and fetch all home data in one call
   useEffect(() => {
     switchMode('GATEWAY');
     window.scrollTo(0, 0);
-    
-    // Single API call for all home page data
-    const fetchHomeData = async () => {
-      try {
-        const data = await api.getHomeData();
-        console.log('Home data loaded:', data);
-        setHomeData(data);
-      } catch (error) {
-        console.error('Error loading home page:', error);
-        // Fallback to empty data structure
-        setHomeData({
-          hero: { title: 'Welcome to Fur & Co', subtitle: 'Premium pet care', ctaText: 'Shop Now', ctaLink: '/products' },
-          featuredProducts: [],
-          categories: [],
-          featuredBlogs: []
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHomeData();
   }, [switchMode]);
 
-  if (loading) {
+  const isLoadingOrError = isLoading || error;
+  
+  if (isLoadingOrError) {
     return (
       <div className="w-full flex flex-col min-h-screen bg-[#FDFBF7] items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-furco-gold"></div>
@@ -55,20 +33,27 @@ const Home = () => {
     );
   }
 
+  const data = homeData || {
+    hero: { title: 'Welcome to Fur & Co', subtitle: 'Premium pet care', ctaText: 'Shop Now', ctaLink: '/products' },
+    featuredProducts: [],
+    categories: [],
+    featuredBlogs: []
+  };
+
   return (
     <div className="w-full flex flex-col min-h-screen bg-[#FDFBF7] overflow-x-hidden">
 
       {/* 1. Hero Section (Static, No Slider) */}
-      <HomeHero hero={homeData?.hero} />
+      <HomeHero hero={data?.hero} />
 
       {/* 2. Care Categories (3 Large Tiles) */}
-      <CareCategories categories={homeData?.categories} />
+      <CareCategories categories={data?.categories} />
 
       {/* 3. Philosophy Strip (Signal values) */}
       <PhilosophyStrip />
 
       {/* 4. Curated Essentials (6 Products max) */}
-      <CuratedEssentials products={homeData?.featuredProducts} />
+      <CuratedEssentials products={data?.featuredProducts} />
 
       {/* 5. Story-Led Product Reuse (Contextual) */}
       <StoryReuse />
@@ -80,7 +65,7 @@ const Home = () => {
       <CommunityTestimonials />
 
       {/* 8. Pet Parenting Tips (3 blog cards) */}
-      <PetParentingTips blogs={homeData?.featuredBlogs} />
+      <PetParentingTips blogs={data?.featuredBlogs} />
 
       {/* 9. Lifestyle CTA (Emotional Close) */}
       <LifestyleCTA />

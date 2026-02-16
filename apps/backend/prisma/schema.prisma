@@ -367,8 +367,14 @@ model Order {
   total          Int // in cents
   
   // Payment
-  paymentMethod  String? // "cod", "card", "upi", etc.
+  paymentMethod  String? // "card", "upi", "wallet", "netbanking"
   paymentStatus  String @default("pending") // "pending", "paid", "failed", "refunded"
+  
+  // Razorpay
+  razorpayOrderId    String?
+  razorpayPaymentId  String?
+  razorpaySignature String?
+  paidAt            DateTime?
   
   // Shipping
   shippingAddress Json
@@ -393,6 +399,8 @@ model Order {
   @@index([status])
   @@index([orderNumber])
   @@index([createdAt])
+  @@index([razorpayOrderId])
+  @@index([paymentStatus])
 }
 
 model OrderItem {

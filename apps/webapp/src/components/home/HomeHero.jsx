@@ -6,7 +6,7 @@ import heroImage from '@/assets/hero.png';
 
 const HomeHero = () => {
   return (
-    <section className="relative w-full min-h-[65vh] md:min-h-[calc(100vh-80px-5vh)] flex flex-col justify-start md:justify-center overflow-hidden bg-background">
+    <section className="relative w-full min-h-[60vh] md:min-h-[calc(100vh-80px-5vh)] flex flex-col justify-start md:justify-center overflow-hidden bg-background">
       {/* 1. Static Hero Image with Art Direction */}
       <picture className="absolute inset-0 w-full h-full">
         <source
@@ -25,26 +25,26 @@ const HomeHero = () => {
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent md:bg-gradient-to-r md:from-black/40 md:via-transparent md:to-transparent" />
 
       {/* 3. Content - Minimal & Editorial */}
-      <div className="relative z-10 w-full flex flex-col justify-start md:justify-center px-6 md:px-20 pt-20 md:pt-0 h-full">
-        <div className="max-w-4xl text-center md:text-left text-white space-y-4 md:space-y-6">
+      <div className="relative z-10 w-full flex flex-col justify-start md:justify-center px-4 md:px-20 pt-16 md:pt-0 h-full">
+        <div className="max-w-4xl text-center md:text-left text-white space-y-3 md:space-y-6">
           <motion.div
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <h1 className="text-3xl md:text-6xl lg:text-[4.5rem] font-peace-sans font-medium leading-[1.2] mb-4 md:mb-5 drop-shadow-lg tracking-tight">
+            <h1 className="text-2xl md:text-5xl lg:text-[4rem] font-peace-sans font-medium leading-[1.15] mb-3 md:mb-5 drop-shadow-lg tracking-tight">
               Curated Care for <br /> <i className="font-serif italic font-light">Your Best Friend.</i>
             </h1>
-            <p className="text-base md:text-xl text-white/90 font-sans font-light leading-relaxed mb-8 drop-shadow-md max-w-lg mx-auto md:mx-0">
+            <p className="text-sm md:text-xl text-white/90 font-light leading-relaxed mb-5 md:mb-8 drop-shadow-md max-w-lg mx-auto md:mx-0">
               Science-backed nutrition and thoughtfully designed essentials for the ones who trust you the most.
             </p>
             <Link to="/products">
               <Button
                 size="lg"
-                className="bg-white text-black hover:bg-furco-cream hover:text-black border-none text-lg px-12 py-8 rounded-full transition-all duration-500 shadow-2xl hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] group"
+                className="bg-white text-black hover:bg-furco-cream hover:text-black border-none text-sm md:text-lg px-6 md:px-12 py-3 md:py-8 rounded-full transition-all duration-500 shadow-xl hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] group"
               >
                 Explore Essentials
-                <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-1 transition-transform" strokeWidth={1.5} />
+                <ArrowRight className="ml-2 md:ml-3 w-4 md:w-5 h-4 md:h-5 group-hover:translate-x-1 transition-transform" strokeWidth={1.5} />
               </Button>
             </Link>
           </motion.div>

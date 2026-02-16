@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { Home, Search, ShoppingCart, User } from 'lucide-react';
+import { Home, Store, ShoppingCart, User } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@fur-co/utils';
 import { useAuth } from '@/context/AuthContext';
@@ -14,7 +14,7 @@ const MobileBottomNav = () => {
 
     const navItems = [
         { icon: Home, label: 'Home', path: '/' },
-        { icon: Search, label: 'Search', path: '/products' },
+        { icon: Store, label: 'Shop', path: '/products' },
         { icon: ShoppingCart, label: 'Cart', path: '/cart' },
         { icon: User, label: 'Profile', path: user ? '/account' : '/login' },
     ];
@@ -60,7 +60,7 @@ const MobileBottomNav = () => {
                                     </Badge>
                                 )}
                             </div>
-                            <span className="text-[10px] font-bold tracking-tight">{item.label}</span>
+                            <span className="text-[10px] font-medium tracking-tight">{item.label}</span>
                         </NavLink>
                     );
                 })}

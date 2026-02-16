@@ -9,7 +9,7 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const { user } = useAuth();
-  const [cart, setCart] = useState({ items: [], total: 0 });
+  const [cart, setCart] = useState({ items: [] });
   const [loading, setLoading] = useState(false);
 
   // Fetch cart when user changes
@@ -17,7 +17,7 @@ export const CartProvider = ({ children }) => {
     if (user) {
       fetchCart();
     } else {
-      setCart({ items: [], total: 0 });
+      setCart({ items: [] });
     }
   }, [user]);
 
@@ -26,8 +26,10 @@ export const CartProvider = ({ children }) => {
     
     try {
       setLoading(true);
-      const cartData = await api.getCart();
-      setCart(cartData);
+      console.log('Fetching cart for user:', user.id);
+      const cartData = await api.getCheckoutSummary();
+      console.log('Checkout summary response:', cartData);
+      setCart(cartData?.cart || { items: [] });
     } catch (error) {
       console.error('Error fetching cart:', error);
       toast.error('Failed to load cart');
@@ -44,7 +46,9 @@ export const CartProvider = ({ children }) => {
 
     try {
       setLoading(true);
-      await api.addToCart(productId, variantId, quantity);
+      console.log('Adding to cart:', { productId, variantId, quantity });
+      const result = await api.addToCart(productId, variantId, quantity);
+      console.log('Add to cart result:', result);
       await fetchCart(); // Refresh cart
       toast.success('Added to cart');
     } catch (error) {
@@ -87,7 +91,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const getCartCount = () => {
-    return cart.items.reduce((total, item) => total + item.quantity, 0);
+    return (cart.items || []).reduce((total, item) => total + item.quantity, 0);
   };
 
   const value = {

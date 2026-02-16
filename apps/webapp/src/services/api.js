@@ -16,6 +16,8 @@ const getAuthToken = async () => {
 const apiRequest = async (endpoint, options = {}) => {
   const token = await getAuthToken();
   const url = `${API_BASE_URL}${endpoint}`;
+  
+  console.log('[API] Request:', endpoint, 'Token:', token ? 'yes' : 'no');
 
   const config = {
     headers: {
@@ -31,6 +33,8 @@ const apiRequest = async (endpoint, options = {}) => {
   }
 
   const response = await fetch(url, config);
+  
+  console.log('[API] Response status:', response.status);
 
   if (!response.ok) {
     const error = await response.text();
@@ -238,6 +242,21 @@ export const api = {
       });
     } catch (error) {
       console.error('Error removing from cart:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * DELETE /api/cart
+   * Clear entire cart
+   */
+  clearCart: async () => {
+    try {
+      return await apiRequest('/api/cart', {
+        method: 'DELETE'
+      });
+    } catch (error) {
+      console.error('Error clearing cart:', error);
       throw error;
     }
   },
@@ -977,6 +996,99 @@ export const api = {
     } catch (error) {
       console.error('Error fetching blog categories:', error);
       return [];
+    }
+  },
+
+  /**
+   * GET /api/blogs/page
+   * Get blog listing page with blogs, categories, and pagination
+   */
+  getBlogPage: async ({ page = 1, limit = 10, categoryId = null } = {}) => {
+    try {
+      const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+      if (categoryId) params.append('categoryId', categoryId);
+      return await apiRequest(`/api/blogs/page?${params.toString()}`);
+    } catch (error) {
+      console.error('Error fetching blog page:', error);
+      return { blogs: [], categories: [], pagination: { page: 1, limit: 10, total: 0, totalPages: 0 } };
+    }
+  },
+
+  /**
+   * GET /api/blogs/:slug/full
+   * Get complete blog post with related blogs
+   */
+  getBlogFull: async (slug) => {
+    try {
+      return await apiRequest(`/api/blogs/${slug}/full`);
+    } catch (error) {
+      console.error('Error fetching blog full:', error);
+      return null;
+    }
+  },
+
+  /**
+   * GET /api/checkout/summary
+   * Get complete checkout data: cart + addresses + stock availability
+   */
+  getCheckoutSummary: async () => {
+    try {
+      return await apiRequest('/api/checkout/summary');
+    } catch (error) {
+      console.error('Error fetching checkout summary:', error);
+      return {
+        cart: { items: [], totals: { subtotal: 0, shipping: 0, tax: 0, total: 0, itemCount: 0 } },
+        addresses: { shipping: [], billing: [] },
+        stockCheck: { available: [], unavailable: [] }
+      };
+    }
+  },
+
+  // ===== PAYMENTS API =====
+  /**
+   * GET /api/payments/config
+   * Get Razorpay configuration
+   */
+  getRazorpayConfig: async () => {
+    try {
+      return await apiRequest('/api/payments/config');
+    } catch (error) {
+      console.error('Error fetching Razorpay config:', error);
+      return { razorpayConfigured: false, keyId: null };
+    }
+  },
+
+  razorpay: {
+    /**
+     * POST /api/payments/create-order
+     * Create Razorpay order
+     */
+    createOrder: async (amount) => {
+      try {
+        return await apiRequest('/api/payments/create-order', {
+          method: 'POST',
+          body: JSON.stringify({ amount }),
+        });
+      } catch (error) {
+        console.error('Error creating Razorpay order:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * POST /api/payments/verify
+     * Verify payment and create order
+     */
+    verify: async (paymentData) => {
+      try {
+        return await apiRequest('/api/payments/verify', {
+          method: 'POST',
+          body: JSON.stringify(paymentData),
+        });
+      } catch (error) {
+        console.error('Error verifying payment:', error);
+        throw error;
+      }
     }
   },
 

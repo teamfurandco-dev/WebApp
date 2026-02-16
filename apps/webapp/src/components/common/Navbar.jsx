@@ -138,7 +138,7 @@ const Navbar = () => {
             </nav>
 
             {/* Utility Icons */}
-            <div className="flex items-center gap-3 md:gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
 
               {/* Mobile Search Trigger */}
               <button
@@ -152,7 +152,7 @@ const Navbar = () => {
                 <Search className="w-5 h-5" strokeWidth={2.5} />
               </button>
 
-              {/* Wishlist */}
+              {/* Wishlist - Desktop only */}
               <Link to="/wishlist" className={cn(
                 "hidden md:block p-2 transition-colors",
                 isUnlimitedMode ? "text-gray-900 hover:text-white" : "text-gray-900 hover:text-white"
@@ -160,9 +160,17 @@ const Navbar = () => {
                 <Heart className="w-6 h-6" strokeWidth={2.5} />
               </Link>
 
-              {/* Cart */}
+              {/* Mobile: Wishlist instead of Cart */}
+              <Link to="/wishlist" className={cn(
+                "md:hidden flex p-2 relative transition-colors items-center justify-center group",
+                isUnlimitedMode ? "text-gray-900 hover:text-white" : "text-gray-900 hover:text-white"
+              )}>
+                <Heart className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
+              </Link>
+
+              {/* Cart - Desktop only */}
               <Link to="/cart" className={cn(
-                "flex p-2 relative transition-colors items-center justify-center group",
+                "hidden md:flex p-2 relative transition-colors items-center justify-center group",
                 isUnlimitedMode ? "text-gray-900 hover:text-white" : "text-gray-900 hover:text-white"
               )}>
                 <ShoppingCart className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
@@ -326,11 +334,7 @@ const Navbar = () => {
                 );
               })}
 
-              <div className="grid grid-cols-2 gap-4 mt-12 pt-8 border-t border-black/10">
-                <Link to={user ? "/account" : "/login"} onClick={() => setIsMobileMenuOpen(false)} className="flex flex-col items-center justify-center gap-3 p-6 rounded-3xl bg-black/5 hover:bg-black/10 transition-colors">
-                  <User className="w-6 h-6 text-black" />
-                  <span className="text-sm font-bold text-black">Account</span>
-                </Link>
+              <div className="grid grid-cols-1 gap-4 mt-12 pt-8 border-t border-black/10">
                 <Link to="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="flex flex-col items-center justify-center gap-3 p-6 rounded-3xl bg-black/5 hover:bg-black/10 transition-colors">
                   <Heart className="w-6 h-6 text-black" />
                   <span className="text-sm font-bold text-black">Wishlist</span>

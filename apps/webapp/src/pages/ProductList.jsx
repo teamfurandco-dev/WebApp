@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTheme } from '@/context/ThemeContext';
-import { api } from '@/services/api';
+import { useProducts } from '@/hooks/useQueries';
 import ProductCard from '@/components/product/ProductCard';
 import FilterSidebar from '@/components/product/FilterSidebar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -12,43 +12,24 @@ import { motion, AnimatePresence } from 'framer-motion';
 const ProductList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { switchMode } = useTheme();
+  const [priceRange, setPriceRange] = useState([0, 5000]);
 
-  // Sync state with URL params
   const category = searchParams.get('category') || 'All';
   const sort = searchParams.get('sort') || 'featured';
   const search = searchParams.get('search') || '';
   const currentPage = parseInt(searchParams.get('page') || '1');
 
-  const [exploreData, setExploreData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const { data: exploreData, isLoading } = useProducts({
+    category: category === 'All' ? null : category,
+    sort,
+    search,
+    page: currentPage,
+    limit: 20
+  });
 
   useEffect(() => {
     switchMode('GATEWAY');
   }, [switchMode]);
-
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      try {
-        console.log('Fetching products with filters:', { category, sort, page: currentPage });
-        const data = await api.getProductsExplore({
-          category: category === 'All' ? null : category,
-          sort,
-          search,
-          page: currentPage,
-          limit: 20
-        });
-        setExploreData(data);
-      } catch (error) {
-        console.error("Failed to load products", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, [category, sort, currentPage, search]);
 
   const products = exploreData?.products || [];
   const categories = exploreData?.categories || [];
@@ -92,8 +73,8 @@ const ProductList = () => {
         ))}
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 pt-4 md:pt-12 pb-24 relative z-10">
-        <div className="flex flex-col md:flex-row gap-12">
+      <div className="container mx-auto px-3 md:px-6 pt-4 md:pt-12 pb-16 md:pb-24 relative z-10">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-12">
           {/* Sidebar - Desktop */}
           <aside className="hidden md:block w-72 shrink-0">
             <FilterSidebar
@@ -107,9 +88,9 @@ const ProductList = () => {
 
           {/* Main Content */}
           <div className="flex-1">
-            <div className="flex flex-col gap-6 mb-12">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                <h1 className="text-2xl md:text-4xl font-peace-sans text-black leading-[1.1]">
+            <div className="flex flex-col gap-4 md:gap-6 mb-8 md:mb-12">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h1 className="text-xl md:text-4xl font-peace-sans text-black leading-[1.1]">
                   {search ? `Results for "${search}"` : (category === 'All' ? 'All Products' : category)}
                 </h1>
 
@@ -176,23 +157,23 @@ const ProductList = () => {
               )}
             </div>
 
-            {loading ? (
-              <div className="flex flex-col items-center justify-center py-32">
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-16 md:py-32">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                  className="relative w-24 h-24"
+                  className="relative w-16 h-16 md:w-24 md:h-24"
                 >
-                  <PawPrint className="w-8 h-8 text-[#ffcc00] absolute top-0 left-1/2 -translate-x-1/2" />
-                  <PawPrint className="w-8 h-8 text-[#ffcc00] absolute bottom-0 left-1/2 -translate-x-1/2 rotate-180" />
-                  <PawPrint className="w-8 h-8 text-[#ffcc00] absolute left-0 top-1/2 -translate-y-1/2 -rotate-90" />
-                  <PawPrint className="w-8 h-8 text-[#ffcc00] absolute right-0 top-1/2 -translate-y-1/2 rotate-90" />
+                  <PawPrint className="w-6 h-6 md:w-8 md:h-8 text-[#ffcc00] absolute top-0 left-1/2 -translate-x-1/2" />
+                  <PawPrint className="w-6 h-6 md:w-8 md:h-8 text-[#ffcc00] absolute bottom-0 left-1/2 -translate-x-1/2 rotate-180" />
+                  <PawPrint className="w-6 h-6 md:w-8 md:h-8 text-[#ffcc00] absolute left-0 top-1/2 -translate-y-1/2 -rotate-90" />
+                  <PawPrint className="w-6 h-6 md:w-8 md:h-8 text-[#ffcc00] absolute right-0 top-1/2 -translate-y-1/2 rotate-90" />
                 </motion.div>
-                <p className="mt-6 text-lg font-bold text-black/60 animate-pulse font-sans">Sniffing out products...</p>
+                <p className="mt-4 md:mt-6 text-base md:text-lg font-bold text-black/60 animate-pulse font-sans">Sniffing out products...</p>
               </div>
             ) : products.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-8">
                   <AnimatePresence>
                     {products.map((product) => (
                       <ProductCard key={product.id} product={product} />
@@ -202,12 +183,12 @@ const ProductList = () => {
 
                 {/* Pagination */}
                 {pagination.totalPages > 1 && (
-                  <div className="mt-16 flex justify-center gap-2">
+                  <div className="mt-12 md:mt-16 flex flex-wrap justify-center gap-2 px-2">
                     {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
                       <button
                         key={page}
                         onClick={() => handlePageChange(page)}
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-all duration-300 ${currentPage === page
+                        className={`min-w-[40px] h-10 px-2 md:px-0 md:w-10 rounded-xl flex items-center justify-center font-bold text-sm md:text-base transition-all duration-300 ${currentPage === page
                           ? 'bg-[#ffcc00] text-black shadow-md scale-110'
                           : 'bg-white border border-black/10 text-black hover:border-[#ffcc00] hover:text-[#ffcc00]'
                           }`}

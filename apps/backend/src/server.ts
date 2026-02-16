@@ -26,6 +26,8 @@ import { questionRoutes } from './modules/questions/routes.js';
 import { reviewRoutes } from './modules/reviews/routes.js';
 import { inventoryRoutes } from './modules/inventory/routes.js';
 import { profileRoutes } from './modules/profile/routes.js';
+import { paymentRoutes } from './modules/payment/routes.js';
+import { checkoutRoutes } from './modules/checkout/routes.js';
 
 /**
  * Initialize Fastify instance with production-ready defaults
@@ -183,6 +185,8 @@ const start = async () => {
     await fastify.register(reviewRoutes, apiPrefix);
     await fastify.register(inventoryRoutes, apiPrefix);
     await fastify.register(profileRoutes, apiPrefix);
+    await fastify.register(paymentRoutes, apiPrefix);
+    await fastify.register(checkoutRoutes, apiPrefix);
 
     try {
       const { default: unlimitedFurRoutes } = await import('./modules/unlimited-fur/routes.js');

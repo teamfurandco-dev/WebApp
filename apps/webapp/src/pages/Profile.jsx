@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import {
   User, Package, MapPin, CreditCard, Settings,
-  LogOut, Plus, ChevronRight, Truck, ShoppingBag, Heart, X, RefreshCw, ShieldCheck
+  LogOut, Plus, ChevronRight, Truck, ShoppingBag, Heart, X, RefreshCw, ShieldCheck, Menu
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -18,20 +18,20 @@ import { cn } from '@fur-co/utils';
 import catImage from '@/assets/cat.jpeg';
 import dogImage from '@/assets/dog.jpeg';
 
-const SidebarLink = ({ to, icon: Icon, label, active }) => (
-  <Link to={to} className="block group">
+const SidebarLink = ({ to, icon: Icon, label, active, onClick }) => (
+  <Link to={to} className="block group" onClick={onClick}>
     <div className={cn(
-      "flex items-center gap-4 px-6 py-4 rounded-xl transition-all duration-300 relative overflow-hidden",
+      "flex items-center gap-3 md:gap-4 px-4 md:px-6 py-3 md:py-4 rounded-xl transition-all duration-300 relative overflow-hidden",
       active
-        ? "bg-furco-yellow text-black font-bold shadow-lg shadow-furco-yellow/10"
+        ? "bg-furco-yellow text-black font-medium shadow-lg shadow-furco-yellow/10"
         : "text-black/60 hover:bg-black/5 hover:text-black"
     )}>
-      <Icon className={cn("h-5 w-5", active ? "text-black" : "text-black/40 group-hover:text-black")} />
-      <span className="text-[15px] font-black">{label}</span>
+      <Icon className={cn("h-4 w-4 md:h-5 md:w-5", active ? "text-black" : "text-black/40 group-hover:text-black")} />
+      <span className="text-sm md:text-[15px] font-medium">{label}</span>
 
       {active && (
         <div className="absolute right-[-10px] top-[-10px] opacity-10 pointer-events-none">
-          <Package className="w-20 h-20 rotate-12" />
+          <Package className="w-16 md:w-20 h-16 md:h-20 rotate-12" />
         </div>
       )}
     </div>
@@ -166,63 +166,81 @@ const AddPetModal = ({ isOpen, onClose, onAdd }) => {
   );
 };
 
-const ProfileSidebar = ({ user, petTypes, onLogout, onAddPet, onDeletePet }) => {
+const ProfileSidebar = ({ user, petTypes, onLogout, onAddPet, onDeletePet, onClose }) => {
   const location = useLocation();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  const handleLinkClick = () => {
+    setIsMobileOpen(false);
+    if (onClose) onClose();
+  };
 
   return (
-    <aside className="w-full md:w-[320px] bg-white rounded-2xl shadow-2xl shadow-black/[0.03] overflow-hidden flex flex-col p-8 sticky top-10 h-[calc(100vh-80px)]">
-      {/* User Info */}
-      <div className="flex items-center gap-4 mb-10">
-        <Avatar className="h-14 w-14 border-2 border-furco-yellow/20">
-          <AvatarImage src={user?.avatar_url} />
-          <AvatarFallback className="bg-furco-yellow/10 text-furco-yellow font-bold">
-            {user?.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col">
-          <h2 className="font-peace-sans text-lg text-black leading-tight truncate max-w-[160px]">
-            {user?.full_name || 'Premium User'}
-          </h2>
-          <span className="text-xs text-black/40 truncate max-w-[160px] font-medium">
-            {user?.email}
-          </span>
-        </div>
-      </div>
+    <>
+      {/* Mobile Toggle */}
+      <button 
+        onClick={() => setIsMobileOpen(!isMobileOpen)}
+        className="md:hidden w-full flex items-center justify-between px-4 py-3 bg-white rounded-xl mb-3 shadow-sm"
+      >
+        <span className="font-medium">Menu</span>
+        {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+      </button>
 
-      {/* Navigation */}
-      <nav className="space-y-2 flex-1 overflow-y-auto hide-scrollbar">
-        <SidebarLink to="/account/orders" icon={Package} label="Orders" active={location.pathname === '/account/orders' || location.pathname === '/account'} />
-        <SidebarLink to="/account/addresses" icon={MapPin} label="Addresses" active={location.pathname === '/account/addresses'} />
-        <SidebarLink to="/account/subscriptions" icon={RefreshCw} label="Subscriptions" active={location.pathname === '/account/subscriptions'} />
-        <SidebarLink to="/account/settings" icon={Settings} label="Account Settings" active={location.pathname === '/account/settings'} />
-
-        <div className="pt-8 pb-4">
-          <p className="text-[10px] font-bold text-black/30 uppercase tracking-[0.2em] mb-6 px-6">Your Pets</p>
-          <div className="flex px-4 gap-6">
-            {petTypes?.includes('dog') && <PetAvatar type="dog" name="Buddy" active onDelete={onDeletePet} />}
-            {petTypes?.includes('cat') && <PetAvatar type="cat" name="Lucy" active onDelete={onDeletePet} />}
-            <div
-              onClick={onAddPet}
-              className="flex flex-col items-center gap-2 group cursor-pointer"
-            >
-              <div className="w-16 h-16 rounded-full border-2 border-dashed border-black/30 flex items-center justify-center group-hover:border-furco-yellow group-hover:bg-furco-yellow/5 transition-all">
-                <Plus className="w-6 h-6 text-black/40 group-hover:text-furco-yellow" />
-              </div>
-              <span className="text-[10px] font-bold text-black/40 group-hover:text-furco-yellow uppercase tracking-widest">Add Pet</span>
-            </div>
+      <aside className={cn(
+        "w-full md:w-[300px] lg:w-[320px] bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col p-5 md:p-6 lg:p-8",
+        isMobileOpen ? "block" : "hidden md:flex",
+        "sticky top-4 md:top-10"
+      )}>
+        {/* User Info */}
+        <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-10">
+          <Avatar className="h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14 border-2 border-furco-yellow/20">
+            <AvatarImage src={user?.avatar_url} />
+            <AvatarFallback className="bg-furco-yellow/10 text-furco-yellow font-medium text-sm">
+              {user?.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col min-w-0">
+            <h2 className="text-base md:text-lg text-black leading-tight truncate max-w-[140px] md:max-w-[160px] font-medium">
+              {user?.full_name || 'Premium User'}
+            </h2>
+            <span className="text-xs text-black/40 truncate max-w-[140px] md:max-w-[160px]">
+              {user?.email}
+            </span>
           </div>
         </div>
-      </nav>
 
-      {/* Logout */}
-      <button
-        onClick={onLogout}
-        className="mt-auto flex items-center gap-4 px-6 py-4 text-black/40 hover:text-destructive transition-colors duration-300"
-      >
-        <LogOut className="h-5 w-5" />
-        <span className="text-[15px] font-peace-sans">Logout</span>
-      </button>
-    </aside>
+        {/* Navigation */}
+        <nav className="space-y-1 md:space-y-2 flex-1 overflow-y-auto hide-scrollbar">
+          <SidebarLink to="/account/orders" icon={Package} label="Orders" active={location.pathname === '/account/orders' || location.pathname === '/account'} onClick={handleLinkClick} />
+          <SidebarLink to="/account/addresses" icon={MapPin} label="Addresses" active={location.pathname === '/account/addresses'} onClick={handleLinkClick} />
+          <SidebarLink to="/account/subscriptions" icon={RefreshCw} label="Subscriptions" active={location.pathname === '/account/subscriptions'} onClick={handleLinkClick} />
+          <SidebarLink to="/account/settings" icon={Settings} label="Settings" active={location.pathname === '/account/settings'} onClick={handleLinkClick} />
+
+          <div className="pt-6 md:pt-8 pb-4">
+            <p className="text-[10px] font-medium text-black/30 uppercase tracking-[0.2em] mb-4 md:mb-6 px-2 md:px-4">Your Pets</p>
+            <div className="flex px-2 md:px-4 gap-4 md:gap-6">
+              {petTypes?.includes('dog') && <PetAvatar type="dog" name="Buddy" active onDelete={onDeletePet} />}
+              {petTypes?.includes('cat') && <PetAvatar type="cat" name="Lucy" active onDelete={onDeletePet} />}
+              <div onClick={() => { onAddPet(); handleLinkClick(); }} className="flex flex-col items-center gap-2 group cursor-pointer">
+                <div className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full border-2 border-dashed border-black/30 flex items-center justify-center group-hover:border-furco-yellow group-hover:bg-furco-yellow/5 transition-all">
+                  <Plus className="w-4 h-4 md:w-5 md:h-5 text-black/40 group-hover:text-furco-yellow" />
+                </div>
+                <span className="text-[9px] md:text-[10px] font-medium text-black/40 group-hover:text-furco-yellow uppercase tracking-widest">Add Pet</span>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        {/* Logout */}
+        <button
+          onClick={() => { onLogout(); handleLinkClick(); }}
+          className="mt-4 md:mt-auto flex items-center gap-3 md:gap-4 px-2 md:px-4 py-3 text-black/40 hover:text-destructive transition-colors duration-300"
+        >
+          <LogOut className="h-4 w-4 md:h-5 md:w-5" />
+          <span className="text-sm md:text-[15px]">Logout</span>
+        </button>
+      </aside>
+    </>
   );
 };
 
@@ -230,94 +248,96 @@ const Orders = ({ orders, loading }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-6">
-          <h1 className="text-4xl font-peace-sans text-black">Orders</h1>
-          <div className="relative">
-            <Truck className="w-12 h-12 text-black/80" />
-            <div className="absolute top-1 right-1 w-6 h-6 bg-furco-yellow rounded-full flex items-center justify-center shadow-lg border-2 border-white">
-              <div className="w-2.5 h-2.5 bg-black rounded-sm" />
+    <div className="space-y-4 md:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 md:mb-8">
+        <div className="flex items-center gap-3 md:gap-6">
+          <h1 className="text-xl md:text-3xl lg:text-4xl font-medium text-black">Orders</h1>
+          <div className="relative hidden sm:block">
+            <Truck className="w-8 md:w-10 h-8 md:h-10 text-black/80" />
+            <div className="absolute top-0 right-0 w-4 md:w-5 h-4 md:h-5 bg-furco-yellow rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+              <div className="w-1.5 md:w-2 h-1.5 md:h-2 bg-black rounded-sm" />
             </div>
           </div>
         </div>
         <Link to="/products">
-          <Button className="bg-furco-yellow hover:bg-furco-yellow-hover text-black font-peace-sans rounded-xl h-12 px-8 flex items-center gap-3 active:scale-95 transition-all">
-            <ShoppingBag className="w-5 h-5" />
-            Continue Shopping
+          <Button className="bg-furco-yellow hover:bg-furco-yellow-hover text-black font-medium rounded-xl h-10 md:h-12 px-4 md:px-8 flex items-center gap-2 md:gap-3 active:scale-95 transition-all text-sm md:text-base w-full sm:w-auto">
+            <ShoppingBag className="w-4 md:w-5 h-4 md:h-5" />
+            <span className="hidden sm:inline">Continue Shopping</span>
+            <span className="sm:hidden">Shop</span>
           </Button>
         </Link>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-xl shadow-black/[0.02] overflow-hidden border border-black/[0.03]">
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-8 h-8 border-4 border-furco-yellow border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-black/40 font-medium uppercase tracking-widest text-[10px]">Loading...</p>
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="bg-white rounded-xl p-8 text-center border border-black/[0.03]">
+            <div className="w-16 h-16 bg-furco-yellow/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <ShoppingBag className="w-8 h-8 text-furco-yellow" />
+            </div>
+            <h3 className="text-base font-medium text-black mb-2">No orders yet</h3>
+            <p className="text-sm text-black/40 font-medium mb-4">Start shopping to see your orders here</p>
+            <Link to="/products">
+              <Button className="bg-black text-white px-6 rounded-lg h-10 text-sm font-medium">Browse Products</Button>
+            </Link>
+          </div>
+        ) : (
+          orders.map((order) => (
+            <div key={order.id} className="bg-white rounded-xl p-4 border border-black/[0.03]">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <span className="text-sm font-medium text-black">#{order.order_number || order.id.slice(0, 8)}</span>
+                  <span className="text-xs text-black/40 ml-2">{new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className={cn("w-2 h-2 rounded-full", order.status === 'delivered' ? "bg-green-500" : order.status === 'cancelled' ? "bg-red-500" : "bg-furco-yellow")} />
+                  <span className="text-xs font-medium text-black capitalize">{order.status || 'Processing'}</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-black">₹{(order.total_amount / 100).toLocaleString()}</span>
+                <Link to={`/account/orders/${order.id}`}>
+                  <Button className="bg-furco-yellow text-black font-medium rounded-lg h-8 px-4 text-xs">View Details</Button>
+                </Link>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block bg-white rounded-2xl shadow-xl shadow-black/[0.02] overflow-hidden border border-black/[0.03]">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-black/[0.05]">
-                <th className="px-10 py-8 text-[11px] font-black uppercase tracking-[0.2em] text-black/30">Order ID</th>
-                <th className="px-10 py-8 text-[11px] font-black uppercase tracking-[0.2em] text-black/30">Date</th>
-                <th className="px-10 py-8 text-[11px] font-black uppercase tracking-[0.2em] text-black/30">Status</th>
-                <th className="px-10 py-8 text-[11px] font-black uppercase tracking-[0.2em] text-black/30">Total</th>
-                <th className="px-10 py-8 text-[11px] font-black uppercase tracking-[0.2em] text-black/30"></th>
+                <th className="px-8 py-6 text-[11px] font-medium uppercase tracking-[0.2em] text-black/30">Order ID</th>
+                <th className="px-8 py-6 text-[11px] font-medium uppercase tracking-[0.2em] text-black/30">Date</th>
+                <th className="px-8 py-6 text-[11px] font-medium uppercase tracking-[0.2em] text-black/30">Status</th>
+                <th className="px-8 py-6 text-[11px] font-medium uppercase tracking-[0.2em] text-black/30">Total</th>
+                <th className="px-8 py-6 text-[11px] font-medium uppercase tracking-[0.2em] text-black/30"></th>
               </tr>
             </thead>
             <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan="5" className="px-10 py-16 text-center">
-                    <div className="w-10 h-10 border-4 border-furco-yellow border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-black/40 font-bold uppercase tracking-widest text-[10px]">Fetching your history...</p>
-                  </td>
-                </tr>
-              ) : orders.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="px-10 py-16 text-center">
-                    <div className="max-w-xs mx-auto space-y-6">
-                      <div className="w-24 h-24 bg-furco-yellow/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <ShoppingBag className="w-10 h-10 text-furco-yellow" />
-                      </div>
-                      <h3 className="text-xl font-peace-sans text-black">No orders found</h3>
-                      <p className="text-sm text-black/40 font-medium leading-relaxed">
-                        Your history is currently empty. Start your premium pet care journey today!
-                      </p>
-                      <Link to="/products" className="inline-block pt-4">
-                        <Button className="bg-black text-white px-8 rounded-xl h-12 font-peace-sans">Browse Collection</Button>
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-              ) : orders.map((order, idx) => (
-                <tr
-                  key={order.id}
-                  className={cn(
-                    "group transition-all duration-300",
-                    idx % 2 === 0 ? "bg-white" : "bg-furco-cream/20"
-                  )}
-                >
-                  <td className="px-10 py-8">
-                    <span className="font-bold text-black font-peace-sans">#{order.order_number || order.id.slice(0, 8)}</span>
-                  </td>
-                  <td className="px-10 py-8">
-                    <span className="text-sm font-bold text-black/60">{new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                  </td>
-                  <td className="px-10 py-8">
+              {orders.map((order, idx) => (
+                <tr key={order.id} className={cn("transition-all duration-300", idx % 2 === 0 ? "bg-white" : "bg-furco-cream/20")}>
+                  <td className="px-8 py-6"><span className="font-medium text-black">#{order.order_number || order.id.slice(0, 8)}</span></td>
+                  <td className="px-8 py-6"><span className="text-sm font-medium text-black/60">{new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span></td>
+                  <td className="px-8 py-6">
                     <div className="flex items-center gap-2">
-                      <div className={cn(
-                        "w-2 h-2 rounded-full",
-                        order.status === 'delivered' ? "bg-green-500" : order.status === 'cancelled' ? "bg-red-500" : "bg-furco-yellow"
-                      )} />
-                      <span className="text-sm font-bold text-black capitalize">{order.status || 'Processing'}</span>
+                      <div className={cn("w-2 h-2 rounded-full", order.status === 'delivered' ? "bg-green-500" : order.status === 'cancelled' ? "bg-red-500" : "bg-furco-yellow")} />
+                      <span className="text-sm font-medium text-black capitalize">{order.status || 'Processing'}</span>
                     </div>
                   </td>
-                  <td className="px-10 py-8">
-                    <span className="text-sm font-bold text-black">₹{(order.total_amount / 100).toLocaleString()}</span>
-                  </td>
-                  <td className="px-10 py-8 text-right">
+                  <td className="px-8 py-6"><span className="text-sm font-medium text-black">₹{(order.total_amount / 100).toLocaleString()}</span></td>
+                  <td className="px-8 py-6 text-right">
                     <Link to={`/account/orders/${order.id}`}>
-                      <Button className="bg-furco-yellow hover:bg-furco-yellow-hover text-black font-peace-sans rounded-xl h-11 px-6 flex items-center gap-3 transition-all duration-300 active:scale-95">
-                        <Package className="w-4 h-4" />
-                        View Details
-                      </Button>
+                      <Button className="bg-furco-yellow hover:bg-furco-yellow-hover text-black font-medium rounded-xl h-10 px-5 flex items-center gap-2 text-sm">View Details</Button>
                     </Link>
                   </td>
                 </tr>
@@ -337,9 +357,9 @@ const Addresses = ({ addresses, setAddresses, onRefresh, loading }) => {
 
   if (loading && addresses.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 text-center">
-        <div className="w-12 h-12 border-4 border-furco-yellow border-t-transparent rounded-full animate-spin mb-6" />
-        <p className="text-black/40 font-bold uppercase tracking-widest text-[10px]">Fetching your addresses...</p>
+      <div className="flex flex-col items-center justify-center py-16 md:py-32 text-center">
+        <div className="w-10 md:h-12 h-10 border-4 border-furco-yellow border-t-transparent rounded-full animate-spin mb-4 md:mb-6" />
+        <p className="text-black/40 font-medium uppercase tracking-widest text-[10px]">Loading...</p>
       </div>
     );
   }
@@ -386,25 +406,24 @@ const Addresses = ({ addresses, setAddresses, onRefresh, loading }) => {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-6">
-          <h1 className="text-4xl font-peace-sans text-black">Addresses</h1>
-          <MapPin className="w-10 h-10 text-black/60" />
+    <div className="space-y-4 md:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 md:mb-8">
+        <div className="flex items-center gap-3 md:gap-6">
+          <h1 className="text-xl md:text-3xl lg:text-4xl font-medium text-black">Addresses</h1>
           <button
             onClick={onRefresh}
             className="p-2 hover:bg-black/5 rounded-full transition-colors group"
             title="Refresh addresses"
           >
-            <RefreshCw className={cn("w-5 h-5 text-black/20 group-hover:text-black/40", loading && "animate-spin")} />
+            <RefreshCw className={cn("w-4 md:w-5 h-4 md:h-5 text-black/20 group-hover:text-black/40", loading && "animate-spin")} />
           </button>
         </div>
         <Button
           onClick={() => { setEditingAddress(null); setShowForm(true); }}
-          className="bg-furco-yellow hover:bg-furco-yellow-hover text-black font-peace-sans rounded-xl h-12 px-8 flex items-center gap-3 active:scale-95 transition-all"
+          className="bg-furco-yellow hover:bg-furco-yellow-hover text-black font-medium rounded-xl h-10 md:h-12 px-4 md:px-8 flex items-center gap-2 active:scale-95 transition-all text-sm md:text-base w-full sm:w-auto"
         >
-          <Plus className="w-5 h-5" />
-          Add New Address
+          <Plus className="w-4 md:w-5 h-4 md:h-5" />
+          Add Address
         </Button>
       </div>
 
@@ -564,109 +583,100 @@ const Subscriptions = () => {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex items-center gap-6 mb-8">
-        <h1 className="text-4xl font-peace-sans text-black">Subscriptions</h1>
-        <RefreshCw className={cn("w-10 h-10 text-black/60", actionLoading && "animate-spin")} />
+    <div className="space-y-4 md:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex items-center gap-3 md:gap-6 mb-4 md:mb-8">
+        <h1 className="text-xl md:text-3xl lg:text-4xl font-medium text-black">Subscriptions</h1>
+        <RefreshCw className={cn("w-6 md:w-8 lg:w-10 h-6 md:h-8 lg:h-10 text-black/60", actionLoading && "animate-spin")} />
       </div>
 
       {!plan ? (
-        <div className="bg-white rounded-2xl p-24 text-center border border-black/[0.03] shadow-xl shadow-black/[0.01]">
-          <div className="w-24 h-24 bg-furco-yellow/10 rounded-full flex items-center justify-center mx-auto mb-8 relative">
-            <RefreshCw className="w-10 h-10 text-furco-yellow" />
+        <div className="bg-white rounded-xl md:rounded-2xl p-8 md:p-16 lg:p-24 text-center border border-black/[0.03]">
+          <div className="w-16 md:w-20 lg:w-24 h-16 md:h-20 lg:h-24 bg-furco-yellow/10 rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8">
+            <RefreshCw className="w-8 md:w-10 h-8 md:h-10 text-furco-yellow" />
           </div>
-          <h3 className="text-2xl font-peace-sans text-black mb-4">No Active Subscriptions</h3>
-          <p className="text-black/40 font-medium max-w-sm mx-auto leading-relaxed mb-8">
+          <h3 className="text-lg md:text-2xl font-medium text-black mb-3 md:mb-4">No Active Subscriptions</h3>
+          <p className="text-black/40 font-medium max-w-sm mx-auto leading-relaxed mb-6 md:mb-8 text-sm md:text-base">
             You haven't joined the Unlimited Fur family yet. Join today for tailored premium pet care!
           </p>
           <Link to="/unlimited">
-            <Button className="bg-black text-white px-10 rounded-xl h-14 font-peace-sans">Explore Unlimited</Button>
+            <Button className="bg-black text-white px-6 md:px-10 rounded-xl h-10 md:h-14 font-medium text-sm md:text-base">Explore Unlimited</Button>
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-8">
+        <div className="grid grid-cols-1 gap-4 md:gap-6 lg:gap-8">
           {/* Main Plan Card */}
-          <div className="bg-white rounded-[32px] border border-black/[0.03] shadow-2xl shadow-black/[0.02] overflow-hidden">
-            <div className="p-10">
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-10">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
+          <div className="bg-white rounded-xl md:rounded-2xl border border-black/[0.03] shadow-lg overflow-hidden">
+            <div className="p-4 md:p-6 lg:p-10">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 md:gap-8 mb-4 md:mb-10">
+                <div className="space-y-3 md:space-y-4">
+                  <div className="flex items-center gap-2 md:gap-3">
                     <Badge className={cn(
-                      "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.1em]",
+                      "px-3 md:px-4 py-1 rounded-full text-[9px] md:text-[10px] font-medium uppercase tracking-[0.1em]",
                       plan.planStatus === 'active' ? "bg-green-100 text-green-700" : "bg-furco-yellow/20 text-black/60"
                     )}>
                       {plan.planStatus}
                     </Badge>
-                    <span className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Unlimited Monthly</span>
+                    <span className="text-[9px] md:text-[10px] font-medium text-black/30 uppercase tracking-[0.2em]">Unlimited</span>
                   </div>
-                  <h2 className="text-3xl font-peace-sans text-black">Your Pet Care Pack</h2>
-                  <div className="flex items-center gap-6 pt-2">
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Next Billing</p>
-                      <p className="font-bold text-black">{new Date(plan.nextBillingDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                  <h2 className="text-lg md:text-2xl lg:text-3xl font-medium text-black">Your Pet Care Pack</h2>
+                  <div className="flex flex-wrap items-center gap-3 md:gap-6 pt-1 md:pt-2">
+                    <div className="space-y-0.5">
+                      <p className="text-[9px] md:text-[10px] font-medium text-black/30 uppercase tracking-[0.2em]">Next Billing</p>
+                      <p className="text-sm md:text-base font-medium text-black">{new Date(plan.nextBillingDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                     </div>
-                    <div className="w-px h-10 bg-black/5" />
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Monthly Budget</p>
-                      <p className="font-bold text-black">₹{(plan.monthlyBudget / 100).toLocaleString()}</p>
+                    <div className="w-px h-8 md:h-10 bg-black/5 hidden sm:block" />
+                    <div className="space-y-0.5">
+                      <p className="text-[9px] md:text-[10px] font-medium text-black/30 uppercase tracking-[0.2em]">Monthly Budget</p>
+                      <p className="text-sm md:text-base font-medium text-black">₹{(plan.monthlyBudget / 100).toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2 md:gap-3">
                   <Button
                     variant="outline"
                     onClick={() => handleAction('edit', plan.id)}
                     disabled={actionLoading || plan.planStatus !== 'active'}
-                    className="h-12 px-6 rounded-xl font-peace-sans text-[12px] border-2 hover:bg-black hover:text-white transition-all"
+                    className="h-9 md:h-10 px-3 md:px-5 rounded-lg text-xs md:text-[12px] font-medium border-2 hover:bg-black hover:text-white transition-all"
                   >
-                    Edit Pack
+                    Edit
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => handleAction('skip', plan.id)}
                     disabled={actionLoading}
-                    className="h-12 px-6 rounded-xl font-peace-sans text-[12px] border-2 hover:bg-black hover:text-white transition-all"
+                    className="h-9 md:h-10 px-3 md:px-5 rounded-lg text-xs md:text-[12px] font-medium border-2 hover:bg-black hover:text-white transition-all"
                   >
-                    Skip a Month
+                    Skip
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => handleAction(plan.planStatus === 'paused' ? 'resume' : 'pause', plan.id)}
                     disabled={actionLoading}
-                    className="h-12 px-6 rounded-xl font-peace-sans text-[12px] border-2 hover:bg-black hover:text-white transition-all"
+                    className="h-9 md:h-10 px-3 md:px-5 rounded-lg text-xs md:text-[12px] font-medium border-2 hover:bg-black hover:text-white transition-all"
                   >
                     {plan.planStatus === 'paused' ? 'Resume' : 'Pause'}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleAction('cancel', plan.id)}
-                    disabled={actionLoading}
-                    className="h-12 px-6 rounded-xl font-peace-sans text-[12px] text-destructive hover:bg-destructive/5"
-                  >
-                    Cancel
                   </Button>
                 </div>
               </div>
 
               {/* Products List */}
-              <div className="space-y-6">
-                <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.2em]">Pack Selection ({plan.products.length} Items)</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4 md:space-y-6">
+                <p className="text-[10px] md:text-[11px] font-medium text-black/30 uppercase tracking-[0.2em]">Pack Selection ({plan.products.length} Items)</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                   {plan.products.map((p) => (
-                    <div key={p.id} className="flex items-center gap-4 bg-black/[0.02] p-4 rounded-2xl border border-black/[0.03]">
-                      <div className="w-16 h-16 rounded-xl bg-white p-2 shadow-sm">
-                        {/* We don't have product images in the products join easily here, using a generic check */}
-                        <div className="w-full h-full bg-furco-cream/30 rounded-lg flex items-center justify-center">
-                          <ShoppingBag className="w-6 h-6 text-black/20" />
+                    <div key={p.id} className="flex items-center gap-3 md:gap-4 bg-black/[0.02] p-3 md:p-4 rounded-xl md:rounded-2xl border border-black/[0.03]">
+                      <div className="w-12 md:w-16 h-12 md:h-16 rounded-lg md:rounded-xl bg-white p-1 md:p-2 shadow-sm">
+                        <div className="w-full h-full bg-furco-cream/30 rounded-md md:rounded-lg flex items-center justify-center">
+                          <ShoppingBag className="w-4 md:w-6 h-4 md:h-6 text-black/20" />
                         </div>
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-bold text-black text-sm line-clamp-1">{p.product.name}</h4>
-                        <p className="text-[10px] font-medium text-black/40">{p.variant.name}</p>
-                        <div className="flex items-center justify-between mt-1">
-                          <span className="text-[10px] font-black text-black/80">Qty: {p.quantity}</span>
-                          <span className="text-[10px] font-black text-black">₹{(p.lockedPrice / 100).toLocaleString()}</span>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-black text-sm line-clamp-1">{p.product.name}</h4>
+                        <p className="text-[9px] md:text-[10px] font-medium text-black/40">{p.variant.name}</p>
+                        <div className="flex items-center justify-between mt-0.5 md:mt-1">
+                          <span className="text-[9px] md:text-[10px] font-medium text-black/80">Qty: {p.quantity}</span>
+                          <span className="text-[9px] md:text-[10px] font-medium text-black">₹{(p.lockedPrice / 100).toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
@@ -675,33 +685,34 @@ const Subscriptions = () => {
               </div>
             </div>
 
-            <div className="bg-black/5 p-6 flex items-center justify-center gap-4">
-              <ShieldCheck className="w-5 h-5 text-black/40" />
-              <p className="text-[10px] font-bold text-black/40 uppercase tracking-widest">Premium Care Protection Enabled</p>
+            <div className="bg-black/5 p-4 md:p-6 flex items-center justify-center gap-2 md:gap-4">
+              <ShieldCheck className="w-4 md:w-5 h-4 md:h-5 text-black/40" />
+              <p className="text-[9px] md:text-[10px] font-medium text-black/40 uppercase tracking-widest">Premium Care Protection</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-furco-cream/20 p-8 rounded-[32px] space-y-3">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md">
-                <Truck className="w-5 h-5 text-furco-yellow" />
+          {/* Benefits Grid - Hide on mobile */}
+          <div className="hidden md:grid grid-cols-3 gap-4 md:gap-6">
+            <div className="bg-furco-cream/20 p-6 md:p-8 rounded-2xl md:rounded-[32px] space-y-2 md:space-y-3">
+              <div className="w-8 md:w-10 h-8 md:h-10 bg-white rounded-full flex items-center justify-center shadow-md">
+                <Truck className="w-4 md:w-5 h-4 md:h-5 text-furco-yellow" />
               </div>
-              <h4 className="font-peace-sans text-sm">Free Express Delivery</h4>
-              <p className="text-xs text-black/40 font-medium">As an Unlimited member, all your pack renewals ship free.</p>
+              <h4 className="text-sm font-medium">Free Delivery</h4>
+              <p className="text-xs text-black/40 font-medium">Free shipping on renewals.</p>
             </div>
-            <div className="bg-furco-cream/20 p-8 rounded-[32px] space-y-3">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md">
-                <RefreshCw className="w-5 h-5 text-furco-yellow" />
+            <div className="bg-furco-cream/20 p-6 md:p-8 rounded-2xl md:rounded-[32px] space-y-2 md:space-y-3">
+              <div className="w-8 md:w-10 h-8 md:h-10 bg-white rounded-full flex items-center justify-center shadow-md">
+                <RefreshCw className="w-4 md:w-5 h-4 md:h-5 text-furco-yellow" />
               </div>
-              <h4 className="font-peace-sans text-sm">Flexibility Guaranteed</h4>
-              <p className="text-xs text-black/40 font-medium">Pause or skip any time. Your pack, your rules.</p>
+              <h4 className="text-sm font-medium">Flexibility</h4>
+              <p className="text-xs text-black/40 font-medium">Pause or skip anytime.</p>
             </div>
-            <div className="bg-furco-cream/20 p-8 rounded-[32px] space-y-3">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md">
-                <Heart className="w-5 h-5 text-furco-yellow" />
+            <div className="bg-furco-cream/20 p-6 md:p-8 rounded-2xl md:rounded-[32px] space-y-2 md:space-y-3">
+              <div className="w-8 md:w-10 h-8 md:h-10 bg-white rounded-full flex items-center justify-center shadow-md">
+                <Heart className="w-4 md:w-5 h-4 md:h-5 text-furco-yellow" />
               </div>
-              <h4 className="font-peace-sans text-sm">Priority Support</h4>
-              <p className="text-xs text-black/40 font-medium">Access our dedicated vet help line 24/7.</p>
+              <h4 className="text-sm font-medium">Priority Support</h4>
+              <p className="text-xs text-black/40 font-medium">24/7 vet help line.</p>
             </div>
           </div>
         </div>
@@ -929,17 +940,17 @@ const AccountSettings = ({ user }) => {
   };
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex items-center gap-6 mb-8">
-        <h1 className="text-4xl font-peace-sans text-black">Account Settings</h1>
-        <Settings className="w-10 h-10 text-black/60" />
+    <div className="space-y-6 md:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex items-center gap-3 md:gap-6 mb-4 md:mb-8">
+        <h1 className="text-xl md:text-3xl lg:text-4xl font-medium text-black">Settings</h1>
+        <Settings className="w-6 md:w-8 lg:w-10 h-6 md:h-8 lg:h-10 text-black/60" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-2xl p-10 shadow-xl border border-black/[0.03]">
-            <h2 className="text-xl font-peace-sans text-black mb-10 flex items-center gap-3">
-              <User className="w-6 h-6 text-furco-yellow" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-10">
+        <div className="lg:col-span-2 space-y-4 md:space-y-6">
+          <div className="bg-white rounded-xl md:rounded-2xl p-5 md:p-10 shadow-lg border border-black/[0.03]">
+            <h2 className="text-base md:text-xl font-medium text-black mb-6 md:mb-10 flex items-center gap-2 md:gap-3">
+              <User className="w-5 md:w-6 h-5 md:h-6 text-furco-yellow" />
               Personal Information
             </h2>
 
@@ -1008,9 +1019,9 @@ const AccountSettings = ({ user }) => {
               <Button
                 type="submit"
                 disabled={isUpdating}
-                className="w-full h-16 bg-black text-white rounded-xl text-lg font-peace-sans uppercase tracking-[0.1em] shadow-xl hover:bg-gray-800 transition-all disabled:opacity-50 mt-4"
+                className="w-full md:w-auto h-11 md:h-12 px-6 md:px-8 bg-black text-white rounded-xl text-sm font-medium uppercase tracking-[0.05em] hover:bg-gray-800 transition-all disabled:opacity-50 mt-4"
               >
-                {isUpdating ? 'Saving Changes...' : 'Save Profile Settings'}
+                {isUpdating ? 'Saving...' : 'Save Settings'}
               </Button>
             </form>
           </div>
@@ -1149,7 +1160,7 @@ const Profile = () => {
   if (!authUser && !authLoading) return <div className="min-h-screen bg-furco-cream flex items-center justify-center font-peace-sans">Please login to view profile.</div>;
 
   return (
-    <div className="min-h-screen pt-12 pb-20 relative overflow-hidden bg-furco-cream">
+    <div className="min-h-screen pt-8 md:pt-12 pb-12 md:pb-20 relative overflow-hidden bg-furco-cream">
       {/* Repeating Pattern Background */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -1159,7 +1170,7 @@ const Profile = () => {
         }}
       />
 
-      <div className="container mx-auto px-6 relative z-10 flex flex-col md:flex-row gap-12">
+      <div className="container mx-auto px-3 md:px-6 relative z-10 flex flex-col md:flex-row gap-6 md:gap-12">
         <ProfileSidebar
           user={data.profile || authUser}
           petTypes={data.profile?.pet_types || []}

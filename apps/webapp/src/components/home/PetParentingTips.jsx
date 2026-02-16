@@ -34,44 +34,44 @@ const PetParentingTips = ({ blogs = [] }) => {
           }))
         : fallbackTips;
     return (
-        <section className="pt-16 md:pt-20 pb-8 md:pb-12 bg-white border-t border-black/5">
-            <div className="container mx-auto px-4 md:px-8">
+        <section className="pt-10 md:pt-20 pb-6 md:pb-12 bg-white border-t border-black/5">
+            <div className="container mx-auto px-3 md:px-8">
                 {/* Standard Section Header */}
-                <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-10 md:mb-12 gap-4 py-[5px]">
+                <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-6 md:mb-12 gap-3 md:gap-4 py-[5px]">
                     <div>
-                        <h2 className="text-3xl md:text-4xl font-peace-sans font-medium text-black mb-2">
+                        <h2 className="text-2xl md:text-4xl font-peace-sans font-medium text-black mb-1 md:mb-2">
                             Pet Parenting Tips
                         </h2>
-                        <p className="text-black/60 text-base md:text-lg font-light">
+                        <p className="text-black/60 text-sm md:text-lg font-light">
                             Expert advice for happier, healthier pets.
                         </p>
                     </div>
-                    <Link to="/blog" className="group flex items-center gap-2 text-black font-medium border-b border-black/20 pb-1 hover:border-black transition-all text-sm md:text-base whitespace-nowrap">
-                        View All Articles
+                    <Link to="/blog" className="group flex items-center gap-2 text-black font-medium border-b border-black/20 pb-0.5 hover:border-black transition-all text-sm whitespace-nowrap hidden md:flex">
+                        View All
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </div>
 
-                <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-none scroll-pl-4">
+                <div className="flex md:grid md:grid-cols-3 gap-3 md:gap-8 overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x scroll-pl-2 -mx-3 px-3 md:mx-0 md:px-0">
                     {displayTips.map((tip, index) => (
-                        <Link to={tip.slug} key={index} className="group flex-none w-[80vw] md:w-auto">
-                            <div className="aspect-[3/2] overflow-hidden rounded-2xl md:rounded-3xl mb-4 md:mb-6">
+                        <Link to={tip.slug} key={index} className="group flex-none w-[75vw] md:w-auto">
+                            <div className="aspect-[3/2] overflow-hidden rounded-xl md:rounded-3xl mb-3 md:mb-6">
                                 <img
                                     src={tip.image}
                                     alt={tip.title}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
                             </div>
-                            <h3 className="text-xl md:text-2xl font-serif font-medium text-black mb-2 md:mb-3 group-hover:text-furco-brown transition-colors">{tip.title}</h3>
-                            <p className="text-black/60 mb-3 md:mb-4 leading-relaxed text-sm md:text-base">{tip.desc}</p>
-                            <span className="text-sm font-bold text-black border-b border-black/20 pb-1 group-hover:border-black transition-all inline-block">Read Article</span>
+                            <h3 className="text-base md:text-2xl font-serif font-medium text-black mb-1 md:mb-3 group-hover:text-furco-brown transition-colors line-clamp-2">{tip.title}</h3>
+                            <p className="text-black/60 mb-2 md:mb-4 leading-relaxed text-xs md:text-base line-clamp-2">{tip.desc}</p>
+                            <span className="text-xs md:text-sm font-medium text-black border-b border-black/20 pb-0.5 group-hover:border-black transition-all inline-block">Read More</span>
                         </Link>
                     ))}
                 </div>
                 {/* Mobile View All Link */}
                 <div className="md:hidden mt-4 text-center">
                     <Link to="/blog" className="inline-flex items-center gap-2 text-black font-medium hover:text-furco-gold transition-colors text-sm">
-                        Read Our Blog <ArrowRight className="w-4 h-4" />
+                        View All Articles <ArrowRight className="w-4 h-4" />
                     </Link>
                 </div>
             </div>

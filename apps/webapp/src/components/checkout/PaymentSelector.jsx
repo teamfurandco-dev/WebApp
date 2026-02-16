@@ -1,4 +1,4 @@
-import { CreditCard, Smartphone, Landmark, Truck } from 'lucide-react';
+import { CreditCard, Smartphone, Landmark } from 'lucide-react';
 import { cn } from '@fur-co/utils';
 
 const PAYMENT_METHODS = [
@@ -23,14 +23,6 @@ const PAYMENT_METHODS = [
         label: 'Net Banking',
         description: 'All Indian Banks',
         icon: Landmark,
-        color: 'bg-black text-[#ffcc00]',
-        accent: '#ffcc00'
-    },
-    {
-        id: 'cod',
-        label: 'COD',
-        description: 'Cash on Delivery',
-        icon: Truck,
         color: 'bg-black text-[#ffcc00]',
         accent: '#ffcc00'
     }

@@ -1,20 +1,21 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ShoppingCart, Heart, Bone } from 'lucide-react';
+import { ShoppingCart, Heart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { formatPrice, cn } from '@fur-co/utils';
 import { useWishlist } from '@/context/WishlistContext';
-import { api } from '@/services/api';
+import { useCart } from '@/context/CartContext';
 import { toast } from 'sonner';
 
 const ProductCard = ({ product }) => {
-  const { isInWishlist, toggleWishlist } = useWishlist();
-  const isWishlisted = isInWishlist(product.id);
   const [isAdding, setIsAdding] = useState(false);
   const [searchParams] = useSearchParams();
+  const { addToCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const isWishlisted = product ? isInWishlist(product.id) : false;
   const unlimitedSource = searchParams.get('source');
 
   const productUrl = unlimitedSource === 'unlimited'
@@ -27,7 +28,6 @@ const ProductCard = ({ product }) => {
 
     setIsAdding(true);
     try {
-      // For quick-add, we assume the first variant if multiple exist
       const variantId = product.variants?.[0]?.id;
 
       if (!variantId) {
@@ -35,7 +35,7 @@ const ProductCard = ({ product }) => {
         return;
       }
 
-      await api.addToCart(product.id, variantId, 1);
+      await addToCart(product.id, variantId, 1);
       toast.success(`Added ${product.name} to cart`);
     } catch (error) {
       console.error('Add to cart failed:', error);
@@ -53,18 +53,18 @@ const ProductCard = ({ product }) => {
       transition={{ duration: 0.5 }}
       className="h-full"
     >
-      <Card className="h-full flex flex-col overflow-hidden group border border-black/[0.03] shadow-none hover:shadow-2xl transition-all duration-700 rounded-[2.5rem] bg-white relative">
+      <Card className="h-full flex flex-col overflow-hidden group border border-black/[0.03] shadow-none hover:shadow-xl transition-all duration-700 rounded-2xl md:rounded-[2.5rem] bg-white relative">
 
         {/* Optional: Subtle Label instead of speech bubble */}
-        <div className="absolute top-6 left-6 z-20">
+        <div className="absolute top-3 left-3 md:top-6 md:left-6 z-20">
           {(product.isNew || product.is_featured) && (
-            <div className="bg-furco-yellow text-black px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] rounded-full shadow-sm">
+            <div className="bg-furco-yellow text-black px-2 py-0.5 md:px-3 md:py-1 text-[9px] md:text-[10px] font-semibold uppercase tracking-[0.1em] rounded-full shadow-sm">
               {product.isNew ? 'New' : 'Featured'}
             </div>
           )}
         </div>
 
-        {/* Wishlist Button */}
+        {/* Wishlist Button - Always visible on mobile */}
         <button
           onClick={(e) => {
             e.preventDefault();
@@ -73,14 +73,14 @@ const ProductCard = ({ product }) => {
             toggleWishlist(product.id, variantId);
           }}
           className={cn(
-            "absolute top-4 right-4 z-20 p-2.5 rounded-full bg-white/90 backdrop-blur-md transition-all duration-300 shadow-sm",
+            "absolute top-2 right-2 md:top-4 md:right-4 z-20 p-1.5 md:p-2.5 rounded-full bg-white/90 backdrop-blur-md transition-all duration-300 shadow-sm",
             isWishlisted
               ? "text-red-500 opacity-100 scale-110 shadow-md"
-              : "opacity-0 md:group-hover:opacity-100 md:translate-y-2 group-hover:translate-y-0 hover:bg-furco-yellow text-black"
+              : "opacity-100 md:opacity-0 md:group-hover:opacity-100 md:translate-y-2 group-hover:translate-y-0 hover:bg-furco-yellow text-black"
           )}
           style={{ mixBlendMode: 'normal' }}
         >
-          <Heart className={cn("w-5 h-5 transition-transform duration-300", isWishlisted && "fill-current scale-110")} />
+          <Heart className={cn("w-4 h-4 md:w-5 md:h-5 transition-transform duration-300", isWishlisted && "fill-current scale-110")} />
         </button>
 
         {/* Image Container with "Second Look" Effect */}
@@ -101,37 +101,41 @@ const ProductCard = ({ product }) => {
         </Link>
 
         {/* Content */}
-        <CardContent className="flex-1 p-6 flex flex-col space-y-1">
-          <span className="text-[10px] text-black/40 font-semibold uppercase tracking-widest">{product.category || 'Pet Care'}</span>
+        <CardContent className="flex-1 p-3 md:p-6 flex flex-col space-y-1">
+          <span className="text-[9px] md:text-[10px] text-black/40 font-medium uppercase tracking-widest">{product.category || 'Pet Care'}</span>
 
-          <Link to={productUrl} className="mb-2 block">
-            <h3 className="font-medium text-lg leading-tight text-black group-hover:text-furco-gold transition-colors line-clamp-2">
+          <Link to={productUrl} className="mb-1 md:mb-2 block">
+            <h3 className="font-normal text-sm md:text-base leading-tight text-black group-hover:text-furco-gold transition-colors">
               {product.name}
             </h3>
           </Link>
 
           <div className="flex flex-col">
             {product.compare_at_price_cents > product.base_price_cents && (
-              <span className="text-sm text-black/20 line-through font-semibold">
+              <span className="text-xs md:text-sm text-black/30 line-through font-normal">
                 {formatPrice(product.compare_at_price_cents)}
               </span>
             )}
-            <span className="text-lg font-bold text-black">
+            <span className="text-base md:text-lg font-medium text-black">
               {formatPrice(product.base_price_cents)}
             </span>
           </div>
 
-          {/* Add to Cart - Minimal Icon */}
+          {/* Add to Cart - Always visible on mobile */}
           {unlimitedSource !== 'unlimited' && (
             <button
               disabled={isAdding}
               onClick={handleAddToCart}
-              className="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-furco-yellow text-black disabled:opacity-50"
+              className="w-full md:w-10 md:absolute md:bottom-3 md:right-3 h-9 md:h-10 rounded-full bg-black/5 flex items-center justify-center md:justify-center gap-2 md:gap-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-furco-yellow text-black disabled:opacity-50 mt-1 md:mt-0 px-3 md:px-0"
             >
               {isAdding ? (
                 <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
               ) : (
-                <ShoppingCart className="w-4 h-4" />
+                <>
+                  <ShoppingCart className="w-4 h-4 md:hidden" />
+                  <span className="text-xs font-medium md:hidden">Add to Cart</span>
+                  <ShoppingCart className="w-4 h-4 hidden md:block" />
+                </>
               )}
             </button>
           )}
