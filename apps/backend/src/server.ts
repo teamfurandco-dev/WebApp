@@ -95,20 +95,7 @@ const start = async () => {
     });
 
     await fastify.register(cors, {
-      origin: (origin, cb) => {
-        // In development, we allow all origins by echoing them back
-        if (config.nodeEnv === 'development') {
-          cb(null, true);
-          return;
-        }
-
-        const allowedOrigins = config.cors.origin;
-        if (!origin || allowedOrigins.includes(origin)) {
-          cb(null, true);
-          return;
-        }
-        cb(new Error('Not allowed by CORS'), false);
-      },
+      origin: true,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Cache-Control', 'Pragma'],
