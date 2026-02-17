@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, FastifyReply } from 'fastify';
 import { paymentService } from './service.js';
 import { authenticate } from '../../shared/middleware/auth.js';
 import { success } from '../../shared/utils/response.js';
@@ -58,7 +58,7 @@ export async function paymentRoutes(fastify: FastifyInstance) {
       }
     },
     preHandler: authenticate
-  }, async (request: any, reply) => {
+  }, async (request: any, reply: FastifyReply) => {
     console.log('[Payment Route] Creating order for user:', request.user.id);
     const userId = request.user.id;
     const data = createPaymentOrderSchema.parse(request.body);
@@ -76,7 +76,7 @@ export async function paymentRoutes(fastify: FastifyInstance) {
     } catch (error: any) {
       console.log('[Payment Route] Error:', error.message);
       request.log.error(error);
-      return reply.status(500).send({
+      return reply.code(500 as any).send({
         success: false,
         error: {
           code: 'PAYMENT_ERROR',
@@ -108,7 +108,7 @@ export async function paymentRoutes(fastify: FastifyInstance) {
       }
     },
     preHandler: authenticate
-  }, async (request: any, reply) => {
+  }, async (request: any, reply: FastifyReply) => {
     const userId = request.user.id;
     const data = verifyPaymentSchema.parse(request.body);
 
@@ -125,7 +125,7 @@ export async function paymentRoutes(fastify: FastifyInstance) {
 
       return success(result);
     } catch (error: any) {
-      return reply.code(400).send({
+      return reply.code(400 as any).send({
         success: false,
         error: {
           message: error.message || 'Payment verification failed',

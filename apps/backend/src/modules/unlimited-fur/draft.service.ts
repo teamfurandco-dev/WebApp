@@ -89,6 +89,10 @@ export class DraftService {
       include: { products: true }
     });
 
+    if (!draft) {
+      return { budget: 0, spent: 0, remaining: 0, canAddMore: false };
+    }
+
     const spent = draft.products.reduce((sum, p) => sum + (p.lockedPrice * p.quantity), 0);
     return {
       budget: draft.budget,

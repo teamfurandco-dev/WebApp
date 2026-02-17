@@ -8,9 +8,9 @@ export async function profileRoutes(fastify: FastifyInstance) {
   // GET /profile/dashboard - Consolidated profile data
   fastify.get('/profile/dashboard', {
     onRequest: [authenticate],
-  }, async (request) => {
-    const userId = request.user.id;
-    const email = request.user.email;
+  }, async (request: any) => {
+    const userId = request.user!.id;
+    const email = request.user!.email;
 
     // Fetch profile data first
     const profileData = await prisma.user.findUnique({
@@ -28,8 +28,8 @@ export async function profileRoutes(fastify: FastifyInstance) {
     } : null;
 
     // Fetch other data pieces with individual safety
-    let orders = [];
-    let addresses = [];
+    let orders: any[] = [];
+    let addresses: any[] = [];
     let stats = { totalOrders: 0, totalSpent: 0, reviewsWritten: 0, wishlistItems: 0 };
 
     try {

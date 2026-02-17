@@ -46,7 +46,7 @@ export async function homeRoutes(fastify: FastifyInstance) {
       });
     } catch (error) {
       return success({
-        error: error.message,
+        error: (error as Error).message,
         message: 'Database connection failed'
       });
     }
@@ -115,7 +115,7 @@ export async function homeRoutes(fastify: FastifyInstance) {
         featuredProducts: [],
         categories: [],
         featuredBlogs: [],
-        error: error.message
+        error: (error as Error).message
       });
     }
   });

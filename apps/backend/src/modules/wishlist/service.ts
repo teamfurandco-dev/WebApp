@@ -102,9 +102,9 @@ export class WishlistService {
                 userId_productId_variantId: {
                     userId,
                     productId,
-                    variantId: variantId ?? null,
+                    variantId: variantId as any,
                 },
-            },
+            } as any,
         });
 
         if (existing) {
@@ -112,7 +112,7 @@ export class WishlistService {
         }
 
         return prisma.wishlistItem.create({
-            data: { userId, productId, variantId },
+            data: { userId, productId, variantId: variantId as any },
             include: {
                 product: {
                     include: {
@@ -150,9 +150,9 @@ export class WishlistService {
                 userId_productId_variantId: {
                     userId,
                     productId,
-                    variantId: variantId ?? null,
+                    variantId: variantId as any,
                 },
-            },
+            } as any,
         });
 
         return !!item;

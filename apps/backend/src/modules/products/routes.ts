@@ -184,11 +184,9 @@ export async function productRoutes(fastify: FastifyInstance) {
             take: 1
           }
         },
-        orderBy: query.sort === 'price-low' ? { variants: { _min: { price: 'asc' } } } :
-          query.sort === 'price-high' ? { variants: { _min: { price: 'desc' } } } :
-            query.sort === 'rating' ? { averageRating: 'desc' } :
-              query.sort === 'featured' ? { isFeatured: 'desc' } :
-                { createdAt: 'desc' },
+        orderBy: query.sort === 'rating' ? { averageRating: 'desc' } :
+          query.sort === 'featured' ? { isFeatured: 'desc' } :
+            { createdAt: 'desc' },
         skip,
         take: limit
       }),
@@ -212,11 +210,11 @@ export async function productRoutes(fastify: FastifyInstance) {
     ]);
 
     return success({
-      products: products.map(p => ({
+      products: products.map((p: any) => ({
         id: p.id,
         name: p.name,
         slug: p.slug,
-        images: p.images.map(img => getPublicUrl('product-images', img.filePath)),
+        images: p.images.map((img: any) => getPublicUrl('product-images', img.filePath)),
         rating: p.averageRating,
         reviewCount: p.reviewCount,
         isFeatured: p.isFeatured,
@@ -319,7 +317,7 @@ export async function productRoutes(fastify: FastifyInstance) {
     });
 
     if (!product) {
-      return reply.code(404).send({ success: false, error: { message: 'Product not found' } });
+      return reply.code(404 as any).send({ success: false, error: { message: 'Product not found' } });
     }
 
     // Parallel queries for all product detail data
@@ -400,6 +398,7 @@ export async function productRoutes(fastify: FastifyInstance) {
           slug: true,
           images: true,
           averageRating: true,
+          reviewCount: true,
           variants: {
             select: { price: true },
             orderBy: { price: 'asc' },
@@ -411,10 +410,11 @@ export async function productRoutes(fastify: FastifyInstance) {
     ]);
 
     // Process review summary
-    const ratingBreakdown = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    const ratingBreakdown: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     let totalReviews = 0;
     reviewSummary.forEach(r => {
-      ratingBreakdown[r.rating] = r._count.rating;
+      const rating = r.rating as keyof typeof ratingBreakdown;
+      ratingBreakdown[rating] = r._count.rating;
       totalReviews += r._count.rating;
     });
 
@@ -474,11 +474,11 @@ export async function productRoutes(fastify: FastifyInstance) {
           user_name: a.user?.name || 'Fur & Co Support'
         }))
       })),
-      relatedProducts: relatedProducts.map(p => ({
+      relatedProducts: relatedProducts.map((p: any) => ({
         id: p.id,
         name: p.name,
         slug: p.slug,
-        images: p.images.map(img => getPublicUrl('product-images', img.filePath)),
+        images: p.images.map((img: any) => getPublicUrl('product-images', img.filePath)),
         rating: p.averageRating,
         reviewCount: p.reviewCount,
         category: product.category?.name,

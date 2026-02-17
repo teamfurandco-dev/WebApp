@@ -31,7 +31,7 @@ export class CartService {
     // Calculate totals
     let subtotal = 0;
     let totalItems = 0;
-    const stockWarnings = [];
+    const stockWarnings: Array<{itemId: string; productName: string; variantName: string; requested: number; available: number}> = [];
 
     const items = cartItems.map(item => {
       const itemTotal = item.variant.price * item.quantity;
@@ -126,7 +126,7 @@ export class CartService {
       orderBy: { createdAt: 'desc' },
     });
 
-    const items = cartItems.map(item => this.transformCartItem(item));
+    const items = cartItems.map(item => this.transformCartItem(item)).filter((item): item is NonNullable<typeof item> => item !== null);
     const total = items.reduce((sum, item) => sum + (item.variant.price_cents * item.quantity), 0);
 
     return {
@@ -284,13 +284,13 @@ export class CartService {
    */
   async getCartSummary(userId: string) {
     const { items, total } = await this.getCart(userId);
-
-    const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+    const validItems = items.filter((item): item is NonNullable<typeof item> => item !== null);
+    const totalItems = validItems.reduce((sum, item) => sum + item.quantity, 0);
 
     return {
       totalItems,
       subtotal: total,
-      itemsCount: items.length,
+      itemsCount: validItems.length,
     };
   }
 
