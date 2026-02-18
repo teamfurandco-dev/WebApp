@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import BlogForm from '../components/BlogForm';
+import Loading from '../components/Loading';
 
 export default function Blogs() {
     const [blogs, setBlogs] = useState([]);
@@ -92,11 +93,7 @@ export default function Blogs() {
     );
 
     if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <div className="text-lg">Loading blogs...</div>
-            </div>
-        );
+        return <Loading text="Loading blogs..." />;
     }
 
     if (showAddForm || editingBlog) {
@@ -122,59 +119,62 @@ export default function Blogs() {
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">Blogs</h1>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">Blogs</h1>
+                    <p className="text-gray-500 mt-1">Manage your blog posts</p>
+                </div>
                 <button
                     onClick={() => setShowAddForm(true)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
+                    className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-5 py-2.5 rounded-xl hover:from-amber-600 hover:to-yellow-600 focus:ring-2 focus:ring-amber-500/50 font-medium shadow-md transition-all"
                 >
-                    Add Blog
+                    + Add Blog
                 </button>
             </div>
 
-            <div className="flex items-center space-x-4 mb-6">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-6">
                 <input
                     type="text"
                     placeholder="Search blogs..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
                 />
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 bg-gray-100 px-4 py-2 rounded-xl">
                     {filteredBlogs.length} blogs
                 </span>
             </div>
 
             {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4">
                     {error}
                 </div>
             )}
 
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-100">
+                    <thead className="bg-gray-50/50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                 Blog
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                 Author
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                 Status
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                 Date
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                 Actions
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white divide-y divide-gray-100">
                         {filteredBlogs.map((blog) => (
-                            <tr key={blog.id} className="hover:bg-gray-50">
+                            <tr key={blog.id} className="hover:bg-gray-50/80 transition-colors">
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="flex items-center">
                                         <div className="flex-shrink-0 h-16 w-16">
@@ -182,16 +182,16 @@ export default function Blogs() {
                                                 <img
                                                     src={blog.coverImageUrl}
                                                     alt={blog.title}
-                                                    className="h-16 w-16 rounded-lg object-cover"
+                                                    className="h-16 w-16 rounded-xl object-cover shadow-sm"
                                                 />
                                             ) : (
-                                                <div className="h-16 w-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                                                <div className="h-16 w-16 bg-gray-100 rounded-xl flex items-center justify-center">
                                                     <span className="text-gray-400 text-xs">No Cover</span>
                                                 </div>
                                             )}
                                         </div>
                                         <div className="ml-4">
-                                            <div className="text-sm font-medium text-gray-900">
+                                            <div className="text-sm font-semibold text-gray-900">
                                                 {blog.title}
                                             </div>
                                             <div className="text-xs text-gray-500">
@@ -200,15 +200,15 @@ export default function Blogs() {
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                     {blog.author?.name || 'Anonymous'}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <button
                                         onClick={() => toggleBlogStatus(blog.id, blog.publishStatus)}
-                                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${blog.publishStatus === 'published'
-                                                ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                                                : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                                        className={`inline-flex px-3 py-1.5 text-xs font-semibold rounded-full transition-colors ${blog.publishStatus === 'published'
+                                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
                                             }`}
                                     >
                                         {blog.publishStatus === 'published' ? 'Published' : 'Draft'}
@@ -217,19 +217,21 @@ export default function Blogs() {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString() : 'N/A'}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    <button
-                                        onClick={() => setEditingBlog(blog)}
-                                        className="text-blue-600 hover:text-blue-900"
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        onClick={() => deleteBlog(blog.id)}
-                                        className="text-red-600 hover:text-red-900"
-                                    >
-                                        Delete
-                                    </button>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => setEditingBlog(blog)}
+                                            className="text-amber-600 hover:text-amber-800 hover:bg-amber-50 px-3 py-1.5 rounded-lg transition-colors"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => deleteBlog(blog.id)}
+                                            className="text-red-600 hover:text-red-800 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -237,8 +239,8 @@ export default function Blogs() {
                 </table>
 
                 {filteredBlogs.length === 0 && (
-                    <div className="text-center py-12">
-                        <div className="text-gray-500">
+                    <div className="text-center py-16">
+                        <div className="text-gray-400 text-lg mb-2">
                             {searchTerm
                                 ? 'No blogs found matching your search.'
                                 : 'No blogs found. Add your first blog!'}

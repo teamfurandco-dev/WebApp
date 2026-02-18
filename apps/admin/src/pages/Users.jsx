@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import Loading from '../components/Loading';
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -63,69 +64,69 @@ export default function Users() {
   );
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Loading users...</div>
-      </div>
-    );
+    return <Loading text="Loading users..." />;
   }
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Users</h1>
-        <div className="flex items-center space-x-4">
-          <input
-            type="text"
-            placeholder="Search users..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <span className="text-sm text-gray-500">
-            {filteredUsers.length} users
-          </span>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Users</h1>
+          <p className="text-gray-500 mt-1">Manage registered users</p>
         </div>
       </div>
 
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Search users..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
+        />
+        <span className="text-sm text-gray-500 bg-gray-100 px-4 py-2 rounded-xl">
+          {filteredUsers.length} users
+        </span>
+      </div>
+
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4">
           {error}
         </div>
       )}
 
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-100">
+          <thead className="bg-gray-50/50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 User
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Role
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Created
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-gray-100">
             {filteredUsers.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
+              <tr key={user.id} className="hover:bg-gray-50/80 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">
-                      <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-sm font-medium text-gray-700">
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-100 to-yellow-100 flex items-center justify-center">
+                        <span className="text-sm font-semibold text-amber-600">
                           {user.name?.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase()}
                         </span>
                       </div>
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-semibold text-gray-900">
                         {user.name || 'No name'}
                       </div>
                       <div className="text-sm text-gray-500">
@@ -135,10 +136,10 @@ export default function Users() {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                  <span className={`inline-flex px-3 py-1.5 text-xs font-semibold rounded-full ${
                     user.role?.toLowerCase() === 'admin' 
-                      ? 'bg-red-100 text-red-800' 
-                      : 'bg-green-100 text-green-800'
+                      ? 'bg-red-100 text-red-700' 
+                      : 'bg-green-100 text-green-700'
                   }`}>
                     {user.role || 'customer'}
                   </span>
@@ -150,7 +151,7 @@ export default function Users() {
                   <select
                     value={user.role || 'customer'}
                     onChange={(e) => updateUserRole(user.id, e.target.value)}
-                    className="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all bg-white"
                   >
                     <option value="customer">Customer</option>
                     <option value="admin">Admin</option>
@@ -162,8 +163,8 @@ export default function Users() {
         </table>
 
         {filteredUsers.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-500">
+          <div className="text-center py-16">
+            <div className="text-gray-400 text-lg">
               {searchTerm ? 'No users found matching your search.' : 'No users found.'}
             </div>
           </div>

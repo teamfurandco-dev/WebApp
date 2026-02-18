@@ -9,6 +9,7 @@ import Blogs from './pages/Blogs';
 import Orders from './pages/Orders';
 import Subscriptions from './pages/Subscriptions';
 import Users from './pages/Users';
+import Loading from './components/Loading';
 
 function AppContent() {
   const { user, isAdmin, loading } = useAuth();
@@ -24,11 +25,7 @@ function AppContent() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <Loading text="Loading..." />;
   }
 
   if (!user || !isAdmin) {

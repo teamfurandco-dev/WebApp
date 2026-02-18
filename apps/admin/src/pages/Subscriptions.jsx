@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { RefreshCw, User, Package, Calendar, Tag, ChevronRight, X } from 'lucide-react';
+import Loading from '../components/Loading';
 
 export default function Subscriptions() {
     const [subscriptions, setSubscriptions] = useState([]);
@@ -50,12 +51,12 @@ export default function Subscriptions() {
 
     const getStatusColor = (status) => {
         const colors = {
-            active: 'bg-green-100 text-green-800 border-green-200',
-            paused: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-            cancelled: 'bg-red-100 text-red-800 border-red-200',
-            draft: 'bg-gray-100 text-gray-800 border-gray-200'
+            active: 'bg-green-100 text-green-700 border-green-200',
+            paused: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+            cancelled: 'bg-red-100 text-red-700 border-red-200',
+            draft: 'bg-gray-100 text-gray-700 border-gray-200'
         };
-        return colors[status] || 'bg-gray-100 text-gray-800';
+        return colors[status] || 'bg-gray-100 text-gray-700';
     };
 
     const formatCurrency = (amount) => {
@@ -66,43 +67,39 @@ export default function Subscriptions() {
     };
 
     if (loading && subscriptions.length === 0) {
-        return (
-            <div className="flex flex-col items-center justify-center h-64 space-y-4">
-                <RefreshCw className="w-8 h-8 animate-spin text-furco-yellow" />
-                <div className="text-lg font-medium text-gray-500">Loading subscriptions...</div>
-            </div>
-        );
+        return <Loading text="Loading subscriptions..." />;
     }
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 font-peace-sans">Subscriptions</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">Subscriptions</h1>
                     <p className="text-gray-500 mt-1">Manage Unlimited Fur monthly plans</p>
                 </div>
-                <div className="flex items-center space-x-4">
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-furco-yellow focus:border-transparent outline-none"
-                    >
-                        <option value="all">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="paused">Paused</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="draft">Draft</option>
-                    </select>
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Search by email or name..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-furco-yellow focus:border-transparent outline-none w-64"
-                        />
-                        <User className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
-                    </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
+                >
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="paused">Paused</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="draft">Draft</option>
+                </select>
+                <div className="relative flex-1">
+                    <input
+                        type="text"
+                        placeholder="Search by email or name..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all w-full"
+                    />
+                    <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                 </div>
             </div>
 
@@ -113,37 +110,37 @@ export default function Subscriptions() {
                 </div>
             )}
 
-            <div className="bg-white shadow-sm border border-gray-100 rounded-2xl overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-100">
+                    <thead className="bg-gray-50/50">
                         <tr>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">User</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Pet / Budget</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Next Billing</th>
-                            <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Pet / Budget</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Next Billing</th>
+                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white divide-y divide-gray-100">
                         {filteredSubscriptions.map((sub) => (
-                            <tr key={sub.id} className="hover:bg-gray-50 transition-colors">
+                            <tr key={sub.id} className="hover:bg-gray-50/80 transition-colors">
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="flex items-center">
-                                        <div className="w-10 h-10 rounded-full bg-furco-yellow/10 flex items-center justify-center text-furco-yellow font-bold mr-3">
+                                        <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 font-bold mr-3">
                                             {sub.user?.name?.[0] || sub.user?.email?.[0]?.toUpperCase()}
                                         </div>
                                         <div>
-                                            <div className="text-sm font-bold text-gray-900">{sub.user?.name || 'Anonymous'}</div>
+                                            <div className="text-sm font-semibold text-gray-900">{sub.user?.name || 'Anonymous'}</div>
                                             <div className="text-xs text-gray-500">{sub.user?.email}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm font-bold text-gray-900 capitalize">{sub.petType} Pack</div>
+                                    <div className="text-sm font-medium text-gray-900 capitalize">{sub.petType} Pack</div>
                                     <div className="text-xs text-gray-500">{formatCurrency(sub.monthlyBudget)}/mo</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`inline-flex px-3 py-1 text-xs font-bold rounded-full border ${getStatusColor(sub.planStatus)}`}>
+                                    <span className={`inline-flex px-3 py-1.5 text-xs font-semibold rounded-full border ${getStatusColor(sub.planStatus)}`}>
                                         {sub.planStatus.toUpperCase()}
                                     </span>
                                 </td>
