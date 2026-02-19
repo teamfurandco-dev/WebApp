@@ -27,7 +27,7 @@ export const createProductSchema = z.object({
   // Unlimited Fur Configuration
   unlimitedFurEligible: z.boolean().default(false),
   unlimitedFurPetTypes: z.array(z.string()).default([]),
-  unlimitedFurMinBudget: z.number().optional(),
+  unlimitedFurMinBudget: z.number().nullable().optional(),
 
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
@@ -55,7 +55,7 @@ export const createVariantSchema = z.object({
   color: z.string().optional(),
   weight: z.string().optional(),
   price: z.number().int().positive(),
-  compareAtPrice: z.number().int().positive().optional(),
+  compareAtPrice: z.number().int().positive().nullable().optional(),
   stock: z.number().int().min(0).default(0),
   isActive: z.boolean().default(true),
   displayOrder: z.number().default(0),

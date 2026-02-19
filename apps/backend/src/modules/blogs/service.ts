@@ -106,6 +106,17 @@ export class BlogService {
         .replace(/(^-|-$)/g, '');
     }
 
+    // Use default author (Fur&Co) if no authorId provided
+    if (!blogData.authorId) {
+      const defaultAuthor = await prisma.user.findFirst({
+        where: { role: 'admin' },
+        orderBy: { createdAt: 'asc' }
+      });
+      if (defaultAuthor) {
+        blogData.authorId = defaultAuthor.id;
+      }
+    }
+
     return prisma.blog.create({
       data: {
         ...blogData,

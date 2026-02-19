@@ -19,7 +19,7 @@ export const createBlogSchema = z.object({
   coverBucketName: z.string().optional(),
   coverFilePath: z.string().optional(),
   coverAltText: z.string().optional(),
-  authorId: z.string().uuid(),
+  authorId: z.string().uuid().optional(),
   publishStatus: z.enum(['draft', 'published']).default('draft'),
   publishedAt: z.string().datetime().optional(),
   isFeatured: z.boolean().default(false),

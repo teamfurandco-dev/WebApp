@@ -330,7 +330,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
     specifications: product?.specifications || '',
   });
 
-  const [variants, setVariants] = useState(product?.variants || [{ name: '', price: '', stock: '', sku: '' }]);
+  const [variants, setVariants] = useState(product?.variants?.map(v => ({ ...v, compareAtPrice: v.compareAtPrice || '' })) || [{ name: '', price: '', stock: '', sku: '', compareAtPrice: '' }]);
   const [images, setImages] = useState(product?.images || []);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -422,12 +422,13 @@ function ProductForm({ product, categories, onSave, onCancel }) {
         ...formData,
         tags: typeof formData.tags === 'string' ? formData.tags.split(',').map(tag => tag.trim()).filter(Boolean) : formData.tags,
         unlimitedFurPetTypes: typeof formData.unlimitedFurPetTypes === 'string' ? formData.unlimitedFurPetTypes.split(',').map(t => t.trim()).filter(Boolean) : formData.unlimitedFurPetTypes,
-        unlimitedFurMinBudget: formData.unlimitedFurMinBudget ? Math.round(parseFloat(formData.unlimitedFurMinBudget) * 100) : null,
+        unlimitedFurMinBudget: formData.unlimitedFurEligible && formData.unlimitedFurMinBudget ? Math.round(parseFloat(formData.unlimitedFurMinBudget) * 100) : null,
         variants: variants
           .filter(v => v.name && v.price)
           .map(v => ({
             ...v,
             price: typeof v.price === 'string' ? parseFloat(v.price) : v.price,
+            compareAtPrice: v.compareAtPrice ? (typeof v.compareAtPrice === 'string' ? parseFloat(v.compareAtPrice) : v.compareAtPrice) : null,
             stock: typeof v.stock === 'string' ? parseInt(v.stock) : v.stock
           })),
         images: images
@@ -759,38 +760,40 @@ function ProductForm({ product, categories, onSave, onCancel }) {
                 <input
                   type="checkbox"
                   checked={formData.unlimitedFurEligible}
-                  onChange={(e) => setFormData({ ...formData, unlimitedFurEligible: e.target.checked })}
+                  onChange={(e) => setFormData({ ...formData, unlimitedFurEligible: e.target.checked, unlimitedFurMinBudget: e.target.checked ? formData.unlimitedFurMinBudget : '' })}
                   className="w-5 h-5 text-amber-600 rounded border-gray-300 focus:ring-amber-500"
                 />
                 <span className="text-sm font-medium text-gray-700">Eligible for Unlimited Fur</span>
               </label>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Pet Types (e.g. dog, cat)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.unlimitedFurPetTypes}
-                    onChange={(e) => setFormData({ ...formData, unlimitedFurPetTypes: e.target.value })}
-                    placeholder="dog, cat"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
-                  />
+              {formData.unlimitedFurEligible && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Pet Types (e.g. dog, cat)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.unlimitedFurPetTypes}
+                      onChange={(e) => setFormData({ ...formData, unlimitedFurPetTypes: e.target.value })}
+                      placeholder="dog, cat"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Min Budget (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.unlimitedFurMinBudget}
+                      onChange={(e) => setFormData({ ...formData, unlimitedFurMinBudget: e.target.value })}
+                      placeholder="500"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Min Budget (₹)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.unlimitedFurMinBudget}
-                    onChange={(e) => setFormData({ ...formData, unlimitedFurMinBudget: e.target.value })}
-                    placeholder="500"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
-                  />
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -873,6 +876,15 @@ function ProductForm({ product, categories, onSave, onCancel }) {
                     required
                     value={variant.price}
                     onChange={(e) => updateVariant(index, 'price', e.target.value)}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Compare Price (₹)</label>
+                  <input
+                    type="number"
+                    value={variant.compareAtPrice || ''}
+                    onChange={(e) => updateVariant(index, 'compareAtPrice', e.target.value)}
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
                   />
                 </div>
