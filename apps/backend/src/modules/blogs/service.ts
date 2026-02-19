@@ -230,9 +230,9 @@ export class BlogService {
       };
     }
 
-    // Add cover image URL if exists
-    if (blog.coverBucketName && blog.coverFilePath) {
-      transformed.coverImageUrl = getPublicUrl(blog.coverBucketName, blog.coverFilePath);
+    // Add cover image URL if exists (use coverImage for frontend compatibility)
+    if (blog.coverFilePath) {
+      transformed.coverImage = getPublicUrl(blog.coverBucketName || 'blog-images', blog.coverFilePath);
     }
 
     return transformed;
