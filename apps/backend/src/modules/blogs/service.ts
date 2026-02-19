@@ -232,7 +232,7 @@ export class BlogService {
 
     // Add cover image URL if exists (use coverImage for frontend compatibility)
     if (blog.coverFilePath) {
-      transformed.coverImage = getPublicUrl(blog.coverBucketName || 'blog-images', blog.coverFilePath);
+      transformed.coverImage = getPublicUrl(blog.coverBucketName || 'blogs-images', blog.coverFilePath);
     }
 
     return transformed;

@@ -79,7 +79,7 @@ export async function blogRoutes(fastify: FastifyInstance) {
         title: b.title,
         slug: b.slug,
         excerpt: b.excerpt,
-        coverImage: b.coverFilePath ? getPublicUrl('blog-images', b.coverFilePath) : null,
+        coverImage: b.coverFilePath ? getPublicUrl('blogs-images', b.coverFilePath) : null,
         publishedAt: b.publishedAt,
         author: b.author?.name,
         category: b.category
@@ -154,7 +154,7 @@ export async function blogRoutes(fastify: FastifyInstance) {
         slug: blog.slug,
         content: blog.content,
         excerpt: blog.excerpt,
-        coverImage: blog.coverFilePath ? getPublicUrl('blog-images', blog.coverFilePath) : null,
+        coverImage: blog.coverFilePath ? getPublicUrl('blogs-images', blog.coverFilePath) : null,
         publishedAt: blog.publishedAt,
         author: {
           id: blog.author?.id,
@@ -167,7 +167,7 @@ export async function blogRoutes(fastify: FastifyInstance) {
         metaDescription: blog.metaDescription,
         images: blog.images.map(img => ({
           id: img.id,
-          url: getPublicUrl('blog-images', img.filePath),
+          url: getPublicUrl('blogs-images', img.filePath),
           altText: img.altText,
           caption: img.caption
         }))
@@ -177,7 +177,7 @@ export async function blogRoutes(fastify: FastifyInstance) {
         title: b.title,
         slug: b.slug,
         excerpt: b.excerpt,
-        coverImage: b.coverFilePath ? getPublicUrl('blog-images', b.coverFilePath) : null,
+        coverImage: b.coverFilePath ? getPublicUrl('blogs-images', b.coverFilePath) : null,
         publishedAt: b.publishedAt
       }))
     });
