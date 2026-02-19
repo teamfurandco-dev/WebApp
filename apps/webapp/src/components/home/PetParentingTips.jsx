@@ -29,7 +29,7 @@ const PetParentingTips = ({ blogs = [] }) => {
         ? blogs.slice(0, 3).map(blog => ({
             title: blog.title,
             desc: blog.excerpt,
-            image: blog.coverImage || fallbackTips[0].image,
+            image: blog.coverImage || blog.coverImageUrl || fallbackTips[0].image,
             slug: `/blog/${blog.slug}`
           }))
         : fallbackTips;

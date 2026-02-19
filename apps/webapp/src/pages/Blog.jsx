@@ -104,7 +104,7 @@ const Blog = () => {
               <div className="mb-8 md:mb-16">
                 <FeaturedPost post={{
                   ...featuredPost,
-                  image: featuredPost.coverImageUrl || featuredPost.images?.[0]?.url || '/mockupImages/Blog.png',
+                  image: featuredPost.coverImage || featuredPost.coverImageUrl || featuredPost.images?.[0]?.url || '/mockupImages/Blog.png',
                   category: featuredPost.category?.name || 'Uncategorized',
                   date: featuredPost.publishedAt ? new Date(featuredPost.publishedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Draft'
                 }} />
@@ -116,7 +116,7 @@ const Blog = () => {
               {otherPosts.map(post => (
                 <BlogCard key={post.id} post={{
                   ...post,
-                  image: post.coverImageUrl || post.images?.[0]?.url || '/mockupImages/Blog.png',
+                  image: post.coverImage || post.coverImageUrl || post.images?.[0]?.url || '/mockupImages/Blog.png',
                   category: post.category?.name || 'Uncategorized',
                   readTime: post.readTime || '5 min read'
                 }} />

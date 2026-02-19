@@ -60,7 +60,7 @@ const BlogPost = () => {
     );
   }
 
-  const coverImage = blog.coverImageUrl || blog.images?.[0]?.url || '/mockupImages/Blog.png';
+  const coverImage = blog.coverImage || blog.coverImageUrl || blog.images?.[0]?.url || '/mockupImages/Blog.png';
   const displayDate = blog.updatedAt ? new Date(blog.updatedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) :
     blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Draft';
 
@@ -181,7 +181,7 @@ const BlogPost = () => {
               {relatedPosts.map(post => (
                 <BlogCard key={post.id} post={{
                   ...post,
-                  image: post.coverImageUrl || post.images?.[0]?.url || '/mockupImages/Blog.png',
+                  image: post.coverImage || post.coverImageUrl || post.images?.[0]?.url || '/mockupImages/Blog.png',
                   category: post.category?.name || 'Uncategorized',
                   readTime: post.readTime || '5 min read'
                 }} />
